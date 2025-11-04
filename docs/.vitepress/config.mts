@@ -3,6 +3,7 @@ import { sidebar, nav } from "./sidebar-nav";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: "/kb/",
   title: "peacepeace",
   titleTemplate: false,
   description: "Rico's knowledge base",
