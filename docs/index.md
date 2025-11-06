@@ -8,11 +8,11 @@ hero:
   tagline: Rico's knowledge base
   actions:
     - theme: brand
-      text: Examples
-      link: /examples/markdown-examples
-    - theme: alt
       text: Vue
-      link: /vue/vue
+      link: /vue/vue-basic
+    - theme: alt
+      text: Other
+      link: /other/git
 
 features:
   - title: Feature A

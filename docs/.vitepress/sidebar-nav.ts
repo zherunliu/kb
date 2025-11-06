@@ -10,11 +10,11 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
     link: "/vue/component-comm",
   },
   {
-    text: "vue-router",
+    text: "Vue Router",
     link: "/vue/vue-router",
   },
   {
-    text: "pinia",
+    text: "Pinia",
     link: "/vue/pinia",
   },
   {
@@ -24,15 +24,13 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
 ];
 
 const sidebar = {
-  "/examples/": [
-    { text: "Markdown Examples", link: "/examples/markdown-examples" },
-  ],
+  "/other/": [{ text: "Git", link: "/other/git" }],
   "/vue/": VUE,
 };
 
 const nav: DefaultTheme.NavItem[] = [
   { text: "Home", link: "/" },
-  { text: "Examples", link: "/examples/markdown-examples" },
+  { text: "Other", link: "/other/git" },
   {
     text: "Vue",
     items: VUE,
