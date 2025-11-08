@@ -14,6 +14,7 @@ pnpm create vite@latest
 
 - Vite 项目中，`index.html` 是项目的入口文件，在项目最外层
 - 加载 `index.html` 后，Vite 解析 `<script type="module" src="xxx">` 指向的 JS/TS 文件
+- `src/main.ts` Vue 应用的入口 JS/TS 文件，导入 `./App.vue` 根组件并创建 App 对象挂载到 index.html，也可以导入全局样式, 全局 api，注册插件
 - Vue 通过 `createApp` 函数创建一个应用实例，`<div id="app"></div>` 是 App 对象的挂载点
 - public 公有目录会被直接 `cp -r` 到 dist 目录下, 不会被 vite 打包
 - src/assets 静态资源目录会被 vite 打包
@@ -24,7 +25,7 @@ pnpm create vite@latest
 
 `setup` 是 Vue3 中一个新的配置项，值是一个函数，用于支持 Composition API ，组件中所用到的：数据、方法、计算属性、监视等，均配置在 `setup` 函数中
 
-特点：
+**特点：**
 
 - `setup` 函数返回的对象中的内容，可直接在模板中使用
 - `setup` 中访问 `this` 是 `undefined`
@@ -167,7 +168,7 @@ const stopWatch = watch(
     watch的第一个参数是：被监视的数据
     watch的第二个参数是：监视的回调
     watch的第三个参数是：配置对象
-      (deep, immediate, flush, once)
+    (deep, immediate, flush, once)
   */
   person,
   (newValue, oldValue) => {
