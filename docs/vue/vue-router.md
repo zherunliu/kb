@@ -67,6 +67,29 @@ app.mount("#app");
 
 :::
 
+`@` 指向 `./src` 目录：
+::: code-group
+
+```ts [vite.config.ts]
+// for vite
+resolve: {
+  alias: {
+    "@": fileURLToPath(new URL("./src", import.meta.url)),
+  },
+},
+```
+
+```json [tsconfig.app.json]
+// for ts
+"compilerOptions": {
+  "paths": {
+    "@/*": ["./src/*"]
+  },
+},
+```
+
+:::
+
 > `<RouterLink to="/where" />` 和 `<a href="/where"></a>` 的区别：
 >
 > - `<RouterLink />` 在 hash 模式和 history 模式下的行为相同
@@ -336,7 +359,7 @@ import { RouterView } from "vue-router";
 
 ## 路由守卫
 
-- 前置守卫函数在 redirect 重定向后, 路由跳转前执行
+- 前置守卫函数在 redirect 重定向后，路由跳转前执行
 - 后置守卫函数在路由跳转后执行
 
 **前置守卫**
@@ -370,8 +393,8 @@ const whitelist: string[] = ["/register", "/login"];
 
 router.beforeEach((to) => {
   if (!whitelist.includes(to.path) && !sessionStorage.getItem("token")) {
-    // 没有返回值: 放行
-    // 有返回值: 重定向
+    // 没有返回值：放行
+    // 有返回值：重定向
     return { name: "login" };
   }
 });
@@ -406,7 +429,7 @@ const routes: Array<RouteRecordRaw> = [
 <template>
   <RouterView v-slot="{ route, Component }">
     <!-- <Transition /> 只允许一个直接子元素
-     <Transition /> 包裹组件时, 组件必须有唯一的根元素, 否则无法应用过渡动画 -->
+     <Transition /> 包裹组件时，组件必须有唯一的根元素，否则无法应用过渡动画 -->
     <Transition
       :enter-active-class="`animate__animated ${route.meta.transition ?? ''}`"
     >
@@ -445,7 +468,7 @@ const router = createRouter({
 
 ## 动态路由
 
-- `router.addRoute()` 动态添加路由, 返回删除该路由的函数
+- `router.addRoute()` 动态添加路由，返回删除该路由的函数
 - `router.removeRoute()` 动态删除路由
 - `router.hasRoute()` 判断路由是否存在
 - `router.getRoutes()` 获取所有路由信息
