@@ -314,3 +314,29 @@ console.log(items, readonlyItems); // ["item"] ["item"]
 - `toRaw` 用于获取一个响应式对象的原始对象， `toRaw` 返回的对象不再是响应式的，不会触发视图更新
 
 - `markRaw`：标记一个对象，使其永远不会变成响应式的
+
+## vue 指令
+
+- v-text 渲染文本字符串，会忽略子节点
+- v-html 渲染 HTML 字符串，会忽略子节点，不支持渲染 Vue 组件
+- v-if，v-else-if，v-else 节点的条件渲染，不渲染则将节点卸载，表现为注释节点，操作 DOM
+- v-show 节点的显示/隐藏: 改变内联 CSS 样式 `display: none`，操作 CSS
+- v-for 遍历元素
+- v-on 简写为 `@`，为元素绑定事件
+- v-bind 简写为 `:`，为元素绑定属性（模型到视图的单向绑定），也可以绑定 style
+- v-model 模型，视图的双向绑定，本质是 v-bind 和 v-on 的语法糖
+- v-once 性能优化，只渲染一次
+- v-memo 性能优化，缓存
+
+```vue
+<input type="text" v-model="userName" />
+<!--
+模 -> 视  v-bind
+型 <- 图  v-on
+-->
+<input
+  type="text"
+  :value="userName"
+  @input="userName = ($event.target as HTMLInputElement).value"
+/>
+```
