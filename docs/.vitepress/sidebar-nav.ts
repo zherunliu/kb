@@ -23,18 +23,36 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
   },
 ];
 
+const NODEJS: DefaultTheme.NavItemWithLink[] = [
+  { text: "Nodejs Basic", link: "/nodejs/nodejs-basic" },
+];
+
+const OTHER: DefaultTheme.NavItemWithLink[] = [
+  { text: "Git", link: "/other/git" },
+];
+
 const sidebar = {
-  "/other/": [{ text: "Git", link: "/other/git" }],
+  "/other/": OTHER,
   "/vue/": VUE,
+  "/nodejs/": NODEJS,
 };
 
 const nav: DefaultTheme.NavItem[] = [
   { text: "Home", link: "/" },
-  { text: "Other", link: "/other/git" },
   {
     text: "Vue",
     items: VUE,
     activeMatch: "^/vue/",
+  },
+  {
+    text: "Nodejs",
+    items: NODEJS,
+    activeMatch: "^/nodejs/",
+  },
+  {
+    text: "Other",
+    items: OTHER,
+    activeMatch: "^/other/",
   },
 ];
 
