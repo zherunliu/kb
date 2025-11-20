@@ -3,9 +3,10 @@
 layout: home
 
 hero:
-  name: "My Knowledge Base"
-  text: "A VitePress Site"
-  tagline: Rico's knowledge base
+  name: "Rico's"
+  text: "knowledge base"
+  tagline: Always break free, always forge ahead
+  image: ./cherry.svg
   actions:
     - theme: brand
       text: Vue
