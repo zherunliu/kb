@@ -44,7 +44,7 @@ buffer[0] = 1; // 超过 255 高位舍弃
   const rs = fs.createReadStream("./data.txt");
   re.on("data", (data) => {
     console.log(data);
-    console.log(data.length); // 65536 64kb
+    console.log(data.length); // 65536 64KB
   });
   re.on("end", () => {
     console.log("Read over");
@@ -119,3 +119,122 @@ rs.pipe(ws);
 - `path.basename`
 - `path.dirname`
 - `path.extname`
+
+## http 模块
+
+```js
+const http = require("http");
+/* 请求/响应报文的封装对象 */
+const server = http.createServer((request, response) => {
+  /* 获取请求信息 */
+  console.log(request.method);
+  console.log(request.url);
+  console.log(request.httpVersion);
+  console.log(request.headers.host);
+  /* 获取请求体 */
+  let body = "";
+  request.on("data", (chunk) => {
+    body += chunk;
+  });
+  /* 获取请求 url */
+  const url = new URL(request.url, "http://localhost");
+  console.log(url);
+  /* 设置响应信息 */
+  response.statusCode = 200;
+  response.statusMessage = "hello, rico!";
+  response.setHeader("content-type", "text/html; charset=utf-8");
+  request.on("end", () => {
+    console.log("[request body]", body);
+    response.write("rico!");
+    response.end("你好, HTTP Server!"); // 设置响应体
+  });
+});
+
+server.listen(8000, () => {
+  console.log("服务启动...");
+});
+```
+
+## 模块化
+
+### CommonJs
+
+:::code-group
+
+```js [school.js]
+// 使用 exports 导出
+exports.name = name;
+exports.slogan = slogan;
+// 使用 module.exports 导出
+module.exports = { name, slogan };
+```
+
+```js [index.js]
+// 使用 require() 导入
+const school = require("./school.js");
+```
+
+:::
+
+> - 每个模块的内部，`this`，`exports`，`module.exports` 在初始时，都指向同一个空对象，该空对象就是当前模块导出的数据
+> - 无论如何修改导出对象，最终导出的都是 `module.exports` 的值
+> - `exports` 是对 `module.exports` 的初始引用，便于给导出对象添加属性
+> - 在 CommonJs 里，所写代码是被包裹到一个内置函数中执行的，可以使用 `arguments.callee` 得到函数本身
+
+**`require` 导入自定义模块的基本流程：**
+
+1. 将相对路径转为绝对路径，定位目标文件
+2. 缓存检测
+3. 读取目标文件代码
+4. 包裹为一个函数并执行
+5. 缓存模块的值
+6. 返回 `module.exports` 的值
+
+### ES6 Module
+
+::: code-group
+
+```js [student.js]
+/* 多种方式可以同时使用 */
+// 分别导出 export
+export const name = 'rico'
+export function getTel() {
+return 2139884
+}
+// 统一导出 {} 不是对象
+export {name, getTel}
+// 默认导出 导出是一个对象，键为 default
+export default
+```
+
+```js [index.js]
+// 全部导入
+import * as school from "./school.js";
+import * as student from "./student.js";
+// 命名导入 对应导出方式分别导出，统一导出
+import { name as schoolName, getTel } from "./school.js";
+// 默认导入 对应默认导出
+import school from "./school.js";
+// 命名导入和默认导入可以混用
+import name, { getTel } from "./school.js";
+// 动态导入
+btn.click = async () => {
+  const result = await import("./student.js");
+  console.log(result);
+};
+// import 可以不接受任何数据
+import "./student.js";
+```
+
+:::
+
+> 在页面中引入 module 不影响全局：
+>
+> `<script type="module" src="./index.js"></script>`
+>
+> 导出数据和导入数据共享同一块内存，需要谨慎使用
+
+**node 中运行 ES6 模块**
+
+- 在 `package.json` 中配置 `"type": "module"`
+- 将 `js` 后缀改为 `mjs`

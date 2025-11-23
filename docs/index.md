@@ -18,7 +18,7 @@ hero:
 features:
   - icon: 🧹
     title: tiny and tidy!
-    details: Keep it simple, keep it neat -- small steps for a clean workflow.
+    details: Keep it simple, keep it neat -- continuous steps for a clean workflow.
   - icon: 🌱
     title: a little progress!
     details: Chipping away at things -- small wins that keep the momentum going smoothly.
