@@ -2,7 +2,7 @@
 
 ## 基础操作
 
-用户设置和 SSH key
+**用户设置和 SSH key：**
 
 ```bash
 git config --global user.name zherunliu &&            \
@@ -15,7 +15,7 @@ git config --global core.filemode false
 ssh-keygen -t rsa -C '1437257281@qq.com'
 ```
 
-初始化、暂存、提交
+**初始化、暂存、提交：**
 
 ```bash
 git init                         # 初始化空 git 仓库
@@ -33,7 +33,7 @@ git pull                         # 拉取代码并合并
 git fetch                        # 拉取代码但不自动合并
 ```
 
-修改撤销
+**修改撤销：**
 
 ```bash
 # 允许合并历史不相关的两个分支

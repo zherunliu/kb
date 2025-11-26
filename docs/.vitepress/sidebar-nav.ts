@@ -25,10 +25,13 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
 
 const NODEJS: DefaultTheme.NavItemWithLink[] = [
   { text: "Nodejs Basic", link: "/nodejs/nodejs-basic" },
+  { text: "Express", link: "/nodejs/express" },
+  { text: "MongoDB", link: "/nodejs/mongodb" },
 ];
 
 const OTHER: DefaultTheme.NavItemWithLink[] = [
   { text: "Git", link: "/other/git" },
+  { text: "Docker", link: "/other/docker" },
 ];
 
 const sidebar = {
