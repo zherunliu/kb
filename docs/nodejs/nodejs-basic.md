@@ -199,7 +199,7 @@ const school = require("./school.js");
 // 分别导出 export
 export const name = 'rico'
 export function getTel() {
-return 2139884
+return '13421399884'
 }
 // 统一导出 {} 不是对象
 export {name, getTel}
@@ -238,3 +238,133 @@ import "./student.js";
 
 - 在 `package.json` 中配置 `"type": "module"`
 - 将 `js` 后缀改为 `mjs`
+
+## 会话控制
+
+HTTP 是一种无状态的协议，两次请求间，服务器不会保存任何数据
+
+### Cookie
+
+Cookie 是 HTTP 服务器发送到用户浏览器并保存在本地的一小块数据；cookie 是按照域名划分的，服务器校验通过后下发 cookie，当浏览器向服务器发请求时，会自动将当前域名下可用的 cookie 设置在请求头中传递给服务器
+
+```js
+const express = require("express");
+const cookieParser = require("cookie-parser");
+
+const app = express();
+app.use(cookieParser());
+
+app.get("/set-cookie", (req, res) => {
+  res.cookie("name", "rico", { maxAge: 60 * 1000 });
+  res.cookie("color", "green");
+  res.send("Set cookie successfully!");
+});
+
+app.get("/get-cookie", (req, res) => {
+  console.log(req.cookies);
+  res.send("Get cookie successfully!");
+});
+
+app.get("/remove-cookie", (req, res) => {
+  res.clearCookie("color");
+  res.send("Remove cookie successfully!");
+});
+
+app.listen(3000, () => {
+  console.log("server start");
+});
+```
+
+### Session
+
+Session 是保存在服务端的一块数据，保存当前访问用户的相关信息，服务器校验通过后下发 cookie（session_id），当浏览器发送请求时，服务器通过 cookie 中的 session_id 确定用户身份
+
+```js
+const express = require("express");
+const bodyParser = require("body-parser");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+
+const app = express();
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
+app.use(
+  session({
+    name: "sid", // 设置 cookie name
+    secret: "rico",
+    saveUninitialized: false, // 是否每次请求都设置一个 cookie 来保存 session id
+    resave: true, // 是否每次请求时重新保存 session
+    store: MongoStore.create({
+      mongoUrl: "mongodb://127.0.0.1:27017/database",
+    }),
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60,
+    },
+  })
+);
+
+app.get("/login", (req, res) => {
+  if (req.query.username === "admin" && req.query.password === "admin") {
+    req.session.username = "admin";
+    res.send("login successfully");
+    return;
+  }
+  res.send("login failed");
+});
+
+app.get("/cart", (req, res) => {
+  if (req.session.username) {
+    res.send(`welcome to cart, ${req.session.username}`);
+  } else res.send("please login first");
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.send("logout successfully");
+  });
+});
+
+/* curl -X POST 'http://localhost:3000/hola' \
+  -H 'Content-Type: application/json' \
+  -d '{ "username": "admin", "password": "pass" }' */
+app.post("/hola", (req, res) => {
+  res.status(200).send({ rico: req.body });
+});
+
+app.listen(3000, () => {
+  console.log("server start");
+});
+```
+
+### token
+
+token 是服务端生成并返回给 HTTP 客户端的一串加密字符串， token 中保存着用户信息，服务器校验通过后响应 token，token 一般是在响应体中返回给客户端，后续发送请求时，需要手动将 token 添加在请求报文中，一般是放在请求头中。token 可以避免 CSRF（跨站请求伪造）
+
+```js
+const jwt = require("jsonwebtoken");
+
+/* 生成 token */
+const token = jwt.sign(
+  {
+    username: "rico",
+  },
+  "salt",
+  {
+    expiresIn: 60,
+  }
+);
+
+console.log(token);
+
+jwt.verify(token, "salt", (data, err) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log(data);
+  }
+});
+```
