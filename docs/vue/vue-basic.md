@@ -5,6 +5,7 @@
 ### 脚手架
 
 ```bash
+# vite
 pnpm create vue@latest
 
 pnpm create vite@latest

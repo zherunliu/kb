@@ -18,6 +18,10 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
     link: "/vue/pinia",
   },
   {
+    text: "Vue2",
+    link: "/vue/vue2",
+  },
+  {
     text: "Vue Pro",
     link: "/vue/vue-pro",
   },
