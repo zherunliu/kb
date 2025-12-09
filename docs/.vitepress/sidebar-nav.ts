@@ -31,6 +31,7 @@ const NODEJS: DefaultTheme.NavItemWithLink[] = [
   { text: "Nodejs Basic", link: "/nodejs/nodejs-basic" },
   { text: "Express", link: "/nodejs/express" },
   { text: "MongoDB", link: "/nodejs/mongodb" },
+  { text: "Nestjs", link: "/nodejs/nestjs" },
 ];
 
 const OTHER: DefaultTheme.NavItemWithLink[] = [
