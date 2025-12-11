@@ -20,8 +20,8 @@ ssh-keygen -t rsa -C '1437257281@qq.com'
 ```bash
 git init                         # 初始化空 git 仓库
 git status                       # 查看 git 状态
-git add <filename>               # 将工作区的文件添加到暂存区
-git rm -r --cached <filename>    # 删除暂存区的文件
+git add <file>                   # 将工作区的文件添加到暂存区
+git rm -r --cached <file>        # 删除远程文件，并移除 git 追踪
 git commit -m <message> [<file>] # 将暂存区的文件提交到本地库
 git log                          # 查看 git 日志
 git remote add origin <url>      # 添加远程仓库
