@@ -346,6 +346,15 @@ import { AppModule } from "./app.module";
 import session from "express-session";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // 允许跨域
+  // const app = await NestFactory.create(AppModule, {cors: true});
+
+  app.enableCors({
+    origin: "http://localhost:5174",
+    credentials: true,
+  });
+
   app.use(
     session({
       secret: "salt",
@@ -431,7 +440,7 @@ export default defineConfig({
 });
 ```
 
-```vue [App.vue]
+```vue{14,24-32} [App.vue]
 <template>
   <el-form label-width="auto" :model="loginData" style="max-width: 600px">
     <el-form-item label="Name">
@@ -444,6 +453,8 @@ export default defineConfig({
       <div style="display: flex">
         <el-input v-model="loginData.captcha" />
         <img @click="resetCode" :src="codeUrl" alt="" />
+        <!-- 使用 v-html -->
+        <div v-html="svgHtml" @click="fetchCode"></div>
       </div>
     </el-form-item>
     <el-button type="primary" @click="submit">Submit</el-button>
@@ -451,7 +462,18 @@ export default defineConfig({
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
+
+const svgHtml = ref<string>("");
+
+const fetchCode = async () => {
+  const newSvgHtml = await fetch("/api/user/captcha").then((res) => res.text());
+  console.log("newSvgHtml:", newSvgHtml);
+  svgHtml.value = newSvgHtml;
+};
+
+onMounted(fetchCode);
+
 const codeUrl = ref<string>("/api/user/captcha");
 
 const resetCode = () => {
@@ -480,6 +502,132 @@ const submit = () => {
       }
     });
 };
+</script>
+```
+
+:::
+
+### multer
+
+```bash
+pnpm add multer @types/multer # 文件上传
+pnpm add compressing # 流式下载
+```
+
+文件上传/下载
+::: code-group
+
+```ts [upload/upload.module.ts]
+import { Module } from "@nestjs/common";
+import { UploadService } from "./upload.service";
+import { UploadController } from "./upload.controller";
+import { MulterModule } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { extname, join } from "path";
+
+@Module({
+  imports: [
+    MulterModule.register({
+      storage: diskStorage({
+        destination: join(__dirname, "../images"),
+        filename: (_, file, callback) => {
+          const fileName = `${
+            new Date().getTime() + extname(file.originalname)
+          }`;
+          return callback(null, fileName);
+        },
+      }),
+    }),
+  ],
+  controllers: [UploadController],
+  providers: [UploadService],
+})
+export class UploadModule {}
+```
+
+```ts [upload/upload.controller.ts]
+import {
+  Controller,
+  Get,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  Res,
+  Param,
+  Query,
+} from "@nestjs/common";
+import { UploadService } from "./upload.service";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { join } from "path";
+import type { Response } from "express";
+import { zip } from "compressing";
+
+@Controller("upload")
+export class UploadController {
+  constructor(private readonly uploadService: UploadService) {}
+
+  @Post("album")
+  @UseInterceptors(FileInterceptor("file"))
+  upload(@UploadedFile() file: Express.Multer.File) {
+    console.log("[file]:", file);
+    return true;
+  }
+
+  @Get("download/:filename")
+  download(@Param("filename") filename: string, @Res() res: Response) {
+    const url = join(__dirname, `../images/${filename}`);
+    res.download(url);
+  }
+
+  @Get("stream")
+  downloadStream(@Query("filename") filename: string, @Res() res: Response) {
+    const url = join(__dirname, `../images/${filename}`);
+    const tarStream = new zip.Stream();
+    tarStream.addEntry(url);
+    res.setHeader("Content-Type", "application/octet-stream");
+    tarStream.pipe(res);
+  }
+}
+```
+
+```ts [main.ts]
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { join } from "path";
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // 设置静态资源目录
+  app.useStaticAssets(join(__dirname, "images"), { prefix: "/static" });
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+void bootstrap();
+```
+
+```vue [App.vue]
+<template>
+  <el-button type="primary" @click="downloadStream">Download</el-button>
+</template>
+
+<script lang="ts" setup>
+const useFetch = async (url: string) => {
+  // const res = await fetch(url).then((res) => res.arrayBuffer());
+  // const blob = new Blob([res]);
+  const blob = await fetch(url).then((res) => res.blob());
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "hello.zip";
+  link.click();
+};
+
+const downloadStream = () => {
+  useFetch("/api/upload/stream?filename=hello.png");
+};
+
+const download = () => window.open("/api/upload/download/hello.png");
 </script>
 ```
 
