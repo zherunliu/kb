@@ -54,7 +54,7 @@ export class UserController {
 
 :::
 
-## Controller
+## Controllers
 
 控制器负责处理传入的请求并向客户端返回响应。使用类和装饰器创建基本控制器，装饰器将类与必要的元数据关联起来，使 Nest 能够创建将请求连接到相应控制器的路由映射
 
@@ -80,7 +80,7 @@ export class UserController {
 `@Res()` 或 `@Response()` 为底层原生平台的 response 对象接口。在方法处理程序中注入 `@Res()` 或 `@Response()` 时，该处理程序将进入库特定模式，此时需手动管理响应。必须通过调用 response 对象方法（如 `res.json(...)` 或 `res.send(...)`）返回响应，否则 HTTP 服务器会挂起。使用 `@Res({ passthrough: true }) res: Response` 可以操作原生响应对象，同时仍允许框架处理其余部分
 :::
 
-## Provider
+## Providers
 
 提供者是 Nest 中的基本构建块，许多基础的 Nest 类（如服务、存储库、工厂和辅助工具）都可以被视为提供者。它们可以注入到控制器或其他提供者中，以实现松散耦合和更好的测试性
 
@@ -179,7 +179,7 @@ export class UserController {
 
 :::
 
-## Module
+## Modules
 
 模块是一个用 `@Module()` 装饰器注解的类。该装饰器提供了元数据，Nest 使用它来有效地组织和管理应用程序结构。在 Nest 中，模块默认是单例的，因此可以在多个模块之间共享同一个提供者实例
 
@@ -323,6 +323,337 @@ const globalMiddleware: Handler = (
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(globalMiddleware);
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+```
+
+## Interceptors
+
+拦截器是一个用 `@Injectable()` 装饰器注解并实现了 `NestInterceptor` 接口的类
+
+::: code-group
+
+```ts [common/response.ts]
+import { NestInterceptor, CallHandler, Injectable } from "@nestjs/common";
+import { map, Observable } from "rxjs";
+
+interface IData<T> {
+  data: T;
+  status: number;
+  message: string;
+  success: boolean;
+}
+
+// 响应拦截器
+@Injectable()
+export class Response<T> implements NestInterceptor {
+  intercept(contest, next: CallHandler): Observable<IData<T>> {
+    return next.handle().pipe(
+      map((data: T) => {
+        return {
+          data,
+          status: 0,
+          message: "Intercepted by Response",
+          success: true,
+        };
+      })
+    );
+  }
+}
+```
+
+```ts [main.ts]
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { Response } from "./common/response";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  // 设置全局拦截器
+  app.useGlobalInterceptors(new Response());
+  await app.listen(process.env.PORT ?? 3000);
+}
+void bootstrap();
+```
+
+:::
+
+## Exception filters
+
+Nest 内置了一个异常处理层，负责处理应用程序中所有未捕获的异常。当应用程序代码未处理某个异常时，该层会捕获它并自动返回用户友好的响应，默认情况下，这个功能由内置的全局异常过滤器实现，它能处理 `HttpException` 类型（及其子类）的异常。自定义异常过滤器可以精确控制流程以及返回给客户端的响应内容
+
+::: code-group
+
+```ts [common/filter.ts]
+import {
+  Catch,
+  ExceptionFilter,
+  ArgumentsHost,
+  HttpException,
+} from "@nestjs/common";
+import { Request, Response } from "express";
+
+@Catch()
+export class HttpFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    response.status(status).json({
+      success: false,
+      time: new Date(),
+      data: exception,
+      status,
+      path: request.url,
+    });
+  }
+}
+```
+
+```ts [main.ts]
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { HttpFilter } from "./common/filter";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  // 设置全局异常过滤器
+  app.useGlobalFilters(new HttpFilter());
+  await app.listen(process.env.PORT ?? 3000);
+}
+void bootstrap();
+```
+
+:::
+
+## Pipes
+
+管道是一个用 `@Injectable()` 装饰器注解的类，它实现了 `PipeTransform` 接口
+
+管道有两种典型用例：
+
+- 转换：将输入数据转换为所需形式
+- 验证：评估输入数据，若有效则原样传递；否则抛出异常
+
+在这两种情况下，管道都对**控制器路由处理器**正在处理的参数进行操作。Nest 在方法调用前插入管道，管道接收目标方法的参数并对其进行操作
+
+内置管道：
+`ValidationPipe`，`ParseIntPipe`，`ParseFloatPipe`，`ParseBoolPipe`，`ParseArrayPipe`，`ParseUUIDPipe`，`ParseEnumPipe`，`DefaultValuePipe`
+
+### 管道转换
+
+管道绑定
+
+```ts
+@Get(':id')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    console.log(typeof id);
+    return this.catsService.findOne(+id);
+  }
+```
+
+### 管道验证
+
+```bash
+pnpm add class-validator class-transformer
+```
+
+自定义管道
+::: code-group
+
+```ts [login/dto/create-login.dto.ts]
+import { IsNotEmpty, IsString, Length, IsNumber } from "class-validator";
+
+export class CreateLoginDto {
+  @IsNotEmpty()
+  @IsString()
+  @Length(2, 6, {
+    message: "用户名长度应为 2-6 个字符",
+  })
+  username: string;
+  @IsNumber()
+  password: number;
+}
+```
+
+```ts [login/login.pipe.ts]
+import {
+  ArgumentMetadata,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  PipeTransform,
+} from "@nestjs/common";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+// 使用控制台样式
+import chalk from "chalk";
+
+@Injectable()
+export class LoginPipe implements PipeTransform {
+  async transform(value: unknown, metadata: ArgumentMetadata) {
+    console.log(chalk.green.bold("[value]:"), value);
+    console.log(chalk.green.bold("[metadata]:"), metadata);
+    if (!metadata.metatype) {
+      return value;
+    }
+    const dto: unknown = plainToInstance(metadata.metatype, value);
+    console.log(chalk.green.bold("[dto]:"), dto);
+    if (typeof dto !== "object" || dto === null) {
+      return value;
+    }
+    const errors = await validate(dto);
+    if (errors.length) {
+      console.log(chalk.red.bold("[errors]:"), errors);
+      throw new HttpException(errors, HttpStatus.BAD_REQUEST);
+    }
+    return value;
+  }
+}
+```
+
+:::
+
+或者使用全局管道 `app.useGlobalPipes(new ValidationPipe());`
+
+:::tip curl
+
+**发送 GET 请求**
+
+`curl https://localhost:3000/login`
+
+**发送 POST 请求**
+
+`curl -X POST -d "username=test&password=123456" https://localhost:3000/login`
+
+`-H` 设置请求头 `-H "Content-Type: application/json"`
+
+:::
+
+## Guards
+
+守卫是一个用 `@Injectable()` 装饰器注解的类，它实现了 `CanActivate` 接口，守卫在所有中间件之后执行，但在任何拦截器或管道之前执行
+::: code-group
+
+```ts [guard/role/role.guard.ts]
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { Observable } from "rxjs";
+import { Reflector } from "@nestjs/core";
+import { Request } from "express";
+
+@Injectable()
+export class RoleGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+  canActivate(
+    context: ExecutionContext
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const role = this.reflector.get<string[]>("role", context.getHandler());
+    const request = context.switchToHttp().getRequest<Request>();
+    console.log("This is guard...", role);
+    if (role.includes(request.query.role as string)) {
+      return true;
+    }
+    return false;
+  }
+}
+```
+
+```ts{5,10} [guard/guard.controller.ts]
+import { Controller, Get, UseGuards, SetMetadata } from "@nestjs/common";
+import { GuardService } from "./guard.service";
+import { RoleGuard } from "./role/role.guard";
+@Controller("guard")
+@UseGuards(RoleGuard)
+export class GuardController {
+  constructor(private readonly guardService: GuardService) {}
+
+  @Get()
+  @SetMetadata("role", ["admin"])
+  findAll() {
+    return this.guardService.findAll();
+  }
+}
+```
+
+:::
+或者使用全局管道 `app.useGlobalGuards(new RoleGuard());`
+
+## 自定义装饰器
+
+::: code-group
+
+```ts [guard/role/role.decorator.ts]
+import {
+  ExecutionContext,
+  SetMetadata,
+  createParamDecorator,
+} from "@nestjs/common";
+import { Request } from "express";
+export const Role = (...args: string[]) => SetMetadata("role", args);
+
+export const ReqUrl = createParamDecorator(
+  (data: string, ctx: ExecutionContext) => {
+    const req = ctx.switchToHttp().getRequest<Request>();
+    console.log(data);
+    return req.url;
+  }
+);
+```
+
+```ts{13,14} [guard/guard.controller.ts]
+import { Controller, Get, UseGuards, SetMetadata } from "@nestjs/common";
+import { GuardService } from "./guard.service";
+import { RoleGuard } from "./role/role.guard";
+import { ReqUrl, Role } from "./role/role.decorator";
+@Controller("guard")
+@UseGuards(RoleGuard)
+export class GuardController {
+  constructor(private readonly guardService: GuardService) {}
+  static baseUrl = "http://localhost:3000";
+
+  @Get()
+  // @SetMetadata('role', ['admin'])
+  @Role("admin")
+  findAll(@ReqUrl(GuardController.baseUrl) url: string) {
+    console.log(url);
+    return this.guardService.findAll();
+  }
+}
+```
+
+:::
+
+## 集成 swagger
+
+swagger 通过利用装饰器来生成 openApi 规范
+
+```bash
+pnpm add @nestjs/swagger swagger-ui-express
+```
+
+在 `main.ts` 中用 `SwaggerModule` 初始化 swagger
+
+```ts
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { AppModule } from "./app.module";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle("Cats example")
+    .setDescription("The cats API description")
+    .setVersion("1.0")
+    .addTag("cats")
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("api", app, documentFactory);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
