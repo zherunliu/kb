@@ -134,7 +134,7 @@ Host 模式下，docker 容器直接共享宿主机的网络，容器直接使�
 
 ## Docker Compose
 
-Docker Compose 轻量级容器编排技术，使用 yml 文件管理多个容器，在这个文件中记录了容器之间如何创建以及如何协同工作
+Docker Compose 轻量级容器编排技术，本质是将多个 docker 命令抽象为一个 YAML 配置文件，在这个文件中记录了容器之间如何创建以及如何协同工作，简化多容器应用的管理
 
 ```yml
 services:
@@ -159,7 +159,7 @@ services:
 ```
 
 - `docker compose up -d` 运行
-- `docker compose down` 删除
+- `docker compose down -v` 删除（-v 同时删除卷）
 - `docker compose stop` 停止
 - `docker compose start` 启动
 

@@ -659,6 +659,65 @@ async function bootstrap() {
 bootstrap();
 ```
 
+## 连接数据库
+
+使用 typeORM
+
+```bash
+pnpm add @nestjs/typeorm typeorm mysql2
+```
+
+连接 mysql 数据库
+
+::: code-group
+
+```ts [app.module.ts]
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { TestModule } from "./test/test.module";
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: "mysql",
+      username: "user",
+      password: "pass",
+      host: "localhost",
+      port: 3306,
+      database: "db",
+      autoLoadEntities: true, // 自动加载实体，生产环境不推荐
+      synchronize: true, // 自动将 @Entity() 实体类同步到数据库
+      retryAttempts: 10,
+      retryDelay: 3000,
+    }),
+    TestModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+```ts [test/test.module.ts]
+import { Module } from "@nestjs/common";
+import { TestService } from "./test.service";
+import { TestController } from "./test.controller";
+import { Test } from "./entities/test.entity";
+import { TypeOrmModule } from "@nestjs/typeorm";
+
+@Module({
+  // 导入 Test 实体
+  imports: [TypeOrmModule.forFeature([Test])],
+  controllers: [TestController],
+  providers: [TestService],
+})
+export class TestModule {}
+```
+
+:::
+
 ## 案例
 
 ### session
