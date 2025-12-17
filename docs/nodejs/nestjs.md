@@ -524,11 +524,11 @@ export class LoginPipe implements PipeTransform {
 
 **发送 GET 请求**
 
-`curl https://localhost:3000/login`
+`curl http://localhost:3000/login`
 
 **发送 POST 请求**
 
-`curl -X POST -d "username=test&password=123456" https://localhost:3000/login`
+`curl -X POST -d "username=test&password=123456" http://localhost:3000/login`
 
 `-H` 设置请求头 `-H "Content-Type: application/json"`
 
