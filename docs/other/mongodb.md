@@ -1,5 +1,14 @@
 # MongoDB
 
+## cli
+
+```bash
+mongosh --host <host> --port <port> -u <username> -p <password> --authenticationDatabase <authDB>
+
+# 支持 URI 格式
+mongosh "mongodb://<username>:<password>@<host>:<port>/?authSource=<authDB>"
+```
+
 ## 命令行交互
 
 **数据库命令：**
