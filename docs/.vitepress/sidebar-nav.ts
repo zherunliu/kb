@@ -37,6 +37,7 @@ const OTHER: DefaultTheme.NavItemWithLink[] = [
   { text: "Git", link: "/other/git" },
   { text: "Docker", link: "/other/docker" },
   { text: "MongoDB", link: "/other/mongodb" },
+  { text: "Redis", link: "/other/redis" },
 ];
 
 const sidebar = {
