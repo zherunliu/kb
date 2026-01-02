@@ -113,7 +113,7 @@ sunionstore <key> <key1> <key2>
 
 ## zset
 
-有序集合，在 set 的基础上，每个元素关联一个分数（score），用于排序
+有序集合，在 `set` 的基础上，每个元素关联一个分数（score），用于排序
 
 ```bash
 zadd <key> <score member ...>
@@ -149,3 +149,10 @@ pfmerge <destkey> <sourcekey ...>
 ```
 
 ## BitMap
+
+```bash
+setbit <key> <offset> <value>
+getbit <key> <offset>
+
+bitcount <key> [start end]
+```
