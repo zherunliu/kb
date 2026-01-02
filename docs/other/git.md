@@ -1,18 +1,40 @@
 # Git
 
+## Git 原理
+
+**object 存储的最小单元（`.git/objects`）**
+
+commit --> tree --> blob
+
+- commit：存储提交记录
+- tree：存储目录结构
+- blob：存储文件内容
+
+> `git cat-file -p <hash>` 查看对象 `-p` pretty-print 格式化打印
+>
+> 所有的分支和引用都指向某个提交对象
+
+::: tip blob 清理
+blob 对象一旦被创建，就不会被修改或删除
+
+`git reset` 使 blob 对象成为没有被引用的悬空对象
+
+`git gc --prune=now` 立即清理所有过期对象
+:::
+
 ## 基础操作
 
 **用户设置和 SSH key：**
 
 ```bash
-git config --global user.name zherunliu &&            \
-git config --global user.email '1437257281@qq.com' && \
+git config --global user.name <name> &&            \
+git config --global user.email <email> && \
 git config --global core.autocrlf false &&            \
 git config --global credential.helper store &&        \
 git config --global init.defaultBranch main &&        \
 git config --global core.filemode false
 
-ssh-keygen -t rsa -C '1437257281@qq.com'
+ssh-keygen -t rsa -C <message>
 ```
 
 **初始化、暂存、提交：**
