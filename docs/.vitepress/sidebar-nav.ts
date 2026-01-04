@@ -6,7 +6,7 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
     link: "/vue/vue-basic",
   },
   {
-    text: "组件通信",
+    text: "Component Comm",
     link: "/vue/component-comm",
   },
   {
@@ -33,17 +33,27 @@ const NODEJS: DefaultTheme.NavItemWithLink[] = [
   { text: "Nestjs", link: "/nodejs/nestjs" },
 ];
 
-const OTHER: DefaultTheme.NavItemWithLink[] = [
-  { text: "Git", link: "/other/git" },
-  { text: "Docker", link: "/other/docker" },
-  { text: "MongoDB", link: "/other/mongodb" },
-  { text: "Redis", link: "/other/redis" },
+const FEBASIC: DefaultTheme.NavItemWithLink[] = [
+  { text: "HTML", link: "/fe-basic/html" },
+  { text: "CSS", link: "/fe-basic/css" },
+];
+
+const DATABASE: DefaultTheme.NavItemWithLink[] = [
+  { text: "MongoDB", link: "/database/mongodb" },
+  { text: "Redis", link: "/database/redis" },
+];
+
+const GENERAL: DefaultTheme.NavItemWithLink[] = [
+  { text: "Git", link: "/general/git" },
+  { text: "Docker", link: "/general/docker" },
 ];
 
 const sidebar = {
-  "/other/": OTHER,
   "/vue/": VUE,
   "/nodejs/": NODEJS,
+  "/fe-basic/": FEBASIC,
+  "/database/": DATABASE,
+  "/general/": GENERAL,
 };
 
 const nav: DefaultTheme.NavItem[] = [
@@ -59,9 +69,19 @@ const nav: DefaultTheme.NavItem[] = [
     activeMatch: "^/nodejs/",
   },
   {
-    text: "Other",
-    items: OTHER,
-    activeMatch: "^/other/",
+    text: "FE-Basic",
+    items: FEBASIC,
+    activeMatch: "^/fe-basic/",
+  },
+  {
+    text: "Database",
+    items: DATABASE,
+    activeMatch: "^/database/",
+  },
+  {
+    text: "General",
+    items: GENERAL,
+    activeMatch: "^/general/",
   },
 ];
 
