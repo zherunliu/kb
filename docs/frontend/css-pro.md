@@ -1,7 +1,5 @@
 # CSS Pro
 
-## 渐变
-
 ## transform
 
 ## transition
@@ -20,11 +18,11 @@
 - column-width 列宽
 - columns 复合属性：`columns: 3 200px`
 - column-gap 列间隔
-- column-rule-style 列分隔线样式：none, solid, dashed, dotted, double
+- column-rule-style 列分隔线样式：none，solid，dashed，dotted，double
 - column-rule-width 列分隔线宽度
 - column-rule-color 列分隔线颜色
 - column-rule 复合属性：`column-rule: solid 1rem green`
-- column-span 跨列：`column-span: all` 跨越所有列, `column-span: none` 不跨列
+- column-span 跨列：`column-span: all` 跨越所有列，`column-span: none` 不跨列
 
 ## 媒体查询
 

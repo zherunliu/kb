@@ -201,6 +201,53 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
 }
 ```
 
+**渐变**
+
+- `background-image: linear-gradient()` 线性渐变
+- `background-image: repeat-linear-gradient()` 重复线性渐变
+- `background-image: radial-gradient()` 径向渐变
+- `background-image: repeat-radial-gradient()` 重复径向渐变
+
+```css
+.selector {
+  width: 30rem;
+  height: 20rem;
+  /* 渐变线的方向: 默认 to bottom (180deg) */
+  background-image: linear-gradient(red, green, blue);
+
+  /* to top (0deg), 增加角度值, 顺时针 */
+  background-image: linear-gradient(to top, red, green, blue);
+  background-image: linear-gradient(180deg, red, green, blue);
+
+  /* 设置渐变的位置 */
+  /**
+   * 0 ~ 5rem        pure red
+   * 5rem ~ 10rem    red -> green
+   * 10rem ~ 15rem   green -> blue
+   * 15rem ~ 20rem   pure blue
+   */
+  background-image: linear-gradient(red 5rem, green 10rem, blue 15rem);
+
+  /* 渐变中心的位置: 默认 at center (at 50% 50%) */
+  background-image: radial-gradient(red, green, blue);
+
+  /* 渐变形状: circle 圆, ellipse 椭圆 */
+  background-image: radial-gradient(circle, red, green, blue);
+
+  /* at left top (at 0 0) */
+  background-image: radial-gradient(at left top, red, green, blue);
+  background-image: radial-gradient(at 50% 50%, red, green, blue);
+
+  /* 设置渐变圆的半径 */
+  background-image: radial-gradient(10rem, red, green, blue);
+  /* 设置渐变椭圆的 x 半径, y 半径 */
+  background-image: radial-gradient(20rem 10rem, red, green, blue);
+
+  /* 设置渐变的位置 */
+  background-image: radial-gradient(red 5rem, green 10rem, blue 15rem);
+}
+```
+
 ### 鼠标
 
 cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，url（图片路径）
@@ -273,10 +320,136 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 
 - 顶部子元素的上外边距 margin-top 会转移给父元素
 - 底部子元素的下外边距 margin-bottom 会转移给父元素
-- 上方元素的下外边距 marginBottom 和下方元素的上外边距 marginTop 合并为 Math.max(marginBottom, marginTop)，而不是预期的 marginBottom + marginTop
+- 上方元素的下外边距 marginBottom 和下方元素的上外边距 marginTop 合并为 `Math.max(marginBottom, marginTop)`，而不是预期的 marginBottom + marginTop
+
+**解决方法：**
+
+- 父元素设置宽度不为 0 的 padding
+- 父元素设置宽度不为 0 的 border
+- 父元素成为 BFC，例如设置 `overflow: hidden` 或 `display: flow-root`
 
 ### BFC
 
+BFC（Block Formatting Context，块级格式化上下文）是一个独立的渲染区域，元素在 BFC 中布局不会影响到外部元素
+
+**开启 BFC 的元素：**
+
+- 根元素 html
+- 浮动元素，float 属性值不等于 none 的元素 `float: left | right`
+- absolute 绝对或 fixed 固定定位的元素 `position: absolute | fixed`
+- 非 block 的块级容器 `display: inline | flex | inline-flex | grid | inline-grid | flow-root` 的元素
+- overflow 属性值不等于 visible 的元素 `overflow: hidden | auto | scroll`
+- 表格单元格：table，thead，tbody，tfoot，tr，th，td，caption, `display: table-cell | table-caption`
+- 多列容器
+
+**开启 BFC 后：**
+
+- 该元素的子元素不会有 margin 塌陷问题
+- 该元素不会被其他浮动元素覆盖
+- 即使该元素的子元素浮动，该元素的高度也不会塌陷
+
 ## 浮动
 
+**元素浮动后：**
+
+- 成为 BFC，没有 margin 塌陷问题
+- 脱离文档流
+- 不独占一行
+- 宽高由内容撑开，也可以设置宽高
+
+**产生的影响：**
+
+- 对兄弟元素的影响：后面的兄弟元素，会占据浮动元素未浮动时的位置
+- 对父元素的影响
+  - 浮动元素不能撑开父元素的高度，父元素高度塌陷
+  - 父元素的宽度仍然限制浮动元素的宽度
+
+**清除浮动：**
+
+- 父元素设置浮动，会产生其他影响
+- 父元素成为 BFC，设置 `overflow: hidden` 或 `display: flex-root`
+- 所有浮动元素后面，添加一个空的块级元素，并设置 `clear: both`
+- 父元素使用 `::after` 创建空的伪元素
+
+```css
+.parent::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+```
+
 ## 定位
+
+- static 静态定位（默认）
+- relative 相对定位：参考元素本身，脱离文档流，成为定位元素，BFC
+- absolute 绝对定位：参考最近的已定位祖先元素（非 static）
+- fixed 固定定位：参考视口，脱离文档流，成为定位元素，BFC
+- sticky 粘性定位：参考最近的已定位祖先元素（非 static）
+
+**定位元素在包含块的中间**
+
+::: code-group
+
+```css [方法 1]
+.container {
+  width: 30rem;
+  height: 30rem;
+  position: relative;
+
+  .element {
+    width: 10rem;
+    height: 10rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+```
+
+```css [方法 2]
+.container {
+  width: 30rem;
+  height: 30rem;
+  position: relative;
+
+  .element {
+    width: 10rem;
+    height: 10rem;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -5rem; /* 10rem / 2 */
+    margin-top: -5rem; /* 10rem / 2 */
+  }
+}
+```
+
+```css [方法 3]
+.container {
+  width: 30rem;
+  height: 30rem;
+  position: relative;
+
+  .element {
+    width: 10rem;
+    height: 10rem;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+  }
+}
+```
+
+:::
+
+### 显示层级
+
+- 定位元素的显示层级比普通元素高
+- 只有定位的元素设置 z-index 才有效
+- z-index 属性值越大，显示层级越高
+- 如果位置发生重叠，默认情况是：后面的元素，会显示在前面元素之上
