@@ -83,6 +83,7 @@
 - font-style 字体样式：normal，italic，oblique（强制倾斜）
 - font-weight 字体粗细：lighter，normal，bold，bolder,（100-1000）
 - `@font-face` web 字体, 浏览器自动下载
+- font 复合属性：`font: italic bold 16px/2 Arial, sans-serif`
 
 ```css
 @font-face {
@@ -96,14 +97,15 @@
 - color 文本颜色
 - letter-spacing 字母间距：默认 0，正值增大间距，负值减小间距
 - word-spacing 单词间距：默认 0，正值增大间距，负值减小间距
-- text-decoration-line 文本装饰：line style color
+- text-decoration 文本装饰：line style color
 - text-indent 文本首字母缩进：属性值是长度单位
 - text-align 文本水平对齐：left 左对齐（默认），center 居中对齐，right 右对齐
-- line-height 行高（像素，font-size 倍数/百分比）
+- line-height 行高：像素，font-size 倍数/百分比
 - vertical-align 文本垂直对齐：baseline 基线对齐（默认），top 顶部对齐，middle 中间对齐，bottom 底部对齐
-- text-shadow：offset-h offset-v blur color
+- text-shadow 文本阴影：offset-h offset-v blur color
 - -webkit-text-stroke 文本描边
-- text-overflow 文本溢出：clip 裁剪溢出部分；ellipsis 省略溢出部分，将溢出部分替换为 ...；text-overflow 有效的前提是：块级元素显式设置 overflow 为 hidden，scroll，auto（非 visible），white-space 为 nowrap
+- text-overflow 文本溢出：clip，ellipsis
+  > text-overflow 有效的前提是：块级元素显式设置 overflow 为 hidden，scroll，auto（非 visible），white-space 为 nowrap
 - white-space 文本换行
   | white-space 文本换行 | 代码中的换行符 | 连续的空白符 | 遇到元素边界时 |
   | ---------------------- | -------------- | ------------ | -------------- |
@@ -129,3 +131,152 @@
   -webkit-box-orient: vertical;
 }
 ```
+
+### 列表
+
+- list-style-type 列表符号：none，square，disc，decimal，lower-roman，upper-roman，lower-alpha，upper-alpha
+- list-style-position 列表符号的位置：inside 在 li 内部，outside 在 li 外部
+- list-style-image 列表符号的图片：url（图片路径）
+- list-style 复合属性：`list-style: square inside url("./assets/list-icon.png")`
+
+### 表格
+
+- table-layout 列宽度：auto，fixed
+- border-spacing 单元格间距
+- border-collapse 单元格边框合并：collapse 合并，separate 不合并
+- empty-cells 隐藏没有内容的单元格：show 显示（默认），hide 隐藏
+- caption-side 表格标题的位置：top 表格顶部，bottom 表格底部
+
+### 边框
+
+border
+
+- border-width 边框宽度
+- border-color 边框颜色
+- border-style 边框样式：none，solid，dashed，dotted，double
+- border-radius 边框圆角
+- border 复合属性：`border: solid 2px red`
+
+outline
+
+- outline-width 外轮廓宽度
+- outline-color 外轮廓颜色
+- outline-style 外轮廓样式：none，solid，dashed，dotted，double
+- outline-offset 外轮廓与边框的距离
+- outline 复合属性：`outline: solid 2px red`
+
+::: tip 边框 vs 外轮廓
+
+border 是 CSS 盒模型的核心组成部分，会占用元素的实际布局空间
+
+outline 是绘制在元素盒模型之外的线条，不占用任何布局空间，也不会影响元素的尺寸或周围元素的位置
+:::
+
+### 背景
+
+- background-color 背景颜色：默认 transparent
+- background-image 背景图片：url（图片路径）
+- background-repeat 背景图片的重复方式：repeat（默认），repeat-x，repeat-y，no-repeat
+- background-position 背景图片的位置：位置关键字或以元素左上角为坐标原点，背景图片左上角的 x，y 坐标
+- background-origin 背景图片的坐标原点
+  > - padding-box 从 padding 左上角开始显示背景图片（默认）
+  > - border-box 从 border 左上角开始显示背景图片
+  > - content-box 从 content 左上角开始显示背景图片
+- background-clip 背景图片的裁剪方式
+  > - border-box 从 padding 左上角开始裁剪背景图片（默认）
+  > - padding-box 从 border 左上角开始裁剪背景图片
+  > - content-box 从 content 左上角开始裁剪背景图片
+  > - text 背景只呈现在文字上（webkit 私有）
+- background-size 背景图片的大小
+  > - 长度或百分比
+  > - auto 背景图片的实际大小（默认）
+  > - contain 背景图片等比例缩放，元素的部分区域可能没有背景
+  > - cover 背景图片等比例缩放，背景图片可能显示不完整
+
+```css
+.selector {
+  /* 复合属性：背景颜色 url 是否重复 位置 / 大小 坐标原点 裁剪方式 */
+  background: green url("./assets/bg.png") no-repeat 1rem 1rem / 40rem 30rem
+    border-box content-box;
+}
+```
+
+### 鼠标
+
+cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，url（图片路径）
+
+## 盒模型
+
+盒子宽度 = content 宽度 + 2\*padding + 2\*border
+
+默认盒子宽度 = 父元素 content 宽度 - 2\*margin
+
+`box-sizing: content-box`：width 和 height 设置盒子内容区的大小
+
+`box-sizing: border-box`：width 和 height 设置盒子总大小（怪异盒模型）
+
+### 长度单位
+
+- px 像素
+- em 相对元素 font-size 的倍数
+- rem 相对根元素（html）font-size 的倍数
+- % 相对父元素 font-size 的倍数
+- vw：viewport width，1vw = 视口宽度的 1%
+- vh：viewport height，1vh = 视口高度的 1%
+- vmax：vmax = Math.max(vw，vh)
+- vmin：vmin = Math.min(vw，vh)
+
+### 元素的显示模式（display）
+
+行内，行内块元素，可以视为文本，即可以设置文本属性
+
+**块级元素（block）**
+
+- 块级盒子独占一行
+- 宽度撑满父元素
+- 高度由内容撑开
+- 可以使用 CSS 设置宽高
+  > 默认块级元素有：`html, body, div, h1-h6, p, hr, ul, ol, li, dl, dt, dd, table, tbody, thead, tfoot, tr, caption, form, option`
+
+**行内元素（inline）**
+
+- 行内盒子不独占一行，溢出时换行
+- 宽度由内容撑开
+- 高度由内容撑开
+- 不能使用 CSS 设置宽高
+  > 默认行内元素有：`span, a, b, i, u, strong, em, br, label`
+
+**行内块元素（inline-block）**
+
+- 行内块盒子不独占一行，溢出时换行
+- 宽度由内容撑开
+- 高度由内容撑开
+- 可以使用 CSS 设置宽高
+  > 默认行内块元素有：`img, td, th, input, textarea, button, select, iframe`
+
+### 隐藏元素
+
+| 隐藏方式             | 是否占据空间 | 是否响应事件 | 回流/重绘 |
+| -------------------- | ------------ | ------------ | --------- |
+| `display: none`      | 否           | 否           | 回流      |
+| `visibility: hidden` | 是           | 否           | 重绘      |
+| `opacity: 0`         | 是           | 是           | 重绘      |
+
+### 样式继承
+
+只继承与盒子模型无关的属性
+
+- 继承的属性：字体属性，文本属性 (除了 vertical-align)
+- 不继承的属性：宽高，内外边距，边框，背景，溢出处理
+
+### margin 塌陷
+
+- 顶部子元素的上外边距 margin-top 会转移给父元素
+- 底部子元素的下外边距 margin-bottom 会转移给父元素
+- 上方元素的下外边距 marginBottom 和下方元素的上外边距 marginTop 合并为 Math.max(marginBottom, marginTop)，而不是预期的 marginBottom + marginTop
+
+### BFC
+
+## 浮动
+
+## 定位
