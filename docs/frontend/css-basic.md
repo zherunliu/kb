@@ -83,7 +83,8 @@
 - font-style 字体样式：normal，italic，oblique（强制倾斜）
 - font-weight 字体粗细：lighter，normal，bold，bolder,（100-1000）
 - `@font-face` web 字体, 浏览器自动下载
-- font 复合属性：`font: italic bold 16px/2 Arial, sans-serif`
+- font 复合属性
+  > `font: italic bold 16px/2 Arial, sans-serif`
 
 ```css
 @font-face {
@@ -137,7 +138,8 @@
 - list-style-type 列表符号：none，square，disc，decimal，lower-roman，upper-roman，lower-alpha，upper-alpha
 - list-style-position 列表符号的位置：inside 在 li 内部，outside 在 li 外部
 - list-style-image 列表符号的图片：url（图片路径）
-- list-style 复合属性：`list-style: square inside url("./assets/list-icon.png")`
+- list-style 复合属性
+  > `list-style: square inside url("./assets/list-icon.png")`
 
 ### 表格
 
@@ -155,7 +157,8 @@ border
 - border-color 边框颜色
 - border-style 边框样式：none，solid，dashed，dotted，double
 - border-radius 边框圆角
-- border 复合属性：`border: solid 2px red`
+- border 复合属性
+  > `border: solid 2px red`
 
 outline
 
@@ -163,7 +166,8 @@ outline
 - outline-color 外轮廓颜色
 - outline-style 外轮廓样式：none，solid，dashed，dotted，double
 - outline-offset 外轮廓与边框的距离
-- outline 复合属性：`outline: solid 2px red`
+- outline 复合属性
+  > `outline: solid 2px red`
 
 ::: tip 边框 vs 外轮廓
 
@@ -313,7 +317,7 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 
 只继承与盒子模型无关的属性
 
-- 继承的属性：字体属性，文本属性 (除了 vertical-align)
+- 继承的属性：字体属性，文本属性（除了 vertical-align）
 - 不继承的属性：宽高，内外边距，边框，背景，溢出处理
 
 ### margin 塌陷
