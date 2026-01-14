@@ -8,6 +8,7 @@ export default defineConfig({
   titleTemplate: false,
   description: "Rico's knowledge base",
   lang: "zh-CN",
+  srcDir: "docs",
   cleanUrls: true,
   lastUpdated: true,
   head: [
