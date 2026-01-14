@@ -269,7 +269,7 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 ### 长度单位
 
 - px 像素
-- em 相对元素 font-size 的倍数
+- em 相对自身 font-size 的倍数（属性为 font-size 则相对包含块的 font-size）
 - rem 相对根元素（html）font-size 的倍数
 - % 相对父元素 font-size 的倍数
 - vw：viewport width，1vw = 视口宽度的 1%
