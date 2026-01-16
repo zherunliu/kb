@@ -57,5 +57,5 @@ HTML(HyperText Markup Language) 用于构建网页结构，使用语义化标签
   > <!-- 唤起设备发送短信 -->
   > <a href="sms:10086">短信联系</a>
   > <!-- 执行一段js，可以留空，javascript:; -->
-  > <a href="javascript:alert(1);">点我弹窗</a>
+  > <a href="javascript:alert(1);">点击弹窗</a>
   > ```
