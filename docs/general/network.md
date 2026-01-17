@@ -364,6 +364,16 @@ chrome 为每一个页面创建一个渲染进程，渲染进程是多线程的�
 3. 布局和绘制
 4. 回流和重绘：回流 reflow，有关宽高等，性能开销大；重绘 repaint，有关颜色等，性能开销小
 
+#### 浏览器一帧中做了什么
+
+1. 处理用户交互事件（click，input，scroll 等）
+2. 执行同步代码
+3. 清空微任务队列（`Promise.then`，MutationObserver 等）
+4. 执行 requestAnimationFrame 下一帧重绘回流前的回调函数
+5. 布局和绘制（回流和重绘）
+6. 执行宏任务队列中的一个任务（`setTimeout`，`setInterval`，I/O等）
+7. 如果有空闲时间，则执行 requestIdleCallback 回调函数（如懒加载 js 脚本等）
+
 #### CSS 的阻塞
 
 CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚本的执行
