@@ -72,14 +72,14 @@ export default {
 
 **作用：**定义响应式变量
 
-**语法：**`let xxx = ref(/* initial value */)`
+**语法：**`const xxx = ref(/* initial value */)`
 
 **返回值：**一个 `RefImpl` 的实例对象，简称 `ref` 对象
 
 **注意点：**
 
 - JS/TS 中操作数据需要：`xxx.value`，但模板中不需要 `.value`，直接使用即可
-- 对于 `let name = ref('Rico')` 来说，`name` 不是响应式的，`name.value` 是响应式的
+- 对于 `const name = ref('Rico')` 来说，`name` 不是响应式的，`name.value` 是响应式的
 - 若 `ref` 接收的是对象类型，内部也是调用了 `reactive` 函数
 - 使用 `shallowRef`，只对顶层属性进行响应式处理
 
@@ -87,7 +87,7 @@ export default {
 
 **作用：**定义一个响应式**对象**
 
-**语法：**`let xxx = reactive(/* initial value */)`
+**语法：**`const xxx = reactive(/* initial value */)`
 
 **返回值：**一个 `Proxy` 的实例对象，简称：响应式对象
 
@@ -98,7 +98,7 @@ export default {
 - 使用 `shallowReactive`，只对顶层属性进行响应式处理
 
 ```ts
-let person = reactive({
+const person = reactive({
   name: "Rico",
   age: 24,
 });
