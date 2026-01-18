@@ -79,7 +79,6 @@ export default {
 **注意点：**
 
 - JS/TS 中操作数据需要：`xxx.value`，但模板中不需要 `.value`，直接使用即可
-- 对于 `const name = ref('Rico')` 来说，`name` 不是响应式的，`name.value` 是响应式的
 - 若 `ref` 接收的是对象类型，内部也是调用了 `reactive` 函数
 - 使用 `shallowRef`，只对顶层属性进行响应式处理
 
