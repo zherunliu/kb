@@ -828,3 +828,26 @@ fetch("http://localhost:3000", {
     console.log(res);
   });
 ```
+
+### navigator.sendBeacon
+
+`navigator.sendBeacon` 方法用于在页面卸载时，向服务器异步发送少量数据（ping 请求），常用于发送分析数据或日志信息
+
+- 不会阻塞页面卸载过程
+- 可以发送跨域请求
+- 只能发送 POST 请求
+- 发送的数据量有限制（<= 64KB）
+- 不能自定义请求头
+- 只能传输 `ArrayBuffer`，`ArrayBufferView`，`Blob`，`DOMString`，`FormData` 或 `URLSearchParams` 类型的数据
+
+```js
+window.addEventListener("unload", () => {
+  const url = "http://localhost:3000/log";
+  const data = JSON.stringify({
+    event: "page_unload",
+    timestamp: Date.now(),
+  });
+  const blob = new Blob([data], { type: "application/json" });
+  navigator.sendBeacon(url, blob);
+});
+```

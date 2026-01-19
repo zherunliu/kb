@@ -89,3 +89,47 @@
 4. 重复 2，3
 
 如果将同步任务即 `<script>` 整体代码也视为一个宏任务，则执行顺序简化为：每一个事件循环，先执行 1 个宏任务，再执行该宏任务的所有微任务，再进入下一个事件循环
+
+## 类型守卫
+
+**JS 数据类型**
+
+- 基本数据类型：`string`、`number`、`boolean`、`symbol`、`undefined`、`null`、`bigint`
+- 引用数据类型：`object`（包括数组、函数、日期、正则表达式等）
+
+#### typeof
+
+使用 `typeof` 操作符检查变量的基本类型（除 `null`，`typeof null === 'object'` 为 true）和函数类型
+
+`typeof` 通过判断二进制标签实现
+
+#### instanceof
+
+使用 `instanceof` 操作符检查对象是否是某个类的实例，适用于引用数据类型（包括数组、函数、日期、正则表达式等），右侧必须是构造函数
+
+`instanceof` 通过检查对象的原型链实现
+
+```js
+function mockInstanceof(obj, Constructor) {
+  // 检查右侧是否为函数
+  if (typeof Constructor !== "function") {
+    throw new TypeError("Constructor is not a function");
+  }
+
+  const CProto = Constructor.prototype;
+  // prototype 可写性，需检查其类型
+  if (typeof CProto !== "object" && CProto !== null) {
+    throw new TypeError("Constructor.prototype is not an object");
+  }
+
+  if (obj === null || obj === undefined) return false;
+
+  // 遍历原型链（使用 Object.getPrototypeOf 代替 __proto__，更标准安全）
+  let OProto = Object.getPrototypeOf(obj);
+  while (true) {
+    if (OProto === null) return false; // 原型链遍历完毕，未找到
+    if (OProto === CProto) return true;
+    OProto = Object.getPrototypeOf(OProto);
+  }
+}
+```
