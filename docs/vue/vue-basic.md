@@ -178,7 +178,7 @@ const stopWatch = watch(
       stopWatch.stop();
     }
   },
-  { deep: true } // number | boolean
+  { deep: true }, // number | boolean
 );
 ```
 
@@ -205,74 +205,11 @@ watchEffect(
     // pre: 组件挂载、更新前调用 watchCallback
     // post: 组件挂载、更新后调用 watchCallback
     // sync: 同步调用 watchCallback
-  }
+  },
 );
 ```
 
 > `onCleanup` 是一个用于注册清理函数的回调函数，主要作用是在当前副作用函数执行前或组件卸载时，执行一些清理操作，避免内存泄漏或无效操作，使用 `watch` 的时候直接 `return` 清理函数
-
-## 标签的 ref 属性
-
-用于普通 `DOM` 标签，获取的是 `DOM` 节点：
-
-```vue
-<template>
-  <input type="text" ref="refInput" id="idInput" />
-  <button @click="showLog">SHOW</button>
-</template>
-
-<script lang="ts" setup>
-import { ref, useTemplateRef } from "vue";
-
-// 通过 ref 获取元素
-let refInput = ref<HTMLInputElement>();
-let input = useTemplateRef("refInput"); // 可以取别名
-function showLog() {
-  // 通过 id 获取元素
-  const idInput = document.getElementById("idInput");
-
-  console.log(refInput.value.value);
-  console.log(input.value.value);
-  console.log((idInput as HTMLInputElement).value);
-}
-</script>
-```
-
-用于组件标签上，获取的是组件实例对象：
-
-::: code-group
-
-```vue [App.vue]
-<template>
-  <Child ref="person" />
-  <button @click="test">test</button>
-</template>
-
-<script lang="ts" setup>
-import Child from "./components/Child.vue";
-import { useTemplateRef } from "vue";
-
-let user = useTemplateRef("person");
-
-function test() {
-  console.log(user.value.name);
-  console.log(user.value.age);
-}
-</script>
-```
-
-```vue [Child.vue]
-<script lang="ts" setup>
-import { ref, defineExpose } from "vue";
-let name = ref("Rico");
-let age = ref(18);
-
-// 使用defineExpose将组件中的数据交给外部
-defineExpose({ name, age });
-</script>
-```
-
-:::
 
 ## 生命周期
 
