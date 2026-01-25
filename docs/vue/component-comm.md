@@ -312,7 +312,7 @@ const [model, modifiers] = defineModel("customInput", {
 
 ## UseAttrs ($attrs)
 
-`UseAttrs` 用于实现当前组件的父组件，向当前组件的子组件通信（**祖 => 孙**）
+`UseAttrs` 用于实现当前组件的父组件，向当前组件的子组件通信，**祖 => 孙**
 
 ::: code-group
 
