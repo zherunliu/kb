@@ -133,3 +133,5 @@ function mockInstanceof(obj, Constructor) {
   }
 }
 ```
+
+> 使用 `Object.prototype.toString.call()` 对类型进行精准判断
