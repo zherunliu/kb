@@ -354,6 +354,12 @@ chrome 为每一个页面创建一个渲染进程，渲染进程是多线程的�
 
 #### 浏览器渲染过程
 
+```plain
+HTML 文档 → HTML 解析器 → DOM 树
+                           ↓
+CSS 文件 → CSS 解析器 → CSSOM 树 → 渲染树 → 布局 → 绘制 → 显示
+```
+
 1. 解析 HTML，深度优先遍历以构建 DOM 树
    - 遇到 `<style>` 标签时，会同时构建 CSSOM 树
    - 遇到未使用 async 或 defer 或 `type="module"` 标记的 `<script>` 标签时，会阻塞 DOM 树的构建，并等待 CSSOM 树构建完成后，转而执行后续的 JS 脚本
@@ -394,6 +400,9 @@ CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚�
 
 - `<link rel="preload stylesheet" href="/style.css" as="style">` rel="preload" 预加载任意资源，as 指定资源类型 script，style，font，image...
 - `<link rel="modulepreload" href="/src/main.js">`：rel="modulepreload" 预加载 esm 模块和依赖的子模块
+- `<link rel="prefetch" href="next-page.js">` rel="prefetch" 预获取未来可能会用到的资源，浏览器空闲时加载
+
+> 预加载不会自动执行/应用，需要后续正常引用
 
 ## 浏览器安全
 
