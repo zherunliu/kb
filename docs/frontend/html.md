@@ -1,6 +1,6 @@
 # HTML
 
-HTML(HyperText Markup Language) 用于构建网页结构，使用语义化标签提升可读性，利于 SEO，便于设备解析
+HTML（HyperText Markup Language）用于构建网页结构，使用语义化标签提升可读性，利于 SEO，便于设备解析
 
 ## HTML 标准结构
 

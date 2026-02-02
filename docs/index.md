@@ -12,8 +12,8 @@ hero:
       text: Vue
       link: /vue/vue-basic
     - theme: alt
-      text: Other
-      link: /other/git
+      text: General
+      link: /general/git
 
 features:
   - icon: 🧹
