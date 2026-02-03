@@ -235,5 +235,73 @@ userStore.$onAction(
 
 ## pinia 持久化
 
+页面刷新后，store 仓库缓存的 state 状态丢失
+
 - localStorage：数据存储到磁盘，没有过期时间
 - sessionStorage：数据缓存到内存，会话结束时自动清除
+
+::: tip 使用浏览器持久化缓存
+
+- 对于选项式 store 仓库实例，$state 是单层 reactive 包装的对象，需要调用 toRaw 转换为普通对象
+- 对于组合式 store 仓库实例，$state 是多层嵌套的响应式对象，必须递归调用 toRaw 将 $state 转换为普通对象
+
+:::
+
+::: code-group
+
+```js [utils/deepToRaw.js]
+import { isReactive, isRef, toRaw, unref } from "vue";
+
+export function deepToRaw(obj) {
+  const raw = isReactive(obj) ? toRaw(obj) : obj;
+  if (Array.isArray(raw)) return raw.map(deepToRaw);
+  if (typeof raw === "object" && raw !== null) {
+    const res = {};
+    for (const k in raw) {
+      const v = raw[k];
+      res[k] = isRef(v) ? deepToRaw(unref(v)) : deepToRaw(v);
+    }
+    return res;
+  }
+  return raw;
+}
+```
+
+```ts [main.ts]
+import { createApp } from "vue";
+import { createPinia, type PiniaPlugin, type PiniaPluginContext } from "pinia";
+import { deepToRaw } from "./utils/deepToRaw";
+import "./style.css";
+import App from "./App.vue";
+
+const app = createApp(App);
+
+const setLocalStorage = (key: string, value: unknown) => {
+  const rawVal = deepToRaw(value);
+  localStorage.setItem(key, JSON.stringify(rawVal));
+};
+
+const getLocalStorage = (key: string) =>
+  JSON.parse(localStorage.getItem(key) ?? "{}");
+
+const piniaPluginPersist = (): PiniaPlugin => {
+  return (ctx: PiniaPluginContext) => {
+    const key = ctx.store.$id;
+    const val = getLocalStorage(key);
+    ctx.store.$subscribe(() =>
+      setLocalStorage(key, deepToRaw(ctx.store.$state)),
+    );
+    ctx.store.$patch(val);
+  };
+};
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersist());
+app.use(pinia);
+
+app.mount("#app");
+```
+
+:::
+
+> `tsconfig.app.json` 添加 `"allowJs": true` 支持 js 文件
