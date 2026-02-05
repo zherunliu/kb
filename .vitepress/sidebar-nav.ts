@@ -49,6 +49,7 @@ const GENERAL: DefaultTheme.NavItemWithLink[] = [
   { text: "Docker", link: "/general/docker" },
   { text: "JS/TS", link: "/general/js" },
   { text: "Network", link: "/general/network" },
+  { text: "Test", link: "/general/test" },
 ];
 
 const sidebar = {
