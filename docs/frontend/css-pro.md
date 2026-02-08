@@ -383,3 +383,43 @@ flex 项目在主轴方向的初始大小
 ```
 
 :::
+
+## Sass
+
+- 嵌套（CSS 已支持）
+- 父选择器 `&`（CSS 已支持）
+- 变量 `$`
+- 插值 `#{}`
+- 混入 `@mixin` 和 `@include`
+- 继承 `@extend`
+
+```scss
+// 插值
+$name: bg-color;
+$attr: background;
+
+.parent.#{$name} {
+  #{$attr}-color: lightgreen;
+}
+
+// 混入
+@mixin transform($property, $value) {
+  -ms-transform: #{$property }($value);
+  transform: #{$property }($value);
+}
+
+.box {
+  @include transform(rotate, 45deg);
+}
+
+// 继承
+%center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container {
+  @extend %center;
+  height: 100vh;
+}
+```
