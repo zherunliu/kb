@@ -90,7 +90,42 @@
 
 如果将同步任务即 `<script>` 整体代码也视为一个宏任务，则执行顺序简化为：每一个事件循环，先执行 1 个宏任务，再执行该宏任务的所有微任务，再进入下一个事件循环
 
-## 类型守卫
+## 类型工具
+
+- `keyof T` 获取 T 的所有键，生成一个联合类型
+- `Record<K, V>` 创建一个对象类型，键为 K 类型，值为 V 类型
+- `Partial<T>` 将 T 中所有属性变为可选
+- `Required<T>` 将 T 中所有属性变为必选
+- `Readonly<T>` 将 T 中所有属性变为只读
+- `Pick<T, "field" | "filed2">` 从 T 中选择一组属性 field，field2 构造新类型
+- `Omit<T, "field" | "filed2">` 从 T 中忽略一组属性 field，field2 构造新类型
+- `Exclude<T, U>` 从 T 中排除可以赋值给 U 的类型
+- `Extract<T, U>` 从 T 中提取可以赋值给 U 的类型（类型的交集）
+- `NonNullable<T>` 从 T 中排除 null 和 undefined
+- `Parameters<F>` 获取函数类型 F 的参数类型
+- `ReturnType<F>` 获取函数类型 F 的返回值类型
+- `ConstructorParameters<F>` 获取构造函数 F 的参数类型
+- `InstanceType<C>` 获取类的实例类型
+- `Awaited<Y>` 获取 Promise `resolve(value)` 的值类型（也即 `onfulfilled` 的返回值类型）
+- `Uppercase<S>`，`Lowercase<S>`，`Capitalize<S>`，`Uncapitalize<S>`
+
+```ts
+interface User {
+  name: string;
+  age: number;
+}
+
+type OnChangeEvents = {
+  [K in keyof User as `on${Capitalize<K>}Change`]: (value: User[K]) => void;
+};
+
+// type OnChangeEvents = {
+//   onNameChange: (value: string) => void;
+//   onAgeChange: (value: number) => void;
+// }
+```
+
+### 类型守卫
 
 **JS 数据类型**
 
@@ -135,3 +170,46 @@ function mockInstanceof(obj, Constructor) {
 ```
 
 > 使用 `Object.prototype.toString.call()` 对类型进行精准判断
+
+## 输入输出
+
+```ts
+import { createInterface } from "readline";
+
+const rl = createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+type TCart = [string, string, string][];
+
+const cartList: TCart = [];
+rl.on("line", (line) => {
+  const item = line.trim().split(" ") as [string, string, string];
+  cartList.push(item);
+});
+
+rl.on("close", () => {
+  const result: Record<string, { totalPrice: number; totalCount: number }> = {};
+  for (const item of cartList) {
+    const name = item[0];
+    const price = Number(item[1]);
+    const count = Number(item[2]);
+    if (!result[name]) {
+      result[name] = {
+        totalPrice: 0,
+        totalCount: 0,
+      };
+    }
+    result[name].totalPrice += price * count;
+    result[name].totalCount += count;
+  }
+
+  for (const key in result) {
+    console.log(
+      `${key} ${result[key].totalPrice.toFixed(2)} ${result[key].totalCount}`,
+    );
+  }
+  rl.close();
+});
+```

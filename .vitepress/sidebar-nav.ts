@@ -48,6 +48,7 @@ const GENERAL: DefaultTheme.NavItemWithLink[] = [
   { text: "Git", link: "/general/git" },
   { text: "Docker", link: "/general/docker" },
   { text: "JS/TS", link: "/general/js" },
+  { text: "Python", link: "/general/python" },
   { text: "Network", link: "/general/network" },
   { text: "Test", link: "/general/test" },
 ];

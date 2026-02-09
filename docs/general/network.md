@@ -31,7 +31,7 @@ HTTP/1.0 是短连接，每次 HTTP 请求都需要建立 TCP 连接，传输数
 - 一个域名只使用一个 TCP 长连接传输数据，整个页面资源的加载只需要一次 TCP 慢启动，同时避免了多个 TCP 连接竞争带宽的问题
 - HTTP 多路复用技术，引入二进制分帧层，并行处理请求，转换为若干个带有请求 ID 编号的帧，通过 TCP/IP 协议栈发送给服务器，服务器收到请求帧后，将所有 ID 相同的帧合并为一个完整的请求，并处理该请求；类似的，服务器的二进制分帧层将响应数据转换为若干个带有响应 ID 编号的帧，通过 TCP/IP 协议栈发送给浏览器，浏览器收到响应帧后，将所有 ID 相同的帧合并为一个完整的响应
 - 请求优先级：HTTP/2.0 支持请求优先级，发送请求时，标记该请求的优先级，服务器收到请求后，优先处理优先级高的请求
-- 服务器推送：HTTP/2.0 服务器推送（Server Push）允许客户端请求某个资源（例如 index.html）时，服务器推送其他资源（例如 style.css，main.js），避免发送额外的请求
+- 服务器推送：HTTP/2.0 服务器推送（Server Push）允许客户端请求某个资源（例如 index.html）时，服务器推送其他资源（例如 `style.css`，`main.js`），避免发送额外的请求
 - 头部压缩：HTTP/2.0 对请求头和响应头进行（gzip）压缩
 - 可重置：HTTP/2.0 可以在不中断 TCP 连接的前提下，取消当前的请求或响应
 
@@ -399,7 +399,7 @@ CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚�
 **资源预加载**
 
 - `<link rel="preload stylesheet" href="/style.css" as="style">` rel="preload" 预加载任意资源，as 指定资源类型 script，style，font，image...
-- `<link rel="modulepreload" href="/src/main.js">`：rel="modulepreload" 预加载 esm 模块和依赖的子模块
+- `<link rel="modulepreload" href="/src/main.js">` rel="modulepreload" 预加载 esm 模块和依赖的子模块
 - `<link rel="prefetch" href="next-page.js">` rel="prefetch" 预获取未来可能会用到的资源，浏览器空闲时加载
 
 > 预加载不会自动执行/应用，需要后续正常引用
