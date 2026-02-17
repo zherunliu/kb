@@ -45,12 +45,13 @@ const DATABASE: DefaultTheme.NavItemWithLink[] = [
 ];
 
 const GENERAL: DefaultTheme.NavItemWithLink[] = [
-  { text: "Git", link: "/general/git" },
-  { text: "Docker", link: "/general/docker" },
+  { text: "Network", link: "/general/network" },
   { text: "JS/TS", link: "/general/js" },
   { text: "Python", link: "/general/python" },
-  { text: "Network", link: "/general/network" },
+  { text: "Algorithm", link: "/general/algorithm" },
+  { text: "Git", link: "/general/git" },
   { text: "Test", link: "/general/test" },
+  { text: "Docker", link: "/general/docker" },
 ];
 
 const sidebar = {
