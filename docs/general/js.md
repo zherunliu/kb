@@ -70,10 +70,13 @@
     > - `XMLHttpRequest`，`fetch`，`postMessage` I/O 操作
     > - `requestAnimationFrame` 下一帧重绘回流前，执行传递的回调函数
     > - `setImmediate` IE 环境，当前事件循环的所有的宏任务执行后，执行传递的回调函数
+    > - DOM 事件
+    > - UI 渲染（绘制）
   - 微任务
-    > - `Promise[.then, .catch, .finally]`
+    > - `Promise[.then(), .catch(), .finally()]`
     > - `async/await`
     > - `MutationObserver` 监听整个 DOM 树的改变
+    > - `queueMicrotask` 将回调函数加入微任务队列，在当前事件循环的所有同步任务执行完毕后，执行传递的回调函数
     > - `process.nextTick` node 环境，当前事件循环的所有的微任务执行前，执行传递的回调函数
   - 异步任务队列
   - 宏任务队列：宏任务加入宏任务队列
