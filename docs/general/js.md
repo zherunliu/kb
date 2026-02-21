@@ -216,3 +216,54 @@ rl.on("close", () => {
   rl.close();
 });
 ```
+
+## Promise
+
+Promise 对象是一个构造函数，用于表示一个异步操作的最终完成（或失败）及其结果值。Promise 接受一个函数作为参数，该函数包含两个参数：
+
+- `resolve` 异步操作成功时调用的函数，将 Promise 的状态从 pending 变为 fulfilled，并传递成功的结果值，如果传递的值也是一个 Promise，则会等待该 Promise 的状态改变后再改变当前 Promise 的状态
+- `reject` 异步操作失败时调用的函数，将 Promise 的状态从 pending 变为 rejected，并传递失败的原因
+
+> - promise 的状态一旦状态确定就不能再改变
+> - `resolve` 和 `reject` 同时也是 Promise 的静态方法，可以直接调用 `Promise.resolve(value)` 和 `Promise.reject(reason)` 创建一个已解决或已拒绝的 Promise 对象
+> - 调用 `resolve` 或 `reject` 不会终结 Promise 内部的代码执行，后续代码仍会继续执行
+
+### 实例方法
+
+- `then(onFulfilled, onRejected)`：添加成功和失败的回调函数，返回一个新的 Promise 对象
+- `catch(onRejected)`：添加失败的回调函数，返回一个新的 Promise 对象，等价于 `then(undefined/null, onRejected)`，推荐使用 `catch` 而不是 `then` 的第二个参数来处理错误，因为 `catch` 可以捕获前面 `then` 中抛出的错误并且更具可读性
+- `finally(onFinally)`：添加无论成功还是失败都会执行的回调函数，返回一个新的 Promise 对象
+
+```ts
+// finally 的回调函数不接受任何参数，无法获取 Promise 的结果值或错误原因
+promise.finally(() => {
+  // code
+});
+
+// equal to
+promise.then(
+  (result) => {
+    // code
+    return result;
+  },
+  (error) => {
+    // code
+    throw error;
+  },
+);
+// finally 总会返回原来的结果值或错误原因
+// 除非 finally 的回调函数抛出新的错误或返回一个新的 Promise 对象
+```
+
+> 没有使用 `catch` 或 `then` 处理失败回调的 rejected 状态会导致未处理的 Promise 拒绝错误，浏览器会在控制台输出警告信息，Node.js 会触发 `unhandledRejection` 事件
+
+### 静态方法
+
+| static method          | fulfilled                                                          | rejected                                                                                      |
+| ---------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `Promise.all()`        | 全部 fulfilled，返回 aggregateValues 数组                          | 任一 rejected，返回第一个 rejected 的 reason                                                  |
+| `Promise.any()`        | 任一 fulfilled，返回第一个 fulfilled 的 value                      | 全部 rejected，返回 aggregateReasons 数组                                                     |
+| `Promise.race()`       | 第一个 settled 为 fulfilled 的 value                               | 第一个 settled 为 rejected 的 reason                                                          |
+| `Promise.allSettled()` | 返回 aggregateResults 数组，包含每个 Promise 的状态和 value/reason | 始终 fulfilled，`[{status: 'fulfilled', value: value}, {status: 'rejected', reason: reason}]` |
+
+> 如果作为参数的 Promise 实例，自己定义了 `catch` 方法，那么它的 rejected 将被自身捕获，`Promise.all()/any()/race()/allSettled()` 接受到的是 `catch` 方法返回 Promise 的状态

@@ -203,6 +203,8 @@
 
 flex 项目在主轴上的排列顺序，值越小越靠前，默认 `order: 0`
 
+> order 只影响排列顺序，不影响文档流顺序，因此不影响 tab 键的焦点顺序和 assistive technology 的访问顺序（需要注意 a11y 和 SEO）
+
 ### 伸缩性
 
 **flex-grow**
@@ -269,6 +271,26 @@ flex 项目在主轴方向的初始大小
 ### 放置网格
 
 - grid-template-areas 定义区域（命名，用 `.` 留空），一个区域由一个或多个单元格组成
+  > ```css
+  > .layout {
+  >   display: grid;
+  >   /** [] 命名网格线 */
+  >   grid-template-columns: [start] 1fr [middle] 2fr [end];
+  >   grid-template-rows: 100px 200px;
+  >   grid-template-areas:
+  >     "header header"
+  >     "sidebar main";
+  > }
+  > .header {
+  >   grid-area: header;
+  > }
+  > .sidebar {
+  >   grid-area: sidebar;
+  > }
+  > .main {
+  >   grid-area: main;
+  > }
+  > ```
 - grid-row-start 上边框的水平网格线（可以使用负数表示倒数的网格线）
 - grid-row-end 下边框的水平网格线
 - grid-column-start 左边框的垂直网格线
