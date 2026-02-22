@@ -138,6 +138,7 @@ HTTP 报文分为请求报文和响应报文
 - 405 Method Not Allowed 客户端使用的请求方法不被允许
 - 408 Request Timeout 服务器决定关闭空闲连接，而不是继续等待新请求
 - 410 Gone 请求的资源已永久丢失
+- 429 Too Many Requests 客户端发送了过多的请求，服务器暂时拒绝处理请求
 
 **5XX Server Error 服务器端错误响应**
 

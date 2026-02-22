@@ -145,6 +145,10 @@ type OnChangeEvents = {
 
 使用 `instanceof` 操作符检查对象是否是某个类的实例，适用于引用数据类型（包括数组、函数、日期、正则表达式等），右侧必须是构造函数
 
+:::tip 跨 iframe 问题
+每个 iframe 都有自己的全局环境和构造函数，因此在一个 iframe 中创建的对象在另一个 iframe 中使用 `instanceof` 检查时会返回 false，因为它们的构造函数不同
+:::
+
 `instanceof` 通过检查对象的原型链实现
 
 ```js
@@ -267,3 +271,47 @@ promise.then(
 | `Promise.allSettled()` | 返回 aggregateResults 数组，包含每个 Promise 的状态和 value/reason | 始终 fulfilled，`[{status: 'fulfilled', value: value}, {status: 'rejected', reason: reason}]` |
 
 > 如果作为参数的 Promise 实例，自己定义了 `catch` 方法，那么它的 rejected 将被自身捕获，`Promise.all()/any()/race()/allSettled()` 接受到的是 `catch` 方法返回 Promise 的状态
+
+#### Promise 超时 + 取消
+
+`Promise.race()` + AbortController
+
+```js
+function withTimeout(promise, ms, signal) {
+  const timeoutPromise = new Promise((_, reject) => {
+    const timer = setTimeout(() => reject(new Error("Promise timed out")), ms);
+
+    signal?.addEventListener("abort", () => {
+      clearTimeout(timer); // 取消定时器
+      reject(new Error("Promise aborted"));
+    });
+  });
+  return Promise.race([promise, timeoutPromise]);
+}
+
+// example usage
+let controller = null;
+document.getElementById("fetchBtn").addEventListener("click", () => {
+  if (controller) {
+    controller.abort();
+  }
+  controller = new AbortController();
+  const signal = controller.signal;
+  const fetchTask = fetch("https://jsonplaceholder.typicode.com/todos/1", {
+    signal,
+  });
+  withTimeout(fetchTask, 3000, signal)
+    .then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.error(error));
+});
+
+document.getElementById("cancelBtn").addEventListener("click", () => {
+  if (controller) {
+    controller.abort();
+    controller = null;
+  } else {
+    console.warn("No ongoing fetch to cancel");
+  }
+});
+```
