@@ -25,7 +25,6 @@
   - `selector[attr$="val"]` 选择 `attr` 以 `val` 结尾的元素
   - `selector[attr*~*="val"]` 选择 `attr` 包含 `val` 的元素
 - 伪类选择器（选择元素的特殊状态/位置）
-
   - `:hover` 鼠标悬浮时选择元素
   - `:active` 鼠标按下时选择元素
   - `:focus` 获得焦点时选择元素（表单类元素）
@@ -90,8 +89,15 @@
 @font-face {
   font-family: "Maple Mono";
   src: url("./src/assets/MapleMono.woff2") format("woff2");
+  font-display: swap; /* auto | block | swap | fallback | optional */
 }
 ```
+
+- swap 浏览器使用系统字体占位，下载完成后替换为 web 字体（核心文本）
+- fallback 隐藏文本，等待 web 字体加载完成后显示，超过 100ms 则放弃加载，继续使用系统字体（非核心文本）
+- optional 隐藏文本，等待 web 字体加载完成后显示，超过 100ms 则放弃加载，如果网络状况不佳，放弃加载 web 字体，继续使用系统字体（装饰性文本）
+- block 隐藏文本，等待 web 字体加载完成后显示，超过 3s 则放弃加载，继续使用系统字体
+- auto 浏览器决定是否加载（默认值，多数为 block）
 
 ### 文本
 
