@@ -37,6 +37,7 @@ const FRONTEND: DefaultTheme.NavItemWithLink[] = [
   { text: "HTML", link: "/frontend/html" },
   { text: "CSS Basic", link: "/frontend/css-basic" },
   { text: "CSS Pro", link: "/frontend/css-pro" },
+  { text: "Web API", link: "/frontend/web-api" },
 ];
 
 const DATABASE: DefaultTheme.NavItemWithLink[] = [

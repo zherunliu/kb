@@ -78,6 +78,8 @@ type OnChangeEvents = {
 - 基本数据类型：`string`、`number`、`boolean`、`symbol`、`undefined`、`null`、`bigint`
 - 引用数据类型：`object`（包括数组、函数、日期、正则表达式等）
 
+> JSON 数据类型：`string`、`number`、`boolean`、`null`、数组、对象（不包含函数、日期、正则表达式等）
+
 #### typeof
 
 使用 `typeof` 操作符检查变量的基本类型（除 `null`，`typeof null === 'object'` 为 true）和函数类型
@@ -258,3 +260,88 @@ document.getElementById("cancelBtn").addEventListener("click", () => {
   }
 });
 ```
+
+## 模块化
+
+### CommonJs
+
+:::code-group
+
+```js [school.js]
+// 使用 exports 导出
+exports.name = name;
+exports.slogan = slogan;
+// 使用 module.exports 导出
+module.exports = { name, slogan };
+```
+
+```js [index.js]
+// 使用 require() 导入
+const school = require("./school.js");
+```
+
+:::
+
+> - 每个模块的内部，`this`，`exports`，`module.exports` 在初始时，都指向同一个空对象，该空对象就是当前模块导出的数据
+> - 无论如何修改导出对象，最终导出的都是 `module.exports` 的值
+> - `exports` 是对 `module.exports` 的初始引用，便于给导出对象添加属性
+> - 在 CommonJs 里，所写代码是被包裹到一个内置函数中执行的，可以使用 `arguments.callee` 得到函数本身
+
+**`require` 导入自定义模块的基本流程：**
+
+1. 将相对路径转为绝对路径，定位目标文件
+2. 缓存检测
+3. 读取目标文件代码
+4. 包裹为一个函数并执行（IIFE）
+   > 该函数接受 `exports`，`require`，`module`，`__filename`，`__dirname` 作为参数
+5. 缓存模块的值
+6. 返回 `module.exports` 的值
+
+### ES6 Module
+
+::: code-group
+
+```js [student.js]
+/* 多种方式可以同时使用 */
+// 分别导出 export
+export const name = 'rico'
+export function getTel() {
+return '13421399884'
+}
+// 统一导出 {} 不是对象
+export {name, getTel}
+// 默认导出 导出是一个对象，键为 default
+export default
+```
+
+```js [index.js]
+// 全部导入
+import * as school from "./school.js";
+import * as student from "./student.js";
+// 命名导入 对应导出方式分别导出，统一导出
+import { name as schoolName, getTel } from "./school.js";
+// 默认导入 对应默认导出
+import school from "./school.js";
+// 命名导入和默认导入可以混用
+import name, { getTel } from "./school.js";
+// 动态导入
+btn.click = async () => {
+  const result = await import("./student.js");
+  console.log(result);
+};
+// import 可以不接受任何数据
+import "./student.js";
+```
+
+:::
+
+> 在页面中引入 module 不影响全局：
+>
+> `<script type="module" src="./index.js"></script>`
+>
+> 导出数据和导入数据共享同一块内存，需要谨慎使用
+
+**node 中运行 ES6 模块**
+
+- 在 `package.json` 中配置 `"type": "module"`
+- 将 `js` 后缀改为 `mjs`
