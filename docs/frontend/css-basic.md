@@ -463,3 +463,11 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 - 只有定位的元素设置 z-index 才有效
 - z-index 属性值越大，显示层级越高
 - 如果位置发生重叠，默认情况是：后面的元素，会显示在前面元素之上
+
+## BEM 命名规范
+
+```plain
+块：block-name
+元素：block-name__element-name（双下划线分隔块和元素）
+修饰符：block-name--modifier-name（双连字符分隔块/元素和修饰符）
+```

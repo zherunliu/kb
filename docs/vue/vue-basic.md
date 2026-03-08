@@ -264,6 +264,9 @@ console.log(items, readonlyItems); // ["item"] ["item"]
 - v-model 模型，视图的双向绑定，本质是 v-bind 和 v-on 的语法糖
 - v-once 性能优化，只渲染一次
 - v-memo 性能优化，缓存
+- v-slot 简写为 `#`，用于组件插槽
+- v-pre 跳过编译，性能优化
+- v-cloak 解决闪烁问题，性能优化
 
 ```vue
 <input type="text" v-model="userName" />

@@ -70,7 +70,7 @@ HTML（HyperText Markup Language）用于构建网页结构，使用语义化标
 - `rel="dns-prefetch"` 预解析 DNS，提前获取服务器 IP 地址，减少后续请求的 DNS 解析时间
 - `rel="modulepreload"` 预加载 esm 模块和依赖的子模块
 - `type`：指定资源 MIME 类型，浏览器不支持则跳过加载，避免无效请求
-- `media`：媒体查询，仅在匹配条件时加载资源
+- `media`：媒体查询，仅在匹配条件时加载资源，和 CSS 中的媒体查询 `@media` 类似
 
   `<link rel="preload" as="image" imagesrcset="/images/hero-480.jpg 480w, /images/hero-800.jpg 800w, /images/hero-1200.jpg 1200w" imagesizes="(max-width: 600px) 480px, (max-width: 900px) 800px, 1200px"/>`
 

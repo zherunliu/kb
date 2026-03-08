@@ -463,3 +463,31 @@ fetch("http://localhost:3000", {
     console.log(res);
   });
 ```
+
+## Web Worker
+
+Web Worker 允许在后台线程中运行 JavaScript 代码，避免阻塞主线程，适用于计算密集型任务
+
+特点：
+
+- worker 线程执行的脚本与主线程执行的脚本必须同源
+- 为了防止中间人攻击，worker 线程不允许读取本地文件，只允许加载网络文件
+- worker 线程不允许操作 DOM，不能使用 window，document，parent（parent === window）对象，可以使用 navigator 和 location 对象
+
+## Service Worker
+
+Service worker 充当 Web 应用程序、浏览器与网络之间的代理服务器，适用于 PWA（Progressive Web App）场景
+
+特点：
+
+- Service Worker 完全异步，同步的 XHR 和 Web Storage 不能在 Service Worker 中使用
+- 作用域为整个域名（多个页面共享），页面关闭仍可运行
+- Service Worker 只能使用 HTTPS（更加严格的 worker）
+- Service Worker 是客户端脚本，有下载，安装，激活的生命周期
+
+场景：
+
+- 后台数据同步: 启动一个 Service Worker，即使用户没有访问页面，也可以更新缓存
+- 响应推送: 启动一个 Service Worker，向用户发送消息，通知新的内容可用
+- 离线访问: Service Worker 可以缓存资源，使应用在没有网络连接时仍然可用
+- 性能增强: 预取用户可能需要的资源
