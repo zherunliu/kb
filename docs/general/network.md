@@ -376,10 +376,10 @@ CSS 文件 → CSS 解析器 → CSSOM 树 → 渲染树 → 布局 → 绘制 �
 1. 处理用户交互事件（click，input，scroll 等）
 2. 执行同步代码
 3. 清空微任务队列（`Promise.then`，MutationObserver 等）
-4. 执行 requestAnimationFrame 下一帧重绘回流前的回调函数
+4. 执行 requestAnimationFrame 下一帧重绘回流前的回调函数（动画等帧率敏感的操作）
 5. 布局和绘制（回流和重绘）
 6. 执行宏任务队列中的一个任务（`setTimeout`，`setInterval`，I/O等）
-7. 如果有空闲时间，则执行 requestIdleCallback 回调函数（如懒加载 js 脚本等）
+7. 如果有空闲时间，则执行 requestIdleCallback 回调函数（如懒加载 js 脚本，日志上报等）
 
 #### CSS 的阻塞
 

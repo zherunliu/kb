@@ -348,7 +348,7 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 - 浮动元素，float 属性值不等于 none 的元素 `float: left | right`
 - absolute 绝对或 fixed 固定定位的元素 `position: absolute | fixed`
 - 非 block 的块级容器 `display: inline | flex | inline-flex | grid | inline-grid | flow-root` 的元素
-- overflow 属性值不等于 visible 的元素 `overflow: hidden | auto | scroll`
+- overflow 属性值不等于 visible 或 clip 的元素 `overflow: hidden | auto | scroll`
 - 表格单元格：table，thead，tbody，tfoot，tr，th，td，caption, `display: table-cell | table-caption`
 - 多列容器
 
