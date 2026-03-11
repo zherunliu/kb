@@ -76,6 +76,7 @@ HTTP 报文分为请求报文和响应报文
   - `Access-Control-Request-Headers` 用于预检请求，告诉浏览器实际请求的请求头字段
   - `Connection` 当前会话结束后，是否关闭 HTTP 连接，默认 `Connection: Keep-Alive`
   - `Cache-Control` 缓存控制
+    > Cache-Control: max-age=10, stale-while-revalidate=60 表示资源在客户端的缓存有效期为 10 秒，过期后，在 60 秒内，浏览器可以直接使用过期的资源，同时在后台发送请求更新资源（swr 策略）
   - `Content-Length` 请求体的长度
   - `Content-Type` 请求体的媒体类型
   - `Via` 代理服务器设置的请求头/响应头字段，适用于正向/反向代理，记录中间节点
@@ -550,7 +551,9 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
   > 也可以通过设置 `<meta>` 标签定义内容安全策略
   > `<meta http-equiv="content-security-policy" content="default-src 'self'; script-src 'self' https://trusted.cdn.com;">`
 
-## web 性能指标
+## 性能优化
+
+### web 性能指标
 
 - 加载速度
   - FCP（First Contentful Paint）：首次内容绘制，指浏览器首次将任何文本、图片、非空白 canvas 或 SVG 等内容渲染到屏幕上的时间点
@@ -561,3 +564,50 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
   - CLS（Cumulative Layout Shift）：累计布局偏移，指页面在加载过程中发生的所有意外布局偏移的总和，衡量页面视觉稳定性的指标
 - 交互响应性
   - INP（Interaction to Next Paint）：交互到下一次绘制，指用户与页面交互（例如点击按钮）后，浏览器完成下一次绘制的时间点，替代了 FID（First Input Delay）作为交互性能的指标（<= 200ms）
+
+### 优化方法
+
+#### 网络与加载（Network & Loading）
+
+- 减少请求数：HTTP 缓存（强缓存/协商缓存）、Service Worker 离线拦截、资源合并（雪碧图）、内联关键资源
+- 减小传输体积：压缩（Gzip/Brotli）、Tree-Shaking 剔除无用代码、图片/视频格式优化（AVIF/WebP）、分包策略
+- 优化传输过程：CDN 加速、DNS 预解析、TCP 复用、HTTP/3 启用
+- 智能加载策略：
+  - 懒加载：图片、组件、路由按需加载
+  - 预加载/预连接（Preload/Prefetch/Preconnect）：提前获取关键资源
+  - SWR 策略：利用缓存旧数据提升首屏速度
+
+#### 渲染与解析（Rendering & Parsing）
+
+- 关键渲染路径优化：减少阻塞渲染的资源（将非关键 CSS 内联，异步加载非关键 JS）
+- 减少重排重绘：避免一次性修改多个 DOM 样式（使用类名批量修改，dom 离线修改，使用 DocumentFragment），使用 content-visibility 优化长列表，减少布局计算
+
+- CSS 优化：降低选择器复杂度，提升合成层性能（Will-change）
+- JavaScript 解析：优化长任务拆分、避免脚本阻塞解析
+
+```css
+.long-list-item {
+  content-visibility: auto;
+  /* 提前预渲染视口外 500px 的内容，避免滚动时闪烁 */
+  contain-intrinsic-size: 500px;
+}
+.box {
+  will-change:
+    transform, opacity; /* 告诉浏览器即将修改这些属性，避免动画临时计算，减少卡顿 */
+  transform: translateZ(0); /* 强制创建合成层（老浏览器兼容） */
+}
+```
+
+#### 运行时与交互（Runtime & Interaction）
+
+- 主线程优化：将长任务拆分成小任务（RequestIdleCallback、Scheduler API），避免阻塞主线程导致输入延迟
+- 动画性能：使用 requestAnimationFrame 做 DOM 动画，避免强制同步布局（Forced Synchronous Layout）
+- 内存管理：避免内存泄漏（未清除的定时器、游离的 DOM 引用），减少垃圾回收的停顿时间
+- 算法与逻辑：前端代码逻辑效率，如虚拟列表处理大数据渲染（@tanstack/vue-virtual）
+
+#### 用户感知（Perception）
+
+- 骨架屏：白屏期间显示占位结构，提升首屏感知速度
+- 进度指示器：清晰的加载进度
+- 渐进式展示：先渲染文字内容，再渲染图片/复杂组件
+- 错误兜底：SWR 策略、离线页面的友好提示

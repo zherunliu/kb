@@ -13,6 +13,8 @@
   >
   > `transform: translateX(3rem) translateY(4rem)`
 
+> 相比 position，transform 不会触发回流，性能更好
+
 **缩放**
 
 - `transform: scaleX(1)` 水平方向的缩放比例

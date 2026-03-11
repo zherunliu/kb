@@ -346,7 +346,7 @@ import "./student.js";
 - 在 `package.json` 中配置 `"type": "module"`
 - 将 `js` 后缀改为 `mjs`
 
-## V8 垃圾回收
+## V8 垃圾回收（Garbage Collection）
 
 v8 垃圾回收采用分代回收策略，将堆内存分为新生代和老年代，新生代中的对象存活时间较短，老生代中的对象存活时间较长，甚至常驻内存
 
