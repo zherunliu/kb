@@ -55,4 +55,125 @@ Suspense 提供两个插槽：`#default` 与 `#fallback`，两个插槽都只允
 </keep-alive>
 ```
 
-使用 keep-alive 会增加两个生命周期 `onActivated()` 和 `onDeactivated()`
+::: tip 缓存组件的更新
+
+keep-alive 会缓存组件的 DOM 结构和实例状态，但不会缓存组件的 props 和数据。组件首次被渲染后，即使 props 或数据发生变化，视图也不会主动更新。因此，如果需要更新被 keep-alive 缓存的组件，可以通过以下方式：
+
+- 通过 key 属性的更改重新触发渲染
+- keep-alive 会增加两个生命周期 `onActivated()` 和 `onDeactivated()`，通过显式在 `onActivated()` 钩子函数中检查数据变化并执行相应的更新逻辑
+
+:::
+
+## css 新属性
+
+### scoped 样式隔离
+
+vue 中的 scoped 通过在 DOM 结构以及 css 样式上加唯一不重复的标记 `data-v-[hash:base64:8]` 属性的方式，达到样式私有模块化的目的（由 PostCSS 转译实现）
+
+scoped 渲染规则：
+
+1. 给 HTML 的 DOM 节点加一个不重复的 data 属性来表示他的唯一性
+2. 在每句 css 选择器的末尾（编译后的 css）加一个当前组件的 data 属性选择器来私有化样式
+3. 如果组件内部包含有其他组件，只会给其他组件的最外层标签加上当前组件的 data 属性
+
+> 第二条和第三条有冲突，使用 `:deep()` 样式穿透移动属性选择器，父组件的样式会在子组件样式之后解析并覆盖
+
+```vue{17-24}
+<!-- ChildDemo -->
+<style type="text/css">
+/* 编译后 */
+.child-bg[data-v-<child-hash:base64:8>] {
+  color: red;
+}
+</style>
+
+<!-- ParentDemo -->
+<style type="text/css">
+/* 编译后 */
+.wrap[data-v-<parent-hash:base64:8>] {
+}
+.child-bg[data-v-<parent-hash:base64:8>] {
+  color: green;
+}
+/* 使用 :deep() 穿透样式 */
+:deep(.child-bg) {
+  color: green;
+}
+/* 编译后 */
+[data-v-<parent-hash:base64:8>] .child-bg {
+  color: green;
+}
+</style>
+```
+
+### :slotted 和 :global
+
+- `:slotted` 选择器只能在父组件中使用，选择器的参数是父组件中插槽元素的选择器，作用于父组件中插槽元素的样式控制
+- `:global` 选择器用于定义全局样式，不会被 CSS Modules 编译
+  - `<style lang="css">` 中的选择器，是全局选择器
+  - `<style lang="css" scoped>` 中，使用 `:global` 的选择器，也是全局选择器
+
+```vue
+<template>
+  <Child>
+    <div class="parent-bg">default slot</div>
+  </Child>
+</template>
+
+<style lang="css" scoped>
+/* 父组件用 :slotted() 控制插槽样式 更精确更清晰 */
+:slotted(.parent-bg) {
+  background: lightpink;
+}
+</style>
+```
+
+## 自定义指令
+
+一个自定义指令由一个包含类似组件生命周期钩子的对象来定义。钩子函数会接收到指令所绑定元素作为其参数。在 `<script setup>` 中，任何以 v 开头的驼峰式命名的变量都可以当作自定义指令使用
+
+```vue
+<script lang="ts" setup>
+import { type Directive } from "vue";
+
+// 加载图片 glob 默认懒加载
+const images: Record<string, { default: string }> = import.meta.glob(
+  ["@/assets/*.jpg", "@/assets/*.png"],
+  {
+    eager: true, // 指定立即加载（静态）
+  },
+);
+// eager = false 时，类似于 './img.jpg': () => import('./img.jpg') 的形式
+
+const arr = Object.values(images).map((item) => item.default);
+const flattedArr = arr.flatMap((item) => new Array(10).fill(item));
+
+const vLazy: Directive<HTMLImageElement, string> = async (el, binding) => {
+  const placeholder = await import("@/assets/vue.svg");
+  el.src = placeholder.default;
+
+  // 监听目标元素与祖先元素或视口 viewport 的相交情况
+  // 监听目标元素和视口 viewport 的相交情况, 即监听一个元素是否可见
+  // entries[0].intersectionRatio 相交的比例、一个元素可见的比例
+  const intersectionObserver = new IntersectionObserver((entries) => {
+    const visibleRatio = entries[0].intersectionRatio;
+    if (visibleRatio > 0) {
+      setTimeout(() => (el.src = binding.value), 1500);
+      intersectionObserver.unobserve(el);
+    }
+  });
+  intersectionObserver.observe(el);
+};
+</script>
+
+<template>
+  <div>
+    <img
+      v-lazy="item"
+      width="1000"
+      v-for="(item, idx) of flattedArr"
+      :key="idx"
+    />
+  </div>
+</template>
+```

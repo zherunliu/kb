@@ -67,29 +67,6 @@ app.mount("#app");
 
 :::
 
-`@` 指向 `./src` 目录：
-::: code-group
-
-```ts [vite.config.ts]
-// for vite
-resolve: {
-  alias: {
-    "@": fileURLToPath(new URL("./src", import.meta.url)),
-  },
-},
-```
-
-```json [tsconfig.app.json]
-// for ts
-"compilerOptions": {
-  "paths": {
-    "@/*": ["./src/*"]
-  },
-},
-```
-
-:::
-
 > `<RouterLink to="/where" />` 和 `<a href="/where"></a>` 的区别：
 >
 > - `<RouterLink />` 在 hash 模式和 history 模式下的行为相同
@@ -375,7 +352,7 @@ router.beforeEach(
   (
     to, // (重定向后的) 目的路由
     from, // 源路由
-    next // 放行函数
+    next, // 放行函数
   ) => {
     console.log("[beforeGuard] from:", from);
     console.log("[beforeGuard] to:", to);
@@ -384,7 +361,7 @@ router.beforeEach(
     } else {
       next("/login"); // 重定向到登录
     }
-  }
+  },
 );
 ```
 
