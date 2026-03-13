@@ -64,6 +64,65 @@ export default {
 - 更新 `process.env.NODE_ENV` 的值
 - 启动开发服务器时指定 `--force` 命令行选项，或手动删除 `node_modules/.vite` 缓存目录
 
+## vite 配置
+
+### 环境变量
+
+**env 文件：**
+
+- `.env` 所有情况下都会被加载
+- `.env.local` 所有情况下都会被加载，但会被 git 忽略
+- `.env.[mode]` 指定模式下会被加载，优先级更高，例如 `.env.development`，`.env.production`
+- `.env.[mode].local` 指定模式下会被加载，优先级更高，但会被 git 忽略
+
+> .env.[mode].local > .env.[mode] > .env.local > .env
+
+#### 环境变量处理
+
+1. 配置目录
+
+- root：用来配置项目根目录，默认是 `process.cwd()`，所有路径相关的配置都会基于 root 计算
+- envDir：用来配置当前环境变量的文件地址
+
+2. 调用 loadEnv（使用到了第三方库 dotenv）
+
+- 找到 `.env` 文件，解析其中的环境变量，放进一个对象里
+- 将传进来的 mode 变量的值进行拼接，生成对应的环境变量文件名，如 `.env.development`，根据提供的目录取对应的配置文件进行解析，并放进一个对象（相同的key会覆盖）
+- 如果是客户端，vite 会将对应的环境变量注入到 `import.meta.env` 里，防止隐私性变量直接送入 `import.meta.env`，vite 做了一层拦截，环境变量需要以 `VITE_` 开头，可以使用 envPrefix 更改前缀
+- Node 环境下，vite 推荐手动确认 env 文件：`const env = loadEnv(mode, process.cwd(), '.env')`
+
+**`import.meta.env` 的内置变量：**
+
+```json
+/* 通过 JSON.stringify 硬编码注入浏览器 */
+{
+  "BASE_URL": "/", // 部署时的 URL 前缀
+  "MODE": "development", // 运行模式
+  "DEV": true, // 是否在 dev 环境
+  "PROD": false, // 是否是 build 环境
+  "SSR": false // 是否是 SSR 服务端渲染模式
+}
+```
+
+### 策略模式
+
+```js
+/* vite.config.js */
+import { defineConfig } from "vite"; // 会有语法提示（ts实现）
+import viteBaseConfig from "./vite.base.config";
+import viteDevConfig from "./vite.dev.config";
+import viteProdConfig from "./vite.prod.config";
+
+const envResolve = {
+  build: () => Object.assign({}, viteBaseConfig, viteProcConfig),
+  serve: () => Object.assign({}, viteBaseConfig, viteDevConfig),
+};
+
+export default defineConfig(({ command }) => {
+  return envResolve[command]();
+});
+```
+
 ### resolve.alias
 
 ::: code-group
@@ -94,3 +153,23 @@ export default defineConfig({
 ```
 
 :::
+
+## HMR（Hot Module Replacement）
+
+HMR 是一种在开发过程中允许模块热替换的机制，在应用程序运行时，无需完全刷新页面就可以替换、添加或删除模块
+
+原理：
+
+1. 构建模块依赖图
+
+- ModuleGraph：管理所有的 ModuleNode，提供模块之间的关系查询和更新功能
+- ModuleNode：模块节点，包含模块的路径、内容，依赖关系等信息
+
+2. 建立 WebSocket 连接
+   - vite 向 `index.html` 中注入 `<script type="module" src="/@vite/client"></script>`，使得浏览器通过 `client.js` 和 vite 开发服务器建立 WebSocket 连接
+
+3. 监听文件变化
+   - vite 使用 chokidar 监听文件系统的变化，当文件发生变化时，vite 会根据文件类型进行不同的处理：
+     - 配置文件（`vite.config.js`、`.env`）：重新加载配置并重启开发服务器
+     - vite 内置客户端文件（`@vite/client`）：vite 通过 WebSocket 连接向浏览器发送 full-reload 信号，通知浏览器刷新页面
+     - 其他文件：vite 根据模块依赖图找到直接或间接依赖该文件的模块，对这些模块查找 hmr 边界，vite 通过 WebSocket 连接，推送热更新信息给浏览器，浏览器向 vite 开发服务器请求新模块，执行热更新
