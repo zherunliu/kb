@@ -284,7 +284,7 @@ TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, �
    5. 关于重定向：浏览器收到服务器返回的响应头后，网络进程解析响应头，如果状态码是 301 或 302，则网络进程获取响应头的 `Location` 字段值（重定向的地址），发送新的 HTTP/HTTPS 请求
    6. 关于响应体的数据类型：浏览器根据 HTTP 响应头的 `Content-Type` 字段值判断响应数据类型，并根据响应数据类型决定如何处理响应体。如果 `Content-Type` 字段值是二进制数据流类型：`Content-Type: application/octet-stream`，则提交给浏览器的下载管理器，同时该 URL 请求的导航（页面跳转）结束；如果 `Content-Type` 字段值是 HTML 类型：`Content-Type: text/html; charset=utf-8`，则网络进程通知浏览器进程分配一个渲染进程进行页面渲染
 9. 分配渲染进程：浏览器进程检查新 URL 和已打开 URL 的域名是否相同，如果相同则复用已有的渲染进程，如果不同则创建新的渲染进程
-10. 渲染文档：渲染进程解析文档；将 HTML 解析为 DOM 树，将 CSS 解析为 CSSOM 树，将 DOM 树和 CSSOM 树合并为渲染树；重绘，回流
+10. 渲染文档：渲染进程解析文档；将 HTML 解析为 DOM 树，将 CSS 解析为 CSSOM 树，将 DOM 树和 CSSOM 树合并为渲染树；回流，重绘
 
 ## 预检请求
 
