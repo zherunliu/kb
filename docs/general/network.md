@@ -377,7 +377,7 @@ CSS 文件 → CSS 解析器 → CSSOM 树 → 渲染树 → 布局 → 绘制 �
 1. 处理用户交互事件（click，input，scroll 等）
 2. 执行同步代码
 3. 清空微任务队列（`Promise.then`，MutationObserver 等）
-4. 执行 requestAnimationFrame 下一帧重绘回流前的回调函数（动画等帧率敏感的操作）
+4. 执行 requestAnimationFrame 下一帧回流重绘前的回调函数（动画等帧率敏感的操作）
 5. 布局和绘制（回流和重绘）
 6. 执行宏任务队列中的一个任务（`setTimeout`，`setInterval`，I/O等）
 7. 如果有空闲时间，则执行 requestIdleCallback 回调函数（如懒加载 js 脚本，日志上报等）
@@ -392,7 +392,7 @@ CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚�
 
 #### JS 的阻塞
 
-浏览器解析 HTML 时，遇到未使用 async 或 defer 或 `type="module"` 标记的 `<script>` 标签时，会阻塞 DOM 树的构建，并等待 CSSOM 树构建完成后，转而执行后续的 JS 脚本
+浏览器解析 HTML 时，遇到未使用 async 或 defer 或 `type="module"` 标记的 `<script>` 标签时，会阻塞 DOM 树的构建，并等待 CSSOM 树构建完成后，转而执行后续的 JS 脚本（DOM 是流式解析，增量构建的；而 CSSOM 是层叠、继承、覆盖，全量构建，JS 必须等待 CSSOM 避免读取脏数据）
 
 - async 是**异步加载**，JS 脚本可用时立即执行，执行 JS 脚本时可能阻塞 DOM 树的构建
 - defer 是**延迟执行**，延迟到 DOM 树构建完成后执行 JS 脚本
