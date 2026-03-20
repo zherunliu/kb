@@ -31,16 +31,17 @@
 
 ## Why Vite?
 
-1. 开发环境的 No-Bundler 模式
-
-   传统构建工具（如 Webpack）在开发时会将所有代码打包成一个或多个 bundle，随着项目变大，打包时间会越来越长；vite 在开发阶段不打包代码，而是通过浏览器直接加载源码（vite 是基于 esm 的，webpack 支持多种模块化；vite 更关注浏览器端开发体验，webpack 更注重兼容性）：
+1. 开发环境的 No-Bundle 模式
+   传统构建工具（如 Webpack）在开发时会将所有代码打包成一个或多个 bundle，随着项目体积增大，打包与热更新速度会明显下降；vite 在开发阶段不打包代码，而是通过浏览器直接加载源码：
    - 启动时仅需处理入口文件，瞬间启动
    - 模块按需加载，浏览器请求源码时，vite 按需提供转换后的源码
    - 代码修改时，只重新加载修改的模块（HMR），响应速度快
 
+   同时 Vite 会借助 esbuild 对第三方依赖进行预构建与依赖合并，将大量细碎的 CommonJS 模块转为 ESM 并合并，避免浏览器发起过多请求，进一步提升开发体验
+
 2. 生产环境的优化打包
 
-   开发阶段追求速度，生产环境则需要优化性能，不打包会导致额外的网络请求，Vite 会使用 Rollup 对代码进行打包（Rollup 在 Tree-Shaking 和代码压缩上更高效），生成体积小、加载快的最终产物
+   开发阶段追求速度，生产环境则更关注性能与加载效率，不打包会导致额外的网络请求，Vite 会使用 Rollup 对代码进行打包（Rollup 在 Tree-Shaking 和代码压缩上更高效），Rollup 同时会完成依赖合并和业务代码分包，最终生成体积小、加载快的构建产物
 
 ## 依赖预构建
 
@@ -48,15 +49,28 @@
 - 依赖预构建：vite 找到相应的依赖，调用 esbuild 将其他规范的代码换成 esm 规范，同时对 esm 规范的各个模块进行统一集成（将有多个内部模块的 esm 依赖合成单个模块，减少网络请求数量）
 - 预构建缓存：依赖预构建的产物缓存到 `node_modules/.vite/deps` 目录, 方便 vite 转换导入路径
 
-```js
-/* vite.config.js */
+::: code-group
+
+```ts [vite.config.ts]
 export default {
   optimizeDeps: {
     exclude: ["lodash-es"], // 取消依赖预构建
+    include: [], // 进行依赖预构建
   },
 };
 ```
 
+```vue [App.vue]
+<script setup lang="ts">
+import * as lodash from "lodash-es";
+// import * as lodash from "/node_modules/.vite/deps/lodash-es.js?"; // 路径补全
+console.log(Object.keys(lodash));
+</script>
+
+<template>Lodash</template>
+```
+
+:::
 预构建缓存会在以下情况下重新构建：
 
 - 更新包管理器的锁文件：`package-lock.json`，`pnpm-lock.yaml` ...
@@ -173,3 +187,49 @@ HMR 是一种在开发过程中允许模块热替换的机制，在应用程序�
      - 配置文件（`vite.config.js`、`.env`）：重新加载配置并重启开发服务器
      - vite 内置客户端文件（`@vite/client`）：vite 通过 WebSocket 连接向浏览器发送 full-reload 信号，通知浏览器刷新页面
      - 其他文件：vite 根据模块依赖图找到直接或间接依赖该文件的模块，对这些模块查找 hmr 边界，vite 通过 WebSocket 连接，推送热更新信息给浏览器，浏览器向 vite 开发服务器请求新模块，执行热更新
+
+## CSS 处理
+
+- vite 构建 AST 抽象语法树，解析 `index.tsx` 或 `App.vue`，发现 `index.tsx` 导入 `index.css`，或 `App.vue` 有 `<style>` vue 标签
+- vite 读取 `index.css` 文件内容或 `<style>` vue 标签内容
+- vite 创建一个 `<style>` html 标签，将 `index.css` 文件内容或 `<style>` vue 标签内容插入到 `<style>` html 标签中; 如果是 `.module.css` 或 `<style scoped>`，则插入前会修改选择器名，以实现样式隔离
+- vite 将创建的 `<style>` html 标签插入到 `index.html` 的 `<head>` 标签中
+- 将 `index.css` 文件内容或 `<style>` vue 标签内容转换为 JS 代码，浏览器请求 `index.css` 或 `App.vue` 时，vite 开发服务器返回转换的 JS 代码，并设置 http 响应头 `Content-Type: text/javascript`，让浏览器使用 JS 的方式解析，目的是实现 `.module.css` 或 `<style scoped>` 的样式隔离和模块热替换（HMR）
+
+## 静态资源处理
+
+- 支持 esm 的 import，CSS 的 `url()`
+- 导入 json 时，实际导入一个 JS 对象，可以解构
+- 导入静态资源时，实际导入静态资源的 url（例如 `/assets/bg.png`）或 base64 字符串
+- 静态资源体积小于 `vite.config.ts` 中 assetsInlineLimit 配置项的值，会被内联为 base64 字符串
+- 导入脚本作为 web worker
+
+```ts
+// 导入脚本作为 web worker，使用 URL 拼成绝对路径
+const webWorker = new Worker(new URL("./web-worker.ts", import.meta.url), {
+  type: "module",
+});
+```
+
+## 分析打包产物
+
+```ts
+// pnpm add rollup-plugin-visualizer -D
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { visualizer } from "rollup-plugin-visualizer";
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [vue(), visualizer({ open: true })],
+  build: {
+    // 代码块 (chunk) 大小 > 2000KB 时警告
+    chunkSizeWarningLimit: 2000,
+    cssCodeSplit: true, // 开启 CSS 拆分
+    sourcemap: false, // 不生成源代码映射文件 source-map
+    minify: "esbuild", // JS 最小化混淆
+    cssMinify: "esbuild", // CSS 最小化混淆
+    assetsInlineLimit: 5000, // 静态资源大小 < 5000B 时, 内联为 base64
+  },
+});
+```

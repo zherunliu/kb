@@ -128,6 +128,51 @@ scoped 渲染规则：
 </style>
 ```
 
+## nextTick
+
+Vue 同步更新数据，异步更新 DOM
+
+- Vue 将 DOM 更新加入任务队列，等到下一个 tick 时，才统一更新 DOM，避免多次重复渲染，提高性能
+- nextTick 延迟执行 callback，即等到下一个 tick，DOM 更新后，再执行 callback
+
+::: code-group
+
+```ts [场景]
+const addItem = () => {
+  itemList.push({ name: inputVal.value, id: itemList.length });
+  box.value!.scrollTop = 999_999_999; // 更新滚动位置 (此时 DOM 未更新)
+};
+
+const addItem2 = () => {
+  itemList.push({ name: inputVal.value, id: itemList.length });
+  // nextTick 延迟执行 callback, 即等到下一个 tick, DOM 更新后, 再执行 callback
+  nextTick(
+    () => (box.value!.scrollTop = 999_999_999), // callback (此时 DOM 已更新)
+  );
+};
+
+const addItem3 = async () => {
+  itemList.push({ name: inputVal.value, id: itemList.length });
+  await nextTick(); // 等到下一个 tick, DOM 更新后
+  box.value!.scrollTop = 999_999_999; // 更新滚动位置 (此时 DOM 已更新)
+};
+```
+
+```ts [源码]
+const resolvedPromise: Promise<any> = Promise.resolve(); // 空 Promise
+let currentFlushPromise: Promise<void> | null = null; // 当前正在刷新队列的 Promise
+
+export function nextTick<T = void>(
+  this: T,
+  fn?: (this: T) => void,
+): Promise<void> {
+  const p = currentFlushPromise || resolvedPromise;
+  return fn ? p.then(this ? fn.bind(this) : fn) : p;
+}
+```
+
+:::
+
 ## 自定义指令
 
 一个自定义指令由一个包含类似组件生命周期钩子的对象来定义。钩子函数会接收到指令所绑定元素作为其参数。在 `<script setup>` 中，任何以 v 开头的驼峰式命名的变量都可以当作自定义指令使用

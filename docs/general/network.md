@@ -458,7 +458,7 @@ window.addEventListener("message", (e) => {
 
 **解决跨域：**
 
-- 前后端协商 jsonp：通过 `<style>` 标签加载外部 js 文件不受同源策略的限制，可以发送跨域请求，但只能发送 GET 请求
+- 前后端协商 jsonp：通过 `<script>` 标签加载外部 js 文件不受同源策略的限制，可以发送跨域请求，但只能发送 GET 请求
 - 前端解决：使用代理（vite/webpack），只在开发环境中使用
 - 后端解决：设置请求头 `Access-Control-Allow-Credentials`，`Access-Control-Expose-Headers`，`Access-Control-Allow-Methods`，`Access-Control-Allow-Origin`，`Access-Control-Allow-Headers`
 - 使用 Nginx 代理
@@ -479,6 +479,8 @@ const jsonp = (name) => {
     /* 挂载回调函数到 window */
     window[name] = (data) => {
       resolve(data);
+      delete window[name];
+      document.body.removeChild(script);
     };
   });
 };
@@ -487,6 +489,39 @@ const jsonp = (name) => {
 jsonp(`callback${new Date().getTime()}`).then((res) => {
   console.log(res);
 });
+```
+
+```ts [frontend/vite]
+// vite.config.ts
+import { defineConfig } from "vite";
+export default defineConfig({
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
+});
+```
+
+```js [backend]
+function cors(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  );
+  // res.header("Access-Control-Allow-Credentials", true);
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Content-type", "application/json;charset=utf-8");
+  // 预检 (pre-flight) 请求
+  if (req.method.toUpperCase() === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+}
 ```
 
 ```nginx [nginx]
