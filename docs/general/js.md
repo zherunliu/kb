@@ -1,5 +1,31 @@
 # JS/TS
 
+## 编译
+
+| 阶段                                      |                                                                                                          |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 词法分析（Lexical Analysis）              | tsx/vue 源代码字符流 => Lexer/Tokenizer 词法分析器 => token 流                                           |
+| 语法分析（Syntax Analysis）               | token 流 => Parser 语法分析器 => AST 抽象语法树                                                          |
+| 语义分析（Semantic Analysis）             | AST 抽象语法树 => TypeChecker 等 => 类型检查等                                                           |
+| 转换, 优化（Transformation/Optimization） | AST 抽象语法树 => Transformer/Optimizer => 新 AST, 例如 tsc 擦除类型注解, jsx 转换为 React.createElement |
+| 代码生成（Code Generation）               | 新 AST => CodeGenerator => js 代码                                                                       |
+
+## 错误捕获
+
+|                            | `try/catch` | `window.onerror` | `window.addEventListener('error')` | `window.addEventListener('unhandledrejection')` |
+| -------------------------- | ----------- | ---------------- | ---------------------------------- | ----------------------------------------------- |
+| 同步错误                   | Y           | Y                | Y                                  |                                                 |
+| 异步回调错误               |             | Y                | Y                                  |                                                 |
+| 未处理的 Promise rejection |             |                  |                                    | Y                                               |
+| async/await 异步错误       | Y           |                  |                                    | Y                                               |
+| 资源加载错误               |             |                  | Y                                  |                                                 |
+| 语法错误                   |             | Y                | Y                                  |                                                 |
+
+- `try/catch` 可以捕获同步错误，async/await 异步错误
+- `window.onerror` 可以捕获同步错误，异步回调错误，语法错误；不能捕获资源加载错误
+- `window.addEventListener('error')` 可以捕获资源加载错误
+- `window.addEventListener('unhandledrejection')` 可以捕获未处理的 Promise rejection，和未 try/catch 的 async/await 异步错误
+
 ## 事件循环
 
 #### 同步任务，异步任务

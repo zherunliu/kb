@@ -173,6 +173,18 @@ export function nextTick<T = void>(
 
 :::
 
+## 错误处理
+
+Vue 会捕获组件树中所有子组件在框架核心同步执行流程中抛出的未手动捕获错误，并将这些错误统一收敛到全局配置的 handleError 中处理（提供了 `config.errorHandler` 便于自定义错误处理）；但该机制无法捕获异步回调（如 setTimeout/setInterval）、资源加载、语法解析等错误
+
+```js
+// Vue2 使用 Vue.config.errorHandler
+app.config.errorHandler = function (err, vm, info) {
+  // handleError方法用来处理错误并上报
+  handleError(err);
+};
+```
+
 ## 自定义指令
 
 一个自定义指令由一个包含类似组件生命周期钩子的对象来定义。钩子函数会接收到指令所绑定元素作为其参数。在 `<script setup>` 中，任何以 v 开头的驼峰式命名的变量都可以当作自定义指令使用
