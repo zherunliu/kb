@@ -397,6 +397,8 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 - fixed 固定定位：参考视口，脱离文档流，成为定位元素，BFC
 - sticky 粘性定位：参考最近的已定位祖先元素（非 static）
 
+> 当父元素设置了 position: relative，子元素设置了 position: absolute 时，子元素的定位会以父元素的 padding 盒（content + padding）为参考系
+
 **定位元素在包含块的中间**
 
 ::: code-group
