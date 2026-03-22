@@ -190,11 +190,14 @@ HMR 是一种在开发过程中允许模块热替换的机制，在应用程序�
 
 ## CSS 处理
 
-- vite 构建 AST 抽象语法树，解析 `index.tsx` 或 `App.vue`，发现 `index.tsx` 导入 `index.css`，或 `App.vue` 有 `<style>` vue 标签
-- vite 读取 `index.css` 文件内容或 `<style>` vue 标签内容
-- vite 创建一个 `<style>` html 标签，将 `index.css` 文件内容或 `<style>` vue 标签内容插入到 `<style>` html 标签中; 如果是 `.module.css` 或 `<style scoped>`，则插入前会修改选择器名，以实现样式隔离
-- vite 将创建的 `<style>` html 标签插入到 `index.html` 的 `<head>` 标签中
-- 将 `index.css` 文件内容或 `<style>` vue 标签内容转换为 JS 代码，浏览器请求 `index.css` 或 `App.vue` 时，vite 开发服务器返回转换的 JS 代码，并设置 http 响应头 `Content-Type: text/javascript`，让浏览器使用 JS 的方式解析，目的是实现 `.module.css` 或 `<style scoped>` 的样式隔离和模块热替换（HMR）
+1. 浏览器请求 `index.css` 或 `App.vue`
+2. esbuild 解析 `index.tsx` 或 `App.vue`，发现 `index.tsx` 导入 `index.css`，或 `App.vue` 有 `<style>` vue 标签
+3. vite 读取 `index.css` 文件内容或 `<style>` vue 标签内容
+4. vite 处理 CSS 模块类型，如果是 `.module.css` 或 `<style scoped>`，则改写选择器名，以实现样式隔离
+5. vite 开发服务器将 `index.css` 文件内容或 `<style>` vue 标签内容转换为 JS 代码并返回，设置 http 响应头 `Content-Type: text/javascript`，让浏览器使用 JS 的方式解析，目的是实现 `.module.css` 或 `<style scoped>` 的样式隔离和模块热替换（HMR）
+6. 浏览器执行 JS 代码，创建 `<style>` html 标签插入到 `index.html` 的 `<head>` 标签中
+
+> 生产环境还是生成静态 CSS 文件通过 `<link>` 标签引入，使浏览器可并行加载、缓存复用
 
 ## 静态资源处理
 
