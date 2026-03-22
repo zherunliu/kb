@@ -103,6 +103,8 @@ const props = withDefaults(
 
 自定义事件常用于：**子 => 父**
 
+子组件使用 `defineEmits` 声明可以触发的自定义事件，并通过 `emit` 方法触发事件，父组件通过 `@[eventName]="[callback]"` 监听子组件触发的事件，并在回调函数中接收子组件传递的数据
+
 ::: code-group
 
 ```vue [Child.vue]
@@ -153,6 +155,49 @@ const receiveFromChild = (...args: unknown[]) => console.log(args);
     @evName="(...args: unknown[]) => receiveFromChild(args)"
     @evName2="receiveFromChild"
   />
+</template>
+```
+
+:::
+
+## defineExpose
+
+子组件使用 `defineExpose` 暴露自身的属性或方法，供父组件通过模板引用（ref）直接访问：**父 => 子**
+
+::: code-group
+
+```vue [Child.vue]
+<script setup>
+import { ref } from "vue";
+
+const count = ref(0);
+const increment = () => {
+  count.value++;
+};
+
+defineExpose({
+  count,
+  increment,
+});
+</script>
+```
+
+```vue [Parent.vue]
+<script setup>
+import { ref } from "vue";
+import Child from "./Child.vue";
+
+const childRef = ref<InstanceType<typeof Child>>();
+
+const handleAccessChild = () => {
+  console.log(childRef.value.count);
+  childRef.value.increment();
+};
+</script>
+
+<template>
+  <Child ref="childRef" />
+  <button @click="handleAccessChild">handleAccessChild</button>
 </template>
 ```
 
@@ -382,7 +427,7 @@ console.log("[Child] attrs:", attrs);
 
 ## 标签的 ref 属性
 
-用于普通 `DOM` 标签，获取的是 `DOM` 节点：
+用于普通 `DOM` 标签，获取的是 `DOM` 节点；用于组件标签上，获取的是组件实例对象
 
 ```vue
 <template>
@@ -407,43 +452,43 @@ function showLog() {
 </script>
 ```
 
-用于组件标签上，获取的是组件实例对象：
+### 函数式 ref
 
-::: code-group
+函数式 ref 是把 ref 绑定为一个函数：
 
-```vue [App.vue]
+- 函数会在组件挂载 / 更新时执行
+- 函数的参数是 DOM 元素 / 组件实例
+- 函数的返回值会被忽略
+
+```vue
+<!-- 在 v-for 中使用函数式 ref，避免覆盖 -->
 <template>
-  <Child ref="person" />
-  <button @click="test">test</button>
+  <div v-for="(item, index) in list" :key="index">
+    <input
+      type="text"
+      :ref="
+        (el) => {
+          if (el) inputRefs[index] = el;
+        }
+      "
+    />
+  </div>
+  <button @click="focusFirstInput">focusFirstInput</button>
 </template>
 
-<script lang="ts" setup>
-import Child from "./components/Child.vue";
-import { useTemplateRef } from "vue";
+<script setup>
+import { ref } from "vue";
 
-let user = useTemplateRef("person");
+const list = ref<number[]>([1, 2, 3]);
+const inputRefs = ref<HTMLInputElement[]>([]);
 
-function test() {
-  console.log(user.value.name);
-  console.log(user.value.age);
-}
+const focusFirstInput = () => {
+  inputRefs.value[0]?.focus();
+};
 </script>
 ```
 
-```vue [Child.vue]
-<script lang="ts" setup>
-import { ref, defineExpose } from "vue";
-let name = ref("Rico");
-let age = ref(18);
-
-// 使用 defineExpose 将组件中的数据交给外部
-defineExpose({ name, age });
-</script>
-```
-
-:::
-
-### $refs/$parent
+## $refs/$parent
 
 - `$refs`：值为对象，包含所有被 `ref` 属性标识的 `DOM` 元素或组件实例，**父 => 子**
 - `$parent`：值为对象，当前组件的父组件实例对象，**子 => 父**
