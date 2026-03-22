@@ -569,8 +569,11 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
 ### 浏览器攻击
 
 - 跨站脚本攻击（XSS，Cross-Site Scripting）
+  > XSS 是指攻击者在网页中注入恶意脚本代码，当用户浏览该网页时，恶意脚本被执行，攻击者可以窃取用户的敏感信息（如 cookie，localStorage）
 - 跨站请求伪造（CSRF，Cross-Site Request Forgery）
+  > CSRF 是指攻击者诱导用户在已认证的情况下，向受信任的网站发送恶意请求，攻击者可以利用用户的身份进行未授权的操作（本质是利用 cookie 会在同源请求中携带发送给服务器的特点）
 - 中间人攻击（MITM，Man-in-the-Middle）
+  > MITM 是指攻击者在用户和服务器之间拦截和篡改通信数据，攻击者可以窃取敏感信息，篡改数据，甚至冒充服务器与用户通信
 
 #### XSS 跨站脚本攻击
 
@@ -578,7 +581,7 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
 - 存储型 XSS：持久型 XSS，存储型 XSS 的恶意代码存储在数据库中，**最严重**
 - DOM 型 XSS：例如 `document.write()`，`eval()`，innerHTML，location，v-html，dangerouslySetInnerHTML 等
 
-#### 预防 XSS
+**预防 XSS**
 
 - 处理用户输入时，对输入进行过滤；输出到页面时，对输出进行转义
 - 禁用 `document.write()`，`eval()`，innerHTML，location，v-html，dangerouslySetInnerHTML 等
