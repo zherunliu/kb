@@ -7,7 +7,7 @@
 | 词法分析（Lexical Analysis）              | tsx/vue 源代码字符流 => Lexer/Tokenizer 词法分析器 => token 流                                           |
 | 语法分析（Syntax Analysis）               | token 流 => Parser 语法分析器 => AST 抽象语法树                                                          |
 | 语义分析（Semantic Analysis）             | AST 抽象语法树 => TypeChecker 等 => 类型检查等                                                           |
-| 转换, 优化（Transformation/Optimization） | AST 抽象语法树 => Transformer/Optimizer => 新 AST, 例如 tsc 擦除类型注解, jsx 转换为 React.createElement |
+| 转换、优化（Transformation/Optimization） | AST 抽象语法树 => Transformer/Optimizer => 新 AST，例如 tsc 擦除类型注解、jsx 转换为 React.createElement |
 | 代码生成（Code Generation）               | 新 AST => CodeGenerator => js 代码                                                                       |
 
 ## 错误捕获
@@ -399,7 +399,7 @@ scavenge 算法
 
 Mark:
 构建一个根列表，从根节点出发，遍历所有可达对象，标记为存活的；不可达对象视为死亡的（垃圾）
-根节点包括全局对象；函数的参数，局部变量；闭包引用的对象；DOM 元素等...
+根节点包括全局对象；函数的参数、局部变量；闭包引用的对象；DOM 元素等...
 紧凑: 紧凑阶段先将存活的对象移动到连续内存区域，以清除内存碎片；再回收其他内存区域
 
 Sweep:

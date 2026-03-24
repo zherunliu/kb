@@ -77,7 +77,7 @@
 - transition-duration 过渡的持续时间
 - transition-timing-function 过渡方式
   > - ease 平滑过渡（默认）
-  > - linear 线性过渡, 匀速
+  > - linear 线性过渡，匀速
   > - ease-in 先慢后快
   > - ease-out 先快后慢
   > - ease-in-out 慢 => 快 => 慢
@@ -319,10 +319,10 @@ flex 项目在主轴方向的初始大小
   > - start grid 容器左对齐
   > - end grid 容器右对齐
   > - center grid 容器水平居中
-  > - stretch 如果 grid 项目未指定宽度, 则拉伸以填充 grid 容器
-  > - space-between 列均匀分布, 两边距离等于 0
-  > - space-around 列均匀分布, 两边距离等于中间距离的一半
-  > - space-evenly 列均匀分布, 两边距离等于中间距离
+  > - stretch 如果 grid 项目未指定宽度，则拉伸以填充 grid 容器
+  > - space-between 列均匀分布，两边距离等于 0
+  > - space-around 列均匀分布，两边距离等于中间距离的一半
+  > - space-evenly 列均匀分布，两边距离等于中间距离
 - align-content 整体内容的垂直位置
   > - start grid 容器上对齐
   > - end grid 容器下对齐

@@ -40,7 +40,7 @@ buffer[0] = 1; // 超过 255 高位舍弃
 - 流式读取
   - `fs.createReadStream(file, [options])`
   ```js
-  const fs = fs.require("fs");
+  const fs = require("fs");
   const rs = fs.createReadStream("./data.txt");
   re.on("data", (data) => {
     console.log(data);
@@ -146,7 +146,7 @@ const server = http.createServer((request, response) => {
   request.on("end", () => {
     console.log("[request body]", body);
     response.write("rico!");
-    response.end("你好, HTTP Server!"); // 设置响应体
+    response.end("你好，HTTP Server！"); // 设置响应体
   });
 });
 

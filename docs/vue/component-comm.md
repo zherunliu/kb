@@ -30,7 +30,7 @@ const reactiveArr_ = reactive([6, 6, 6]);
 <template>
   <div>Parent: {{ str_ }} {{ refStr_ }} {{ reactiveArr_ }}</div>
   <Child :str="str_" :refStr="refStr_" :reactiveArr="reactiveArr_" />
-  <!-- str_ 不是响应式的, refStr_, reactiveArr_ 是响应式的 -->
+  <!-- str_ 不是响应式的，refStr_、reactiveArr_ 是响应式的 -->
   <button @click="str_ += '!'">setStr</button>
   <button @click="refStr_ += '!'">setRefStr</button>
   <button @click="reactiveArr_.push(6)">setReactiveArr</button>
@@ -127,7 +127,7 @@ const emit = defineEmits<{
 }>();
 
 const emitToParent = (ev: Event) => {
-  // 子组件派发自定义事件, emit 发射参数给父组件
+  // 子组件派发自定义事件，emit 发射参数给父组件
   emit("evName", ev);
 };
 const emitToParent2 = () => {
@@ -145,12 +145,12 @@ const emitToParent2 = () => {
 <script setup lang="ts">
 import Child from "./components/Child.vue";
 
-// 自定义事件派发时, 父组件接收子组件发射的数据, 作为回调函数的参数
+// 自定义事件派发时，父组件接收子组件发射的数据，作为回调函数的参数
 const receiveFromChild = (...args: unknown[]) => console.log(args);
 </script>
 
 <template>
-  <!-- 父组件为子组件的自定义事件绑定回调函数, 监听子组件派发的自定义事件 -->
+  <!-- 父组件为子组件的自定义事件绑定回调函数，监听子组件派发的自定义事件 -->
   <Child
     @evName="(...args: unknown[]) => receiveFromChild(args)"
     @evName2="receiveFromChild"

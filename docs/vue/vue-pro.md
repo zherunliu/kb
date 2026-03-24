@@ -145,7 +145,7 @@ const addItem = () => {
 
 const addItem2 = () => {
   itemList.push({ name: inputVal.value, id: itemList.length });
-  // nextTick 延迟执行 callback, 即等到下一个 tick, DOM 更新后, 再执行 callback
+  // nextTick 延迟执行 callback，即等到下一个 tick，DOM 更新后，再执行 callback
   nextTick(
     () => (box.value!.scrollTop = 999_999_999), // callback (此时 DOM 已更新)
   );
@@ -180,7 +180,7 @@ Vue 会捕获组件树中所有子组件在框架核心同步执行流程中抛�
 ```js
 // Vue2 使用 Vue.config.errorHandler
 app.config.errorHandler = function (err, vm, info) {
-  // handleError方法用来处理错误并上报
+  // handleError 方法用来处理错误并上报
   handleError(err);
 };
 ```
@@ -210,7 +210,7 @@ const vLazy: Directive<HTMLImageElement, string> = async (el, binding) => {
   el.src = placeholder.default;
 
   // 监听目标元素与祖先元素或视口 viewport 的相交情况
-  // 监听目标元素和视口 viewport 的相交情况, 即监听一个元素是否可见
+  // 监听目标元素和视口 viewport 的相交情况，即监听一个元素是否可见
   // entries[0].intersectionRatio 相交的比例、一个元素可见的比例
   const intersectionObserver = new IntersectionObserver((entries) => {
     const visibleRatio = entries[0].intersectionRatio;

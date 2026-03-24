@@ -222,10 +222,10 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
 .selector {
   width: 30rem;
   height: 20rem;
-  /* 渐变线的方向: 默认 to bottom (180deg) */
+  /* 渐变线的方向：默认 to bottom (180deg) */
   background-image: linear-gradient(red, green, blue);
 
-  /* to top (0deg), 增加角度值, 顺时针 */
+  /* to top (0deg)，增加角度值，顺时针 */
   background-image: linear-gradient(to top, red, green, blue);
   background-image: linear-gradient(180deg, red, green, blue);
 
@@ -238,10 +238,10 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
    */
   background-image: linear-gradient(red 5rem, green 10rem, blue 15rem);
 
-  /* 渐变中心的位置: 默认 at center (at 50% 50%) */
+  /* 渐变中心的位置：默认 at center (at 50% 50%) */
   background-image: radial-gradient(red, green, blue);
 
-  /* 渐变形状: circle 圆, ellipse 椭圆 */
+  /* 渐变形状：circle 圆，ellipse 椭圆 */
   background-image: radial-gradient(circle, red, green, blue);
 
   /* at left top (at 0 0) */
@@ -250,7 +250,7 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
 
   /* 设置渐变圆的半径 */
   background-image: radial-gradient(10rem, red, green, blue);
-  /* 设置渐变椭圆的 x 半径, y 半径 */
+  /* 设置渐变椭圆的 x 半径，y 半径 */
   background-image: radial-gradient(20rem 10rem, red, green, blue);
 
   /* 设置渐变的位置 */

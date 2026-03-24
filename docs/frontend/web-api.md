@@ -51,7 +51,7 @@
 - `element.addEventListener(eventType, listener, options)`：添加事件监听器
   > `options?: boolean | AddEventListenerOptions`：
   >
-  > - `capture`：boolean 值，表示是否在捕获阶段触发（默认 false 在冒泡阶段执行，可直接传入boolean值）
+  > - `capture`：boolean 值，表示是否在捕获阶段触发（默认 false，在冒泡阶段执行，可直接传入 boolean 值）
   > - `once`：boolean 值，表示监听器是否只触发一次
   > - `passive`：boolean 值，表示监听器是否永远不会调用 `preventDefault()`，如果监听器调用了 `preventDefault()`，浏览器会忽略它并输出警告信息
 - `element.removeEventListener(eventType, listener, options)`：移除事件监听器
@@ -87,8 +87,8 @@
   const list = document.getElementById("list");
   list.addEventListener("click", (event) => {
     if (event.target.tagName === "LI") {
-      console.log("绑定事件的元素:", event.currentTarget.tagName); // UL
-      console.log("触发事件的元素:", event.target.tagName); // LI
+      console.log("绑定事件的元素：", event.currentTarget.tagName); // UL
+      console.log("触发事件的元素：", event.target.tagName); // LI
       console.log(event.target.textContent); // Item 1/2/3
     }
   });
@@ -245,10 +245,10 @@ WebSocket 前，如果需要在服务器和客户端间双向通信，则需要�
 
 - 短轮询：浏览器使用 JavaScript 启动一个定时器，以固定的间隔向服务器发送请求，询问服务器有没有新消息
 
-  > 缺点: 实时性差，频繁的请求会增大服务器的压力
+  > 缺点：实时性差，频繁的请求会增大服务器的压力
 
 - 长轮询：浏览器发送请求后，服务器保持连接，等到有新消息时才返回，减少了请求次数，提高了实时性
-  > 缺点:
+  > 缺点：
   >
   > - 多线程服务器的 listener 线程长时间挂起，等待新消息，浪费 CPU 资源
   > - 一个长时间无数据传输的 HTTP 连接，链路上的任何一个网关都可能关闭该 HTTP 连接，这是不可控的
@@ -266,7 +266,7 @@ HTTP 通过 header 中是否包含 `Connection: Upgrade` 和 `Upgrade: websocket
 - 支持双向通信，实时性高
 - 未加密的 WebSocket 协议标识符是 `ws://`，端口号是 80，对应 `http://`；加密的 WebSocket 协议标识符是 `wss://`，端口号是 443，对 `https://`
 - 协议开销小，HTTP 每次通信都需要携带完整的 HTTP 头部，WebSocket 协议的头部较小，减小了数据传输的开销
-- 支持扩展: 用户可以扩展 WebSocket 协议，也可以自定义子协议（例如可以自定义压缩算法等）
+- 支持扩展：用户可以扩展 WebSocket 协议，也可以自定义子协议（例如可以自定义压缩算法等）
 - 没有跨域问题
 
 **SSE 和 WebSocket 的区别**
@@ -487,7 +487,7 @@ Service worker 充当 Web 应用程序、浏览器与网络之间的代理服务
 
 场景：
 
-- 后台数据同步: 启动一个 Service Worker，即使用户没有访问页面，也可以更新缓存
-- 响应推送: 启动一个 Service Worker，向用户发送消息，通知新的内容可用
-- 离线访问: Service Worker 可以缓存资源，使应用在没有网络连接时仍然可用
-- 性能增强: 预取用户可能需要的资源
+- 后台数据同步：启动一个 Service Worker，即使用户没有访问页面，也可以更新缓存
+- 响应推送：启动一个 Service Worker，向用户发送消息，通知新的内容可用
+- 离线访问：Service Worker 可以缓存资源，使应用在没有网络连接时仍然可用
+- 性能增强：预取用户可能需要的资源

@@ -32,7 +32,7 @@ fn2: Callable[[int, int], str] = fn
 
 Class Node:
     def __init__(self, pre: "Node"):
-        self.pre = pre # 此时 Node 还没有被定义, 可以使用双引号
+        self.pre = pre # 此时 Node 还没有被定义，可以使用双引号
         self.next = None
 
 # 使用 Optional 表示 int 或 None

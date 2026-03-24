@@ -64,7 +64,7 @@ mongoose.connection.once("open", async () => {
     },
     (err) => {
       console.log(err);
-    }
+    },
   );
   mongoose.disconnect();
 });
@@ -158,7 +158,7 @@ BookModel.find()
     },
     (err) => {
       console.log(err);
-    }
+    },
   );
 ```
 
@@ -174,7 +174,7 @@ BookModel.find()
     },
     (err) => {
       console.log(err);
-    }
+    },
   );
 ```
 
@@ -191,7 +191,7 @@ BookModel.find()
     },
     (err) => {
       console.log(err);
-    }
+    },
   );
 ```
 
@@ -211,7 +211,7 @@ const exceptionHandler = (p) =>
 
 db(() => {
   exceptionHandler(
-    BookModel.find().sort({ price: -1 }).skip(1).limit(1).exec()
+    BookModel.find().sort({ price: -1 }).skip(1).limit(1).exec(),
   );
 });
 ```

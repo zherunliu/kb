@@ -58,7 +58,7 @@ HTTP 报文分为请求报文和响应报文
 **请求报文**
 
 - 请求行：HTTP 请求报文的第一行，包含请求方法（GET，POST，PUT，DELETE，HEAD，OPTIONS，PATCH，CONNECT，TRACE），请求 URL 和 HTTP 版本
-- 请求头部的字段:
+- 请求头部的字段：
   - `Accept` 客户端支持的媒体类型，例如 `application/json`，`text/plain`，`text/html` 等
   - `Accept-Encoding` 客户端支持的编码，例如 gzip 等
   - `Accept-Language` 客户端的偏好语言
@@ -206,7 +206,7 @@ client <---- handshake2 <------- server
        <==== seq2          <====
 
 # ACK=1 ack=y+1 seq=x+1
-# 客户端向服务器握手两次, 防止已失效的连接请求发送到服务器, 导致服务器资源的浪费
+# 客户端向服务器握手两次，防止已失效的连接请求发送到服务器, 导致服务器资源的浪费
 client ----- handshake3 -------> server
        ====> ack2 = seq2+1 ====> # 确认收到 seq2
        ====> ACK2 = 1      ====> # 确认 SYN2, 服务器到客户端同步
@@ -228,7 +228,7 @@ client <---- waving2 <---------- server
        <==== ack1 = seq1+1 <==== # 确认收到 seq1
        <==== ACK1 = 1      <==== # 服务器第 1 次确认 FIN1
 
-FIN_WAIT_2 # 服务器发送剩余数据, 客户端等待服务器第 2 次确认 FIN1
+FIN_WAIT_2 # 服务器发送剩余数据，客户端等待服务器第 2 次确认 FIN1
 # 和服务器向客户端请求终止的 FIN2
 
 # ACK=1 FIN=1 ack=x1+1 seq=y2 (服务器剩余分段序号 y1-y2)
@@ -240,11 +240,11 @@ client <---- waving3 <---------- server
 
 # ACK=1 ack=y2+1 seq=x1+1
 client ----- waving4 ----------> server
-       ====> ACK2 = 1      ====> # 确认 FIN2, 服务器到客户端单向连接关闭, 服务器关闭 CLOSED
+       ====> ACK2 = 1      ====> # 确认 FIN2，服务器到客户端单向连接关闭, 服务器关闭 CLOSED
        ====> ack2 = seq2+1 ====> # 确认收到 seq2
 
 TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, 客户端关闭 CLOSED
-# MSL, Maximum Segment Lifetime 最长分段寿命, 大约 1-4 分钟
+# MSL（Maximum Segment Lifetime）最长分段寿命，大约 1-4 分钟
 ```
 
 **TCP 与 UDP 的区别：**
@@ -314,7 +314,7 @@ TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, �
 
 ## 浏览器缓存
 
-HTTP 缓存是保存资源副本的技术, 提高页面性能，减少网络流量，降低服务器压力；浏览器或服务器判断请求的资源已被缓存时，直接返回；HTTP 缓存分为私有缓存和共享缓存
+HTTP 缓存是保存资源副本的技术，提高页面性能，减少网络流量，降低服务器压力；浏览器或服务器判断请求的资源已被缓存时，直接返回；HTTP 缓存分为私有缓存和共享缓存
 
 - 私有缓存：浏览器缓存
 - 共享缓存：CDN 缓存，网关缓存，代理缓存
@@ -428,7 +428,7 @@ function sendMessage() {
 }
 
 iframe.onload = () => {
-  console.log("[5500] iframe加载完成");
+  console.log("[5500] iframe 加载完成");
   sendMessage();
 };
 
@@ -436,7 +436,7 @@ window.addEventListener("message", (e) => {
   if (e.origin !== "http://127.0.0.1:5501") {
     return;
   }
-  console.log("[5500] 收到iframe的回复消息：", e.data);
+  console.log("[5500] 收到 iframe 的回复消息：", e.data);
 });
 ```
 

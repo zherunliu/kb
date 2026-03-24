@@ -60,7 +60,7 @@ git fetch                        # 拉取代码但不自动合并
 ```bash
 # 允许合并历史不相关的两个分支
 git pull origin main --allow-unrelated-histories
-# 未 push, 撤销提交, --soft 保存暂存状态
+# 未 push，撤销提交，--soft 保存暂存状态
 git reset --soft <ref>
 # 已 push, 创建一个新提交以撤销提交
 git revert HEAD

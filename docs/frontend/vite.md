@@ -9,13 +9,13 @@
 1. Typescript：需要使用 tsc 将 Typescript 代码转换为 JavaScript 代码
 2. React/Vue：需要安装 react-compiler/vue-compiler，将 jsx 文件或 vue 文件转换为 render 函数
 3. less/sass/postcss/component-style：需要安装 less-loader，sass-loader 等一系列编译工具
-4. 语法降级：Babel --> 将es的新语法转换旧版浏览器可以接受的语法
+4. 语法降级：Babel --> 将 es 的新语法转换为旧版浏览器可以接受的语法
 5. 体积优化：UglifyJs --> 将代码进行压缩变成体积更小性能更高的文件
 
 #### 承担的任务
 
 1. 模块化开发支持：支持直接从 node_modules 里引入模块 + 多种模块化支持
-2. 处理代码兼容性：集成了 babel 语法降级，less，ts语法转换工具
+2. 处理代码兼容性：集成了 babel 语法降级、less、ts 语法转换工具
 3. 提高项目性能：压缩文件，代码分割
 4. 优化开发体验：
    - 构建工具自动监听文件的变化，自动调用对应的集成工具重新打包，浏览器再重新运行（热更新 hot replacement）
@@ -101,7 +101,7 @@ console.log(Object.keys(lodash));
 2. 调用 loadEnv（使用到了第三方库 dotenv）
 
 - 找到 `.env` 文件，解析其中的环境变量，放进一个对象里
-- 将传进来的 mode 变量的值进行拼接，生成对应的环境变量文件名，如 `.env.development`，根据提供的目录取对应的配置文件进行解析，并放进一个对象（相同的key会覆盖）
+- 将传进来的 mode 变量的值进行拼接，生成对应的环境变量文件名，如 `.env.development`，根据提供的目录取对应的配置文件进行解析，并放进一个对象（相同的 key 会覆盖）
 - 如果是客户端，vite 会将对应的环境变量注入到 `import.meta.env` 里，防止隐私性变量直接送入 `import.meta.env`，vite 做了一层拦截，环境变量需要以 `VITE_` 开头，可以使用 envPrefix 更改前缀
 - Node 环境下，vite 推荐手动确认 env 文件：`const env = loadEnv(mode, process.cwd(), '.env')`
 
@@ -122,7 +122,7 @@ console.log(Object.keys(lodash));
 
 ```js
 /* vite.config.js */
-import { defineConfig } from "vite"; // 会有语法提示（ts实现）
+import { defineConfig } from "vite"; // 会有语法提示（ts 实现）
 import viteBaseConfig from "./vite.base.config";
 import viteDevConfig from "./vite.dev.config";
 import viteProdConfig from "./vite.prod.config";

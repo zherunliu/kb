@@ -195,7 +195,7 @@ console.log(route.query);
 <!-- 跳转并携带params参数（to的对象写法） -->
 <RouterLink
   :to="{
-    name: 'detail', //用name跳转
+    name: 'detail', // 用 name 跳转
     params: {
       id: user.id,
       name: user.name,
