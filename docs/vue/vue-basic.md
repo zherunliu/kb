@@ -159,7 +159,7 @@ function changeFullName() {
 
 > 1. `ref` 定义的数据。
 > 2. `reactive` 定义的数据。
-> 3. 函数返回一个值（ `getter` 函数）
+> 3. 函数返回一个值（`getter` 函数）
 > 4. 一个包含上述内容的数组
 
 ```ts
@@ -184,7 +184,7 @@ const stopWatch = watch(
 
 > 1. 若修改的是 `ref` 定义的对象中的属性，`newValue` 和 `oldValue` 都是新值，因为它们是同一个对象；若修改整个 `ref` 定义的对象，`newValue` 是新值， `oldValue` 是旧值，因为不是同一个对象了
 > 2. 对于 `reactive` 定义的对象，`newValue` 和 `oldValue` 都是新值，`reactive` 定义的对象数据默认开启深度监视
-> 3. 可以传递一个 `getter`, 侦听响应式对象中指定的属性
+> 3. 可以传递一个 `getter`，侦听响应式对象中指定的属性
 > 4. 监视多个数据可写成数组形式，如 `[() => person.name, person.age]`
 
 ### watchEffect
