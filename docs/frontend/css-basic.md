@@ -272,22 +272,29 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 
 `box-sizing: border-box`：width 和 height 设置盒子总大小（怪异盒模型）
 
-### 长度单位
+## 样式继承
+
+只继承与盒子模型无关的属性
+
+- 继承的属性：字体属性，文本属性（除了 vertical-align）
+- 不继承的属性：宽高，内外边距，边框，背景，溢出处理
+
+## 长度单位
 
 - px 像素
+- rem 相对根元素（html）font-size 的倍数，默认 16px
 - em 相对自身 font-size 的倍数（属性为 font-size 则相对包含块的 font-size）
-- rem 相对根元素（html）font-size 的倍数
 - % 相对父元素 font-size 的倍数
 - vw：viewport width，1vw = 视口宽度的 1%
 - vh：viewport height，1vh = 视口高度的 1%
 - vmax：vmax = Math.max(vw，vh)
 - vmin：vmin = Math.min(vw，vh)
 
-### 元素的显示模式（display）
+## 文档流
 
-行内，行内块元素，可以视为文本，即可以设置文本属性
+Normal flow / Block-and-inline flow：文档流通过 BFC 和 IFC 协同组织元素排列，块级盒子在 BFC 中沿垂直方向依次排列，行内盒子在 IFC 中从左到右水平排列
 
-**块级元素（block）**
+### 块级盒子（block）
 
 - 块级盒子独占一行
 - 宽度撑满父元素
@@ -295,7 +302,7 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 - 可以使用 CSS 设置宽高
   > 默认块级元素有：`html, body, div, h1-h6, p, hr, ul, ol, li, dl, dt, dd, table, tbody, thead, tfoot, tr, caption, form, option`
 
-**行内元素（inline）**
+### 行内盒子（inline）
 
 - 行内盒子不独占一行，溢出时换行
 - 宽度由内容撑开
@@ -303,7 +310,7 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 - 不能使用 CSS 设置宽高
   > 默认行内元素有：`span, a, b, i, u, strong, em, br, label`
 
-**行内块元素（inline-block）**
+### 行内块盒子（inline-block）
 
 - 行内块盒子不独占一行，溢出时换行
 - 宽度由内容撑开
@@ -311,32 +318,9 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 - 可以使用 CSS 设置宽高
   > 默认行内块元素有：`img, td, th, input, textarea, button, select, iframe`
 
-### 隐藏元素
-
-| 隐藏方式             | 是否占据空间 | 是否响应事件 | 回流/重绘 |
-| -------------------- | ------------ | ------------ | --------- |
-| `display: none`      | 否           | 否           | 回流      |
-| `visibility: hidden` | 是           | 否           | 重绘      |
-| `opacity: 0`         | 是           | 是           | 重绘      |
-
-### 样式继承
-
-只继承与盒子模型无关的属性
-
-- 继承的属性：字体属性，文本属性（除了 vertical-align）
-- 不继承的属性：宽高，内外边距，边框，背景，溢出处理
-
-### margin 塌陷
-
-- 顶部子元素的上外边距 margin-top 会转移给父元素
-- 底部子元素的下外边距 margin-bottom 会转移给父元素
-- 上方元素的下外边距 marginBottom 和下方元素的上外边距 marginTop 合并为 `Math.max(marginBottom, marginTop)`，而不是预期的 marginBottom + marginTop
-
-**解决方法：**
-
-- 父元素设置宽度不为 0 的 padding
-- 父元素设置宽度不为 0 的 border
-- 父元素成为 BFC，例如设置 `overflow: hidden` 或 `display: flow-root`
+::: tip
+行内，行内块元素，可以视为文本，即可以设置文本属性，如 color，font-size，line-height，text-align 等
+:::
 
 ### BFC
 
@@ -347,7 +331,7 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 - 根元素 html
 - 浮动元素，float 属性值不等于 none 的元素 `float: left | right`
 - absolute 绝对或 fixed 固定定位的元素 `position: absolute | fixed`
-- 非 block 的块级容器 `display: inline | flex | inline-flex | grid | inline-grid | flow-root` 的元素
+- 非 block 的块级容器 `display: inline | flex | inline-flex | grid | inline-grid | flow-root*` 的元素
 - overflow 属性值不等于 visible 或 clip 的元素 `overflow: hidden | auto | scroll`
 - 表格单元格：table，thead，tbody，tfoot，tr，th，td，caption, `display: table-cell | table-caption`
 - 多列容器
@@ -357,6 +341,19 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 - 该元素的子元素不会有 margin 塌陷问题
 - 该元素不会被其他浮动元素覆盖
 - 即使该元素的子元素浮动，该元素的高度也不会塌陷
+
+### margin 塌陷
+
+在同一个 BFC 中，当块级盒子的垂直外边距直接接触时，会发生 margin 塌陷（margin collapsing）
+
+- 顶部子元素的上外边距 margin-top 会转移给父元素
+- 底部子元素的下外边距 margin-bottom 会转移给父元素
+- 上方元素的下外边距 marginBottom 和下方元素的上外边距 marginTop 合并为 `Math.max(marginBottom, marginTop)`，而不是预期的 marginBottom + marginTop
+
+**解决方法：**
+
+- 避免块级盒子直接接触：设置宽度不为 0 的 padding / border
+- 创建新的 BFC
 
 ## 浮动
 
@@ -465,6 +462,14 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 - 只有定位的元素设置 z-index 才有效
 - z-index 属性值越大，显示层级越高
 - 如果位置发生重叠，默认情况是：后面的元素，会显示在前面元素之上
+
+## 隐藏元素
+
+| 隐藏方式             | 是否占据空间 | 是否响应事件 | 回流/重绘 |
+| -------------------- | ------------ | ------------ | --------- |
+| `display: none`      | 否           | 否           | 回流      |
+| `visibility: hidden` | 是           | 否           | 重绘      |
+| `opacity: 0`         | 是           | 是           | 重绘      |
 
 ## BEM 命名规范
 

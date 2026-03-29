@@ -265,6 +265,9 @@ flex 项目在主轴方向的初始大小
 - grid-template-columns 列宽
 - grid-auto-rows 自动创建的隐式网格的行高
 - grid-auto-columns 自动创建的隐式网格的列宽
+- grid-auto-flow 自动创建的隐式网格的布局方式
+  > - row 先行后列（默认）
+  > - column 先列后行
 - row-gap 行间隔
 - column-gap 列间隔
 - gap 复合属性

@@ -35,6 +35,7 @@ const NODEJS: DefaultTheme.NavItemWithLink[] = [
 
 const FRONTEND: DefaultTheme.NavItemWithLink[] = [
   { text: "HTML", link: "/frontend/html" },
+  { text: "JS/TS", link: "/frontend/js" },
   { text: "CSS Basic", link: "/frontend/css-basic" },
   { text: "CSS Pro", link: "/frontend/css-pro" },
   { text: "Web API", link: "/frontend/web-api" },
@@ -48,7 +49,6 @@ const DATABASE: DefaultTheme.NavItemWithLink[] = [
 
 const GENERAL: DefaultTheme.NavItemWithLink[] = [
   { text: "Network", link: "/general/network" },
-  { text: "JS/TS", link: "/general/js" },
   { text: "Python", link: "/general/python" },
   { text: "Algorithm", link: "/general/algorithm" },
   { text: "Git", link: "/general/git" },

@@ -121,7 +121,7 @@ let gender = toRef(person, "gender");
 
 ## computed
 
-计算属性会缓存计算结果，只有当依赖项改变时，才会重新计算
+计算属性会缓存计算结果，只有当依赖项改变时，才会重新计算。由于需要缓存，computed 不能用于异步操作
 
 ```ts
 let firstName = ref("Rico");
@@ -178,13 +178,13 @@ const stopWatch = watch(
       stopWatch.stop();
     }
   },
-  { deep: true }, // number | boolean
+  { deep: true /* boolean | number */ },
 );
 ```
 
 > 1. 若修改的是 `ref` 定义的对象中的属性，`newValue` 和 `oldValue` 都是新值，因为它们是同一个对象；若修改整个 `ref` 定义的对象，`newValue` 是新值， `oldValue` 是旧值，因为不是同一个对象了
 > 2. 对于 `reactive` 定义的对象，`newValue` 和 `oldValue` 都是新值，`reactive` 定义的对象数据默认开启深度监视
-> 3. 可以传递一个 `getter`，侦听响应式对象中指定的属性
+> 3. 可以传递一个 `getter`，侦听响应式对象中指定的属性，如 `() => person.name`
 > 4. 监视多个数据可写成数组形式，如 `[() => person.name, person.age]`
 
 ### watchEffect
@@ -192,7 +192,7 @@ const stopWatch = watch(
 立即运行一个函数，同时响应式地追踪其依赖，并在依赖更改时重新执行该函数（不用明确指出监视的数据）
 
 ```ts
-watchEffect(
+const stopWatch = watchEffect(
   (onCleanup) => {
     console.log("[watchEffect]", person.age, person.name);
     // 清理函数
@@ -209,7 +209,7 @@ watchEffect(
 );
 ```
 
-> `onCleanup` 是一个用于注册清理函数的回调函数，主要作用是在当前副作用函数执行前或组件卸载时，执行一些清理操作，避免内存泄漏或无效操作，使用 `watch` 的时候直接 `return` 清理函数
+> `onCleanup` 是一个用于注册清理函数的回调函数，在副作用重新运行之前或组件卸载时执行，用于清理上一次副作用产生的结果（如事件监听、定时器等），避免内存泄漏或无效操作。`watch` 和 `watchEffect` 的回调函数都可以使用 `onCleanup` 来注册清理函数（`watch` 回调的第三个参数，`watchEffect` 回调的第一个参数）
 
 ## 生命周期
 
