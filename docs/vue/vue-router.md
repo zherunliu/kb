@@ -223,7 +223,7 @@ console.log(route.params);
 >
 > 使用 `query` 传参时，会显示在地址栏；而 `params` 不会
 >
-> 使用 `params` 传参刷新会丢失；而 `query` 不会
+> 使用 `params` 传参时若未在路由路径中占位，刷新页面后参数会丢失；而 `query` 参数保存在 URL 中，刷新不会丢失
 
 ### props
 

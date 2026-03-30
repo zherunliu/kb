@@ -174,7 +174,7 @@ const genName = () => {
 - `store.$id` store 的 id
 - `store.$patch` 更新部分 state，可以接收部分 state，也可以接收一个更新函数
 - `store.$state` 更新全部 state
-- `userStore.$reset` 重置 state 到初始值
+- `store.$reset` 重置 state 到初始值（仅 Option Stores 支持，Setup Stores 需自行实现）
 - `store.$subscribe`（类似 watch）侦听 state 的改变，改变 state 时，调用传入的 callback；返回停止侦听（移除该 callback）的函数
 - `store.$onAction` 侦听 actions 的调用，调用 actions 时，调用传入的 callback；返回停止侦听（移除该 callback）的函数
 - `store.$dispose` 销毁 store 实例，移除所有侦听器
@@ -235,10 +235,12 @@ userStore.$onAction(
 
 ## pinia 持久化
 
-页面刷新后，store 仓库缓存的 state 状态丢失
+页面刷新后，store 中的 state 状态会丢失，可以使用浏览器存储 API 实现持久化：
 
-- localStorage：数据存储到磁盘，没有过期时间
-- sessionStorage：数据缓存到内存，会话结束时自动清除
+- localStorage：数据持久化存储到磁盘，无过期时间，需手动清除
+- sessionStorage：数据存储在内存中，当前会话（标签页）关闭时自动清除
+
+> 也可以使用 [pinia-plugin-persistedstate](https://prazdevs.github.io/pinia-plugin-persistedstate/) 插件简化持久化配置
 
 ::: tip 使用浏览器持久化缓存
 

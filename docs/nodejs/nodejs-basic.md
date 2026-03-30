@@ -28,7 +28,7 @@ buffer[0] = 1; // 超过 255 高位舍弃
 - 流式写入
   - `fs.createWriteStream(file, [options])`
   ```js
-    const fs = fs.require("fs");
+    const fs = require("fs");
     const ws = fs.createWriteStream('./data.txt');
     ws.write('hello, world')
     ...
@@ -42,11 +42,11 @@ buffer[0] = 1; // 超过 255 高位舍弃
   ```js
   const fs = require("fs");
   const rs = fs.createReadStream("./data.txt");
-  re.on("data", (data) => {
+  rs.on("data", (data) => {
     console.log(data);
     console.log(data.length); // 65536 64KB
   });
-  re.on("end", () => {
+  rs.on("end", () => {
     console.log("Read over");
   });
   ```
@@ -284,7 +284,7 @@ const token = jwt.sign(
 
 console.log(token);
 
-jwt.verify(token, "salt", (data, err) => {
+jwt.verify(token, "salt", (err, data) => {
   if (err) {
     console.log(err);
   } else {

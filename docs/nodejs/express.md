@@ -205,7 +205,7 @@ router.post("/portrait", function (req, res, next) {
       next(err);
       return;
     }
-    const url = "/images/" + files.portrait.newFilename;
+    const url = "/images/" + files.portrait[0].newFilename;
     res.json({ fields, files, url });
   });
 });

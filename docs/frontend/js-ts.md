@@ -69,8 +69,8 @@
 - `Partial<T>` 将 T 中所有属性变为可选
 - `Required<T>` 将 T 中所有属性变为必选
 - `Readonly<T>` 将 T 中所有属性变为只读
-- `Pick<T, "field" | "filed2">` 从 T 中选择一组属性 field，field2 构造新类型
-- `Omit<T, "field" | "filed2">` 从 T 中忽略一组属性 field，field2 构造新类型
+- `Pick<T, "field" | "field2">` 从 T 中选择一组属性 field、field2 构造新类型
+- `Omit<T, "field" | "field2">` 从 T 中排除一组属性 field、field2 构造新类型
 - `Exclude<T, U>` 从 T 中排除可以赋值给 U 的类型
 - `Extract<T, U>` 从 T 中提取可以赋值给 U 的类型（类型的交集）
 - `NonNullable<T>` 从 T 中排除 null 和 undefined

@@ -23,7 +23,7 @@
   - `selector[attr="val"]` 选择 `attr="val"` 的元素
   - `selector[attr^="val"]` 选择 `attr` 以 `val` 开头的元素
   - `selector[attr$="val"]` 选择 `attr` 以 `val` 结尾的元素
-  - `selector[attr*~*="val"]` 选择 `attr` 包含 `val` 的元素
+  - `selector[attr*="val"]` 选择 `attr` 包含 `val` 的元素
 - 伪类选择器（选择元素的特殊状态/位置）
   - `:hover` 鼠标悬浮时选择元素
   - `:active` 鼠标按下时选择元素
@@ -374,7 +374,7 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 **清除浮动：**
 
 - 父元素设置浮动，会产生其他影响
-- 父元素成为 BFC，设置 `overflow: hidden` 或 `display: flex-root`
+- 父元素成为 BFC，设置 `overflow: hidden` 或 `display: flow-root`
 - 所有浮动元素后面，添加一个空的块级元素，并设置 `clear: both`
 - 父元素使用 `::after` 创建空的伪元素
 
@@ -389,10 +389,10 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 ## 定位
 
 - static 静态定位（默认）
-- relative 相对定位：参考元素本身，脱离文档流，成为定位元素，BFC
-- absolute 绝对定位：参考最近的已定位祖先元素（非 static）
-- fixed 固定定位：参考视口，脱离文档流，成为定位元素，BFC
-- sticky 粘性定位：参考最近的已定位祖先元素（非 static）
+- relative 相对定位：参考元素本身，**不脱离文档流**，成为定位元素
+- absolute 绝对定位：参考最近的已定位祖先元素（非 static），脱离文档流，成为 BFC
+- fixed 固定定位：参考视口，脱离文档流，成为 BFC
+- sticky 粘性定位：参考最近的可滚动祖先元素，滚动到阈值前为相对定位，滚动到阈值后为固定定位
 
 > 当父元素设置了 position: relative，子元素设置了 position: absolute 时，子元素的定位会以父元素的 padding 盒（content + padding）为参考系
 

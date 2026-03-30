@@ -35,7 +35,7 @@ const NODEJS: DefaultTheme.NavItemWithLink[] = [
 
 const FRONTEND: DefaultTheme.NavItemWithLink[] = [
   { text: "HTML", link: "/frontend/html" },
-  { text: "JS/TS", link: "/frontend/js" },
+  { text: "JS/TS", link: "/frontend/js-ts" },
   { text: "CSS Basic", link: "/frontend/css-basic" },
   { text: "CSS Pro", link: "/frontend/css-pro" },
   { text: "Web API", link: "/frontend/web-api" },
@@ -79,7 +79,7 @@ const nav: DefaultTheme.NavItem[] = [
   {
     text: "FrontEnd",
     items: FRONTEND,
-    activeMatch: "^/fe-basic/",
+    activeMatch: "^/frontend/",
   },
   {
     text: "Database",

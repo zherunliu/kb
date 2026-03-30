@@ -52,7 +52,7 @@
 
 **位移**
 
-- `transform: translateX(3rem)` z 轴方向位移
+- `transform: translateZ(3rem)` z 轴方向位移
 - `transform: translate3d(3rem, 3rem, 3rem)`
 
 **缩放**

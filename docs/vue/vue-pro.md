@@ -42,10 +42,10 @@ Suspense 提供两个插槽：`#default` 与 `#fallback`，两个插槽都只允
 
 在多个组件间动态切换时缓存被移除的组件实例
 
-- include 缓存的组件
-- exclude 不缓存的组件
-  > include 和 exclude 的值都可以是一个以英文逗号分隔的字符串、一个正则表达式（v-bind），或是包含这两种类型的一个数组（v-bind）
-- max 指定缓存的数量
+- include 指定需要缓存的组件
+- exclude 指定不需要缓存的组件
+  > include 和 exclude 的值都可以是一个以英文逗号分隔的字符串、一个正则表达式（需使用 v-bind），或是包含这两种类型的一个数组（需使用 v-bind）
+- max 指定最大缓存组件数量
 
 ```vue
 <button @click="flag = !flag"></button>
@@ -57,7 +57,7 @@ Suspense 提供两个插槽：`#default` 与 `#fallback`，两个插槽都只允
 
 ::: tip 缓存组件的更新
 
-keep-alive 会缓存组件的 DOM 结构和实例状态，但不会缓存组件的 props 和数据。组件首次被渲染后，即使 props 或数据发生变化，视图也不会主动更新。因此，如果需要更新被 keep-alive 缓存的组件，可以通过以下方式：
+keep-alive 会缓存组件的 DOM 结构和实例状态。当组件被缓存后再次激活时，不会重新执行 created、mounted 等生命周期钩子。如果需要在组件重新激活时执行更新逻辑，可以通过以下方式：
 
 - 通过 key 属性的更改重新触发渲染
 - keep-alive 会增加两个生命周期 `onActivated()` 和 `onDeactivated()`，通过显式在 `onActivated()` 钩子函数中检查数据变化并执行相应的更新逻辑

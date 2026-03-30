@@ -174,8 +174,7 @@ const stopWatch = watch(
   (newValue, oldValue) => {
     console.log(newValue, oldValue);
     if (person.value.age === 24) {
-      // stopWatch();
-      stopWatch.stop();
+      stopWatch();
     }
   },
   { deep: true /* boolean | number */ },
@@ -215,14 +214,16 @@ const stopWatch = watchEffect(
 
 **概述：**组件实例在创建时要经历一系列的初始化步骤，在此过程中 `Vue` 会在合适的时机，调用特定的函数，从而让开发者有机会在特定阶段运行自己的代码，这些特定的函数统称为：生命周期钩子
 
-**组件的生命周期：**
+**组件的生命周期（Vue3 组合式 API）：**
 
-- 创建阶段：`setup`
-- 挂载阶段：`onBeforeMount`，`onMounted`
-- 更新阶段：`onBeforeUpdate`，`onUpdated`
-- 卸载阶段：`onBeforeUnmount`，`onUnmounted`
+- 创建阶段：`setup`（替代 Vue2 的 beforeCreate 和 created）
+- 挂载阶段：`onBeforeMount`、`onMounted`
+- 更新阶段：`onBeforeUpdate`、`onUpdated`
+- 卸载阶段：`onBeforeUnmount`、`onUnmounted`
+- 缓存组件：`onActivated`、`onDeactivated`（配合 KeepAlive 使用）
+- 错误捕获：`onErrorCaptured`
 
-**常用的钩子：**`onMounted`（挂载完毕），`onUpdated`（更新完毕），`onBeforeUnmount`（卸载之前）
+**常用的钩子：**`onMounted`（挂载完毕）、`onUpdated`（更新完毕）、`onBeforeUnmount`（卸载之前）
 
 ## readonly
 
@@ -252,21 +253,21 @@ console.log(items, readonlyItems); // ["item"] ["item"]
 
 - `markRaw`：标记一个对象，使其永远不会变成响应式的
 
-## vue 指令
+## Vue 指令
 
 - v-text 渲染文本字符串，会忽略子节点
 - v-html 渲染 HTML 字符串，会忽略子节点，不支持渲染 Vue 组件
-- v-if，v-else-if，v-else 节点的条件渲染，不渲染则将节点卸载，表现为注释节点，操作 DOM
-- v-show 节点的显示/隐藏: 改变内联 CSS 样式 `display: none`，操作 CSS
+- v-if，v-else-if，v-else 节点的条件渲染，不渲染时将节点卸载，表现为注释节点，操作 DOM
+- v-show 节点的显示/隐藏：改变内联 CSS 样式 `display: none`，操作 CSS
 - v-for 遍历元素
 - v-on 简写为 `@`，为元素绑定事件
 - v-bind 简写为 `:`，为元素绑定属性（模型到视图的单向绑定），也可以绑定 style
-- v-model 模型，视图的双向绑定，本质是 v-bind 和 v-on 的语法糖
+- v-model 模型与视图的双向绑定，本质是 v-bind 和 v-on 的语法糖
 - v-once 性能优化，只渲染一次
-- v-memo 性能优化，缓存
+- v-memo 性能优化，缓存依赖变化时重新渲染
 - v-slot 简写为 `#`，用于组件插槽
 - v-pre 跳过编译，性能优化
-- v-cloak 解决闪烁问题，性能优化
+- v-cloak 防止未编译模板闪烁
 
 ```vue
 <input type="text" v-model="userName" />

@@ -30,7 +30,7 @@ def fn(a: int, b: int) -> str:
 # fn 的类型是 Callable[[int, int], str]
 fn2: Callable[[int, int], str] = fn
 
-Class Node:
+class Node:
     def __init__(self, pre: "Node"):
         self.pre = pre # 此时 Node 还没有被定义，可以使用双引号
         self.next = None
@@ -41,7 +41,7 @@ def f(x: Optional[int]) -> int:
         return 0
     return x
 
-def error() -> NoReturn
+def error() -> NoReturn:
     raise ValueError
 
 Tgender = Literal['female', 'male']

@@ -68,7 +68,7 @@ Object.defineProperty(obj, "age", {
 ```
 
 > - Vue2 通过 `Object.defineProperty` 将 data 对象中所有属性添加到 vm 上，为每一个添加到 vm 上的属性都指定一个 `getter/setter`，在 `getter/setter` 内部去操作（读/写）data 中对应的属性
-> - 新增属性、删除属性、直接通过下标修改数组，界面不会自动更新（可以使用 `Vue.set()`，`$set()`，`Vue.delete()`，`$delete()`）
+> - 新增属性、删除属性、直接通过下标修改数组，界面不会自动更新（可以使用 `Vue.set()` / `this.$set()`，`Vue.delete()` / `this.$delete()`，或使用数组变异方法如 `push`、`splice` 等）
 
 ### Proxy (Vue3)
 
