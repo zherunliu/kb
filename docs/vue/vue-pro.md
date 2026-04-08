@@ -1,5 +1,16 @@
 # Vue Pro
 
+## Diff 算法
+
+1. 前序对比：从头到尾依次对比 vNode 的 key 和 type，相同则复用，不同则转到 2
+2. 后序对比：从尾到头依次对比 vNode 的 key 和 type，相同则复用，不同则转到 3
+3. 如果旧节点全部 patch，有多余的新节点则新增
+4. 如果新节点全部 patch，有多余的旧节点则删除
+5. 乱序：
+   - 以新节点为基准，构建 key-to-newIndex map
+   - 遍历旧节点，获取新节点中相同 key 的 index，如果没有则删除旧节点；如果有则 patch，并记录 index
+   - 根据 newIndex-to-oldIndex array 获取需要移动的最长递增子序列（LIS），倒序遍历 array，新增值为初始值的节点，复用 LIS 中的节点，移动不在 LIS 中的节点
+
 ## 内置组件
 
 ### Teleport
