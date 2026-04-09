@@ -70,16 +70,16 @@ Object.defineProperty(obj, "age", {
 Vue2 的响应式核心是 `Observer`、`Dep` 和 `Watcher`
 
 1. **Observer**：递归遍历 `data` 对象的所有属性，使用 `Object.defineProperty` 为它们指定 getter/setter
-2. **Dep**：每一个属性都对应一个 `Dep` 实例。它在内部维护一个数组，专门用来存放依赖该属性的 `Watcher`；同时通过全局变量（如 `Dep.target`）暴露当前正在执行计算的 `Watcher`
+2. **Dep**：每一个属性都对应一个 `Dep` 实例。它在内部维护一个数组 `deps`，专门用来存放依赖该属性的 `Watcher`；同时通过全局变量（如 `Dep.target`）暴露当前正在执行计算的 `Watcher`
 3. **Watcher**：当组件渲染函数执行、或者计算属性求值时，会实例化一个 `Watcher`，并将自身挂载到 `Dep.target` 上
 4. **工作流程**：
-   - **get**：当读取属性值时，触发 `getter`。`getter` 会调用 `dep.depend()`，将当前的 `Watcher`（即 `Dep.target`）添加到该属性的 `Dep` 队列中
+   - **get**：当读取属性值时，触发 `getter`。`getter` 会调用 `dep.depend()`，将当前的 `Watcher`（即 `Dep.target`）添加到该属性的 `deps` 数组中
    - **set**：当修改属性值时，触发 `setter`。`setter` 会完成新值的赋给，并调用对应 `Dep` 的 `notify()` 方法，遍历通知所有的 `Watcher` 执行 `update()`，进而将组件对应的重新渲染任务推入异步队列
 
 **Vue2 响应式的局限性与特殊处理**：
 
 - **对象的新增/删除**：`Object.defineProperty` 在初始化时执行，无法拦截后来动态新增和删除的属性。因此 Vue2 提了补丁 API：`Vue.set()` 和 `Vue.delete()`
-- **数组监听**：出于性能考虑，Vue2 没有对数组的每个索引使用 `defineProperty`。它是通过重写数组实例的原型链，拦截了 7 个能改变原生数组的方法（`push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`）。在调用这些变异方法时，除了执行原生逻辑，还会向数组关联的 dep 手动触发 `notify`
+- **数组监听**：出于性能考虑，Vue2 没有对数组的每个索引使用 `defineProperty`。它是通过重写数组实例的原型链，拦截了 7 个能改变原生数组的方法（`push`，`pop`，`shift`，`unshift`，`splice`，`sort`，`reverse`）。在调用这些变异方法时，除了执行原生逻辑，还会对数组关联的 `deps` 手动触发 `notify`
 
 ### Vue3：Proxy + Reflect + 副作用函数 (Effect)
 
