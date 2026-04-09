@@ -95,7 +95,7 @@ React 使用 `MessageChannel` 来实现一个自定义的调度器，模拟 `req
 
 ### useState
 
-```jsx
+```tsx
 const [state /** 状态 */, setState /** 更新状态的函数 */] =
   useState(initialVal | () => initialVal /** 状态的初始值 */);
 ```
@@ -104,3 +104,146 @@ const [state /** 状态 */, setState /** 更新状态的函数 */] =
 - 调用 setState 会触发组件重新渲染，更新后的 state 值会在下一次渲染中生效
 - setState 可以被批处理，一次渲染中合并多次更新
 - setState 多次传入同一个 state 值，React 会进行优化，避免不必要的渲染
+
+### useReducer
+
+集中式状态管理，适合复杂的状态逻辑
+
+```tsx
+import { useReducer } from "react";
+
+function App() {
+  interface IState {
+    cnt: number;
+  }
+
+  interface IAction {
+    type: "add" | "sub";
+    delta: number;
+  }
+
+  const initialVal: IState = { cnt: -4 };
+
+  const reducer = (state: IState, action: IAction) => {
+    switch (action.type) {
+      case "add":
+        return { cnt: state.cnt + action.delta };
+      case "sub":
+        return { cnt: state.cnt - action.delta };
+      default:
+        return state;
+    }
+  };
+
+  const init = (state: IState) => {
+    return { cnt: Math.abs(state.cnt) }; // { cnt: 4 }
+  };
+
+  const [
+    state,
+    // dispatch(action) => reducer(state, action)
+    // dispatch 接收一个 action，派发 reducer 的调用
+    dispatch,
+  ] = useReducer(
+    // reducer: (state, action) => newState
+    // reducer 根据不同的 action 更新状态的纯函数
+    reducer,
+    // dispatch(action) => reducer(state, action)
+    initialVal,
+    // 初始化状态的函数，可选
+    init,
+  );
+  return (
+    <>
+      <div>state.cnt: {state.cnt}</div>
+      <button onClick={() => dispatch({ type: "add", delta: 1 })}>+1</button>
+      <button onClick={() => dispatch({ type: "sub", delta: 1 })}>-1</button>
+    </>
+  );
+}
+```
+
+### useImmer & useImmerReducer
+
+`useImmer` 和 `useImmerReducer` 是 `immer` 库提供的 hook，用于简化不可变状态的更新，允许直接修改 state 的草稿（draft），底层会自动生成新的 state
+
+::: code-group
+
+```tsx [useImmer] {8-9}
+import { useImmer } from "use-immer";
+function App() {
+  const [state, setState] = useImmer({ cnt: 0 });
+
+  return (
+    <>
+      <div>state.cnt: {state.cnt}</div>
+      <button onClick={() => setState((draft) => (draft.cnt += 1))}>+1</button>
+      <button onClick={() => setState((draft) => (draft.cnt -= 1))}>-1</button>
+    </>
+  );
+}
+```
+
+```tsx [useImmerReducer] {18-19,21-22}
+import { useImmerReducer } from "use-immer";
+
+function App() {
+  interface IState {
+    cnt: number;
+  }
+
+  interface IAction {
+    type: "add" | "sub";
+    delta: number;
+  }
+
+  const initialVal: IState = { cnt: -4 };
+
+  const reducer = (state: IState, action: IAction) => {
+    switch (action.type) {
+      case "add":
+        state.cnt += action.delta;
+        break;
+      case "sub":
+        state.cnt -= action.delta;
+        break;
+      default:
+        return state;
+    }
+  };
+
+  const init = (state: IState) => {
+    return { cnt: Math.abs(state.cnt) }; // { cnt: 4 }
+  };
+
+  const [state, dispatch] = useImmerReducer(reducer, initialVal, init);
+  return (
+    <>
+      <div>state.cnt: {state.cnt}</div>
+      <button onClick={() => dispatch({ type: "add", delta: 1 })}>+1</button>
+      <button onClick={() => dispatch({ type: "sub", delta: 1 })}>-1</button>
+    </>
+  );
+}
+```
+
+:::
+
+### useEffect
+
+```tsx
+useEffect(
+  effect, // effect 副作用函数，返回一个 destructor 清理函数
+  deps, // deps 依赖项数组
+);
+```
+
+执行时机：
+
+- 如果传入的 deps 是非空数组
+  > - 组件挂载后，执行 effect 副作用函数（类比 Vue 的 onMounted），此时可以获取到 DOM 元素
+  > - 依赖项改变时，先执行 destructor 清理函数，再执行 effect 副作用函数
+  > - 组件卸载后，执行 destructor 清理函数（类比 Vue 的 onUnmounted），此时获取不到 DOM 元素
+- 如果不传入 deps，即 deps 为 undefined，则组件挂载，每次更新后，都会执行 effect 副作用函数（类比 Vue 的 onUpdated）
+- 如果传入的 deps 是 [] 空数组，则 effect 副作用函数只会在组件挂载后执行一次（类比 Vue 的 onMounted）
+- effect 副作用函数和 destructor 清理函数都是异步执行的，destructor 清理函数在下一次 effect 副作用函数执行前或组件卸载时执行

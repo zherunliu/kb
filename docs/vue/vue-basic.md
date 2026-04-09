@@ -107,7 +107,7 @@ function changePerson() {
 }
 ```
 
-## toRefs 和 toRef
+## toRefs & toRef
 
 将一个响应式对象中的每一个属性，转换为 `ref` 对象，`toRefs` 和 `toRef` 功能一致，但 `toRefs` 可以批量转换
 
@@ -149,7 +149,7 @@ function changeFullName() {
 }
 ```
 
-## watch 和 watchEffect
+## watch & watchEffect
 
 ### watch
 
@@ -247,7 +247,7 @@ items.push("item");
 console.log(items, readonlyItems); // ["item"] ["item"]
 ```
 
-## toRaw 和 markRaw
+## toRaw & markRaw
 
 - `toRaw` 用于获取一个响应式对象的原始对象， `toRaw` 返回的对象不再是响应式的，不会触发视图更新
 
