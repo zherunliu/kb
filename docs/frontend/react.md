@@ -112,7 +112,7 @@ const [state /** 状态 */, setState /** 更新状态的函数 */] =
 ```tsx
 import { useReducer } from "react";
 
-function App() {
+export default function App() {
   interface IState {
     cnt: number;
   }
@@ -171,7 +171,7 @@ function App() {
 
 ```tsx [useImmer] {8-9}
 import { useImmer } from "use-immer";
-function App() {
+export default function App() {
   const [state, setState] = useImmer({ cnt: 0 });
 
   return (
@@ -187,18 +187,16 @@ function App() {
 ```tsx [useImmerReducer] {18-19,21-22}
 import { useImmerReducer } from "use-immer";
 
-function App() {
-  interface IState {
-    cnt: number;
-  }
+interface IState {
+  cnt: number;
+}
 
-  interface IAction {
-    type: "add" | "sub";
-    delta: number;
-  }
-
+interface IAction {
+  type: "add" | "sub";
+  delta: number;
+}
+export default function App() {
   const initialVal: IState = { cnt: -4 };
-
   const reducer = (state: IState, action: IAction) => {
     switch (action.type) {
       case "add":
@@ -229,6 +227,271 @@ function App() {
 
 :::
 
+### useSyncExternalStore
+
+订阅外部数据源的变化，确保组件在外部数据源更新时同步更新，支持服务端渲染（SSR）
+
+```tsx
+const state = useSyncExternalStore(
+  subscribe, // 订阅函数，接收一个回调函数，当外部数据源更新时调用该回调函数
+  getSnapshot, // 获取当前快照的函数，返回当前外部数据源的状态
+  getServerSnapshot, // 可选，获取服务器端快照的函数，返回服务器端外部数据源的状态
+);
+```
+
+- onStoreChange 通知 React 调用 getSnapshot 获取数据源的快照，以更新 state，触发组件更新
+- getSnapshot 获取数据源的快照，如果 getSnapshot 返回值的内存地址与上一个返回值的内存地址不同，则会触发组件更新；如果 getSnapshot 返回值的内存地址总是不同的，则会报错 `Maximum update depth exceeded`
+
+#### 订阅 Web API: window.localStorage 的自定义 hook useLocalStorage
+
+::: code-group
+
+```tsx [hooks/useStorage.ts (onStoreChange)]
+import { useSyncExternalStore } from "react";
+import { useRef } from "react";
+
+type TCallback = () => void;
+export function useStorage<T>(key: string, initialValue: T) {
+  const cbRef = useRef<TCallback | null>(null);
+  const subscribe = (onStoreChange: TCallback) => {
+    cbRef.current = onStoreChange;
+    return () => {
+      cbRef.current = null;
+    };
+  };
+
+  const getSnapshot = () => {
+    const storedValue = localStorage.getItem(key);
+    return storedValue ? JSON.parse(storedValue) : initialValue;
+  };
+
+  const state = useSyncExternalStore(subscribe, getSnapshot);
+  const setState = (newValue: T) => {
+    localStorage.setItem(key, JSON.stringify(newValue));
+    cbRef.current?.();
+  };
+
+  return [state, setState] as const;
+}
+```
+
+```tsx [App.tsx]
+import { useStorage } from "./hooks/useStorage";
+
+export default function App() {
+  const [count, setCount] = useStorage("count", 0);
+  return (
+    <>
+      <div>count: {count}</div>
+      <button onClick={() => setCount(count + 1)}>+1</button>
+      <button onClick={() => setCount(count - 1)}>-1</button>
+    </>
+  );
+}
+```
+
+:::
+
+#### 订阅 Web API: window.history 的自定义 hook useHistory
+
+::: code-group
+
+```ts [hooks/useHistory.ts (dispatch)]
+import { useSyncExternalStore } from "react";
+
+export const useHistory = () => {
+  const subscribe = (onStoreChange: () => void) => {
+    window.addEventListener("popstate", onStoreChange);
+    return () => {
+      window.removeEventListener("popstate", onStoreChange);
+    };
+  };
+  const getSnapshot = () => window.location.pathname;
+
+  const url = useSyncExternalStore(subscribe, getSnapshot);
+
+  const push = (url: string) => {
+    window.history.pushState(null, "", url);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  const replace = (url: string) => {
+    window.history.replaceState(null, "", url);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  return [url, push, replace] as const;
+};
+```
+
+```tsx [App.tsx]
+import { useHistory } from "./hooks/useHistory";
+export default function App() {
+  const [url, push, replace] = useHistory();
+  return (
+    <>
+      <div>URL: {url}</div>
+      <button onClick={() => push("/A")}>Go to Page A</button>
+      <button onClick={() => replace("/B")}>Go to Page B</button>
+    </>
+  );
+}
+```
+
+:::
+
+### useTransition
+
+管理过渡状态，降低更新优先级，适合处理一些需要等待的更新，例如数据加载、路由切换等
+
+`const [isPending, startTransition] = useTransition();`
+
+> 传递给 startTransition 的回调函数必须同步执行状态更新
+
+::: code-group
+
+```tsx [App.tsx]
+import { useState, useTransition } from "react";
+import { Input, List } from "antd";
+
+interface IData {
+  id: number;
+  name: string;
+  age: number;
+  address: string;
+}
+export default function App() {
+  const [val, setVal] = useState("");
+  const [list, setList] = useState<IData[]>([]);
+  const [isPending, startTransition] = useTransition();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVal(e.target.value);
+    fetch("/api/data?name=" + e.target.value)
+      .then((res) => res.json())
+      .then((data) => {
+        startTransition(() => {
+          setList(data.list);
+        });
+      });
+  };
+  return (
+    <>
+      <Input value={val} onChange={handleChange} />
+      {isPending ? (
+        <div>Loading...</div>
+      ) : (
+        <List
+          dataSource={list}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                title={item.name}
+                description={`Id: ${item.id}, Age: ${item.age}, Address: ${item.address}`}
+              />
+            </List.Item>
+          )}
+        />
+      )}
+    </>
+  );
+}
+```
+
+```ts [vite.config.ts]
+import { defineConfig, type Plugin } from "vite";
+import react from "@vitejs/plugin-react";
+import mockjs from "mockjs";
+import url from "node:url";
+
+const viteMockServer = (): Plugin => {
+  return {
+    name: "vite-mock-server",
+    configureServer(server) {
+      server.middlewares.use("/api/data", (req, res) => {
+        const parseUrl = url.parse(req.originalUrl, true).query;
+        const data = mockjs.mock({
+          "list|1000": [
+            {
+              "id|+1": 1,
+              name: parseUrl.name || "@cname",
+              "age|18-60": 1,
+              address: "@county(true)",
+            },
+          ],
+        });
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify(data));
+      });
+    },
+  };
+};
+
+export default defineConfig({
+  plugins: [react(), viteMockServer()],
+});
+```
+
+:::
+
+### useDeferredValue
+
+根据设备性能情况延迟某些值的更新，直到主渲染任务完成。适用于高频更新的内容（如输入框、滚动等）
+
+当 useDeferredValue 接收到与之前不同的值（使用 `Object.is` 进行比较）时，除了当前渲染（此时它仍然使用旧值），它还会安排一个后台重新渲染。这个后台重新渲染是可以被中断的，如果 value 有新的更新，React 会从头开始重新启动后台渲染
+
+```tsx
+import { useDeferredValue, useState } from "react";
+import { Input, List } from "antd";
+import mockjs from "mockjs";
+
+interface IData {
+  id: number;
+  name: number;
+  age: number;
+  address: string;
+}
+export default function App() {
+  const [val, setVal] = useState("");
+  const deferredVal = useDeferredValue(val);
+  const [list] = useState<IData[]>(() => {
+    return mockjs.mock({
+      "list|1000": [
+        {
+          "id|+1": 1,
+          name: "@natural",
+          "age|18-60": 1,
+          address: "@county(true)",
+        },
+      ],
+    }).list;
+  });
+  const filteredList = () => {
+    console.log("val:", val, "deferredVal:", deferredVal);
+    return list.filter((item) => item.name.toString().includes(deferredVal));
+  };
+  return (
+    <>
+      <Input value={val} onChange={(e) => setVal(e.target.value)} />
+      <List
+        style={{
+          opacity: val !== deferredVal ? 0.5 : 1,
+          transition: "opacity 0.3s",
+        }}
+        dataSource={filteredList()}
+        renderItem={(item) => (
+          <List.Item>
+            <List.Item.Meta
+              title={item.name}
+              description={`Id: ${item.id}, Age: ${item.age}, Address: ${item.address}`}
+            />
+          </List.Item>
+        )}
+      />
+    </>
+  );
+}
+```
+
 ### useEffect
 
 ```tsx
@@ -242,8 +505,8 @@ useEffect(
 
 - 如果传入的 deps 是非空数组
   > - 组件挂载后，执行 effect 副作用函数（类比 Vue 的 onMounted），此时可以获取到 DOM 元素
-  > - 依赖项改变时，先执行 destructor 清理函数，再执行 effect 副作用函数
+  > - 依赖项改变时，先执行 destructor 清理函数，再执行 effect 副作用函数（类比 Vue 的 onUpdated）
   > - 组件卸载后，执行 destructor 清理函数（类比 Vue 的 onUnmounted），此时获取不到 DOM 元素
-- 如果不传入 deps，即 deps 为 undefined，则组件挂载，每次更新后，都会执行 effect 副作用函数（类比 Vue 的 onUpdated）
-- 如果传入的 deps 是 [] 空数组，则 effect 副作用函数只会在组件挂载后执行一次（类比 Vue 的 onMounted）
+- 如果不传入 deps，即 deps 为 undefined，则组件挂载，每次更新后，都会执行 effect 副作用函数
+- 如果传入的 deps 是空数组，则 effect 副作用函数只会在组件挂载后执行一次
 - effect 副作用函数和 destructor 清理函数都是异步执行的，destructor 清理函数在下一次 effect 副作用函数执行前或组件卸载时执行
