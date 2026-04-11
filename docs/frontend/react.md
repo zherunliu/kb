@@ -340,7 +340,7 @@ export default function App() {
 
 :::
 
-### useTransition
+### useTransition(perf)
 
 管理过渡状态，降低更新优先级，适合处理一些需要等待的更新，例如数据加载、路由切换等
 
@@ -433,7 +433,7 @@ export default defineConfig({
 
 :::
 
-### useDeferredValue
+### useDeferredValue(perf)
 
 根据设备性能情况延迟某些值的更新，直到主渲染任务完成。适用于高频更新的内容（如输入框、滚动等）
 
@@ -510,3 +510,55 @@ useEffect(
 - 如果不传入 deps，即 deps 为 undefined，则组件挂载，每次更新后，都会执行 effect 副作用函数
 - 如果传入的 deps 是空数组，则 effect 副作用函数只会在组件挂载后执行一次
 - effect 副作用函数和 destructor 清理函数都是异步执行的，destructor 清理函数在下一次 effect 副作用函数执行前或组件卸载时执行
+
+### useLayoutEffect
+
+同步执行副作用函数，可以避免浏览器回流和重绘时的闪烁问题，适合需要读取布局并同步触发重绘的场景
+
+| 区别                       | useLayoutEffect        | useEffect              |
+| -------------------------- | ---------------------- | ---------------------- |
+| destructor/effect 执行时机 | 浏览器回流，重绘前执行 | 浏览器回流，重绘后执行 |
+| destructor/effect 执行方式 | 同步执行               | 异步执行               |
+| DOM 渲染                   | 会阻塞 DOM 渲染        | 不会阻塞 DOM 渲染      |
+
+```tsx
+import { useLayoutEffect, useRef } from "react";
+
+export default function App() {
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useLayoutEffect(() => {
+    if (listRef.current) {
+      const top = new URLSearchParams(window.location.search).get("scrollTop");
+      listRef.current.scrollTop = top ? parseInt(top) : 0;
+    }
+  }, []);
+
+  const scrollHandler = (e: React.UIEvent<HTMLUListElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    // 记录到 URL 中
+    window.history.replaceState(null, "", `?scrollTop=${scrollTop}`);
+  };
+
+  return (
+    <ul
+      ref={listRef}
+      onScroll={scrollHandler}
+      style={{ height: "500px", overflowY: "scroll" }}
+    >
+      {Array.from({ length: 500 }, (_, i) => (
+        <li key={i}>Item {i + 1}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### useRef
+
+`const refVal = useRef(initialVal);`
+
+- 每次组件更新时，都会重新执行组件函数，重新创建所有的局部变量
+- useRef 只在组件挂载时调用 1 次，组件更新时，不会重新调用 useRef，即不会重新创建 refVal
+- React 的 useRef 返回的 refVal 是普通 JS 对象，改变 refVal.current 的值时，不会触发组件更新
+- useRef 返回的 refVal 不能作为 useEffect 等其他 hooks 的 deps 中的依赖项
