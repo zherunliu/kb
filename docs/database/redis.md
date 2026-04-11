@@ -12,7 +12,7 @@ redis-cli -h <host> -p <port> -a <password>
 
 ```bash
 set <key> <value>
-get <key> <value>
+get <key>
 
 mset <key value ...>
 mget <key ...>

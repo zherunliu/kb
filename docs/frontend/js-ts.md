@@ -330,14 +330,18 @@ const school = require("./school.js");
 ```js [student.js]
 /* 多种方式可以同时使用 */
 // 分别导出 export
-export const name = 'rico'
+export const name = "rico";
 export function getTel() {
-return '13421399884'
+  return "13421399884";
 }
 // 统一导出 {} 不是对象
-export {name, getTel}
-// 默认导出 导出是一个对象，键为 default
-export default
+export { name, getTel };
+// 默认导出
+const student = {
+  name,
+  getTel,
+};
+export default student;
 ```
 
 ```js [index.js]
@@ -349,9 +353,9 @@ import { name as schoolName, getTel } from "./school.js";
 // 默认导入 对应默认导出
 import school from "./school.js";
 // 命名导入和默认导入可以混用
-import name, { getTel } from "./school.js";
+import schoolDefault, { name, getTel as getStudentTel } from "./student.js";
 // 动态导入
-btn.click = async () => {
+btn.onclick = async () => {
   const result = await import("./student.js");
   console.log(result);
 };

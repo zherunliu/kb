@@ -375,7 +375,7 @@ const addA = (delta: number) => (a.value += delta);
   <div>
     <div>[GrandParent] a={{ a }} b={{ b }}</div>
     <!-- v-bind="{ p1: "v1", p2: "v2" }" 等价于 :p1="v1" :p2="v2" -->
-    <Parent :a="a" :b="b" :addA="addA" :="{ p1: 'v1', p2: 'v2' }" />
+    <Parent :a="a" :b="b" :addA="addA" v-bind="{ p1: 'v1', p2: 'v2' }" />
   </div>
 </template>
 ```
@@ -397,7 +397,7 @@ console.log("[Parent] attrs:", attrs);
 <template>
   <div>
     <div>[Parent] a={{ a }} b={{ b }} attrs={{ attrs }}</div>
-    <Child :a="a" :b="b" :addA="addA" :="attrs" />
+    <Child :a="a" :b="b" :addA="addA" v-bind="attrs" />
   </div>
 </template>
 ```

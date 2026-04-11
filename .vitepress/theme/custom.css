@@ -1,9 +1,11 @@
 /* .vitepress/theme/custom.css */
 :root {
-  --vp-font-family-base: "Iosevka", "Maple Mono", "Cascadia Code", "Menlo",
-    "DejaVu Sans Mono", "PingFang SC", "Microsoft YaHei", monospace !important;
-  --vp-font-family-mono: "Iosevka", "Maple Mono CN", "Cascadia Code", "Menlo",
-    "DejaVu Sans Mono", "PingFang SC", "Microsoft YaHei", monospace !important;
+  --vp-font-family-base:
+    "Iosevka", "Maple Mono", "Cascadia Code", "Menlo", "DejaVu Sans Mono",
+    "PingFang SC", "Microsoft YaHei", monospace !important;
+  --vp-font-family-mono:
+    "Iosevka", "Maple Mono CN", "Cascadia Code", "Menlo", "DejaVu Sans Mono",
+    "PingFang SC", "Microsoft YaHei", monospace !important;
   --vp-c-brand-1: #9280ed;
   --vp-c-brand-2: #bca6ff;
   --vp-c-brand-3: #9280ed;

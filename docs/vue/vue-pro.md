@@ -60,7 +60,7 @@ Suspense 提供两个插槽：`#default` 与 `#fallback`，两个插槽都只允
 
 ```vue
 <button @click="flag = !flag"></button>
-<keep-alive :include=['A','B']>
+<keep-alive :include="['A', 'B']">
     <A v-if="flag"></A>
     <B v-else></B>
 </keep-alive>
