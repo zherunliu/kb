@@ -164,16 +164,16 @@ export class UserModule {}
 ```
 
 ```ts [user/user.controller.ts]
-import { Controller } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Controller, Inject } from "@nestjs/common";
+import { UserService } from "./user.service";
 
-@Controller('user')
+@Controller("user")
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    @Inject('user-service') private readonly userService2: UserService,
-    @Inject('injectable-value') private readonly injectedArray: string[],
-    @Inject('injectable-factory-method') private readonly returnValue: boolean,
+    @Inject("user-service") private readonly userService2: UserService,
+    @Inject("injectable-value") private readonly injectedArray: string[],
+    @Inject("injectable-factory-method") private readonly returnValue: boolean,
   ) {}
 ```
 
@@ -321,7 +321,7 @@ import { Handler, Request, Response, NextFunction } from "express";
 const globalMiddleware: Handler = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.log(req.originalUrl);
   next();
@@ -364,7 +364,7 @@ export class Response<T> implements NestInterceptor {
           message: "Intercepted by Response",
           success: true,
         };
-      })
+      }),
     );
   }
 }
@@ -556,7 +556,7 @@ import { Request } from "express";
 export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
   canActivate(
-    context: ExecutionContext
+    context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const role = this.reflector.get<string[]>("role", context.getHandler());
     const request = context.switchToHttp().getRequest<Request>();
@@ -587,7 +587,7 @@ export class GuardController {
 ```
 
 :::
-或者使用全局管道 `app.useGlobalGuards(new RoleGuard());`
+或者在需要注册全局守卫时，通过 Nest 容器获取依赖后再注册，例如 `app.useGlobalGuards(app.get(RoleGuard));`
 
 ## 自定义装饰器
 
@@ -607,7 +607,7 @@ export const ReqUrl = createParamDecorator(
     const req = ctx.switchToHttp().getRequest<Request>();
     console.log(data);
     return req.url;
-  }
+  },
 );
 ```
 
@@ -761,7 +761,7 @@ async function bootstrap() {
         httpOnly: true,
         maxAge: 1000 * 60,
       },
-    })
+    }),
   );
   await app.listen(process.env.PORT ?? 3000);
 }
@@ -806,7 +806,7 @@ export class UserController {
   createUser(
     @Body() body,
     @Session() session: ISession,
-    @Body("captcha") bodyCaptcha: string
+    @Body("captcha") bodyCaptcha: string,
   ) {
     console.log(body, session);
     const sessionCaptcha = session.code ?? "";

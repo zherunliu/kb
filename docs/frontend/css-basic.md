@@ -214,9 +214,9 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
 **渐变**
 
 - `background-image: linear-gradient()` 线性渐变
-- `background-image: repeat-linear-gradient()` 重复线性渐变
+- `background-image: repeating-linear-gradient()` 重复线性渐变
 - `background-image: radial-gradient()` 径向渐变
-- `background-image: repeat-radial-gradient()` 重复径向渐变
+- `background-image: repeating-radial-gradient()` 重复径向渐变
 
 ```css
 .selector {

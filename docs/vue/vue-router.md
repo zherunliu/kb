@@ -221,7 +221,7 @@ console.log(route.params);
 >
 > `path: "/register/:id/:name?/:age?"`
 >
-> 使用 `query` 传参时，会显示在地址栏；而 `params` 不会
+> 使用 `query` 传参时，会显示在地址栏；使用已经在路径中声明的 `params` 时，也会直接体现在地址栏中
 >
 > 使用 `params` 传参时若未在路由路径中占位，刷新页面后参数会丢失；而 `query` 参数保存在 URL 中，刷新不会丢失
 

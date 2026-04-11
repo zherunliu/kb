@@ -4,14 +4,14 @@
 
 ```js
 // 创建
-const buffer = Buffer.alloc(10);
-const buffer = Buffer.allocUnsafe(10000);
-const buffer = Buffer.from("hello, world");
+const buffer1 = Buffer.alloc(10);
+const buffer2 = Buffer.allocUnsafe(10000);
+const buffer3 = Buffer.from("hello, world");
 // 转换
-const string = buffer.toString();
+const string = buffer3.toString();
 // 读写
-console.log(buffer[0]);
-buffer[0] = 1; // 超过 255 高位舍弃
+console.log(buffer1[0]);
+buffer1[0] = 1; // 超过 255 高位舍弃
 ```
 
 ## fs 模块

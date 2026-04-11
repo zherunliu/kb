@@ -170,10 +170,10 @@ const stopWatch = watch(
     watch的第三个参数是：配置对象
     (deep, immediate, flush, once)
   */
-  person,
+  person, // Assume person is a Reactive object
   (newValue, oldValue) => {
     console.log(newValue, oldValue);
-    if (person.value.age === 24) {
+    if (person.age === 24) {
       stopWatch();
     }
   },

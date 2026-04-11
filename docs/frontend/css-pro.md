@@ -84,7 +84,7 @@
   > - step-start 开始时瞬间过渡，相当于 `steps(1, start)`
   > - step-end 结束时瞬间过渡，相当于 `steps(1, end)`
   > - steps 步进函数
-  > - cubic-bezie 贝塞尔曲线
+  > - cubic-bezier 贝塞尔曲线
 - transition 复合属性
   > `transition: 1s linear all`
 

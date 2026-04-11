@@ -58,9 +58,9 @@ Docker 使用了 Linux 内核的容器化技术来实现轻量级的虚拟化。
 
 **进入容器：**
 
-- `docker run -it --rm <CONTAINER_ID/NAME>`：`-it` 可交互的终端环境，`--rm` 退出时删除容器
 - `docker exec <CONTAINER_ID/NAME> <shell>`：执行 shell 命令，如 `ps -ef` 查看进程信息
-- `docker exec -it <CONTAINER_ID/NAME> bash/sh`：进入容器交互终端执行
+- `docker exec -it <CONTAINER_ID/NAME> bash`：进入容器交互终端执行（容器内存在 bash 时）
+- `docker exec -it <CONTAINER_ID/NAME> sh`：进入容器交互终端执行（精简镜像常用）
 
 **删除容器：**
 `docker rm -f <CONTAINER_ID/NAME>`：`-f` 强制删除在运行中的文件
@@ -90,7 +90,7 @@ WORKDIR /app
 # 本地当前目录 镜像内当前目录
 COPY . .
 # 镜像内命令
-RUN pip install -r requirement.txt
+RUN pip install -r requirements.txt
 # 仅做声明效果
 EXPOSE 8000
 # 容器启动时命令 ENTRYPOINT 优先级更高
@@ -105,7 +105,7 @@ docker run -d -p 8000:8000 docker-test
 
 # 推送镜像
 docker login
-docker pull username/docker_test
+docker push username/docker_test
 ```
 
 :::
@@ -164,5 +164,4 @@ services:
 - `docker compose start` 启动
 
 > - 同一个 compose 文件中，定义的所有容器都会自动加入同一个子网
->
 > - 执行 `docker compose up` 时，会检测当前目录下名为 `docker-compose.yaml` 或 `compose.yaml` 文件。可以通过 `docker compose -f test.yaml up -d` 指定 compose 文件

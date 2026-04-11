@@ -42,18 +42,15 @@ app.get("/", (req, res) => {
   console.log(req.query);
   console.log(req.get("host"));
 
-  /* 响应方法 */
-  res.status(500);
-  res.set("name", "rico"); // 设置响应头
-  res.send("中文响应不乱码");
-  /* 连贯操作 */
-  res.status(404).set("name", "rico").send("hello");
+  /* 响应方法：一次请求只能发送一次响应 */
+  res.status(200).set("name", "rico").send("中文响应不乱码");
 
-  /* 其他响应 */
+  /* 其他响应示例（按需单独使用，不要与 send 连续调用）
   res.redirect("http://baidu.com");
   res.download("./package.json");
-  res.json("{name:rico, age:24}");
+  res.json({ name: "rico", age: 24 });
   res.sendFile(__dirname + "/index.html");
+  */
 });
 
 /* 获取请求体 */

@@ -426,7 +426,7 @@ xhr.send(null /* params */);
 /* 默认 get 请求 */
 fetch("http://localhost:3000", {
   method: "post",
-  header: {
+  headers: {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
@@ -446,7 +446,7 @@ fetch("http://localhost:3000", {
   signal: abort.signal,
 })
   .then(async (res) => {
-    const response = res.clone;
+    const response = res.clone();
     const reader = res.body.getReader();
     const total = res.headers.get("Content-Length");
     let loaded = 0;

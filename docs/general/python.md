@@ -3,7 +3,7 @@
 ## 类型标注
 
 ```python
-from typing import List, Tuple, Dict, Set, Optional, NoReturn, Literal
+from typing import List, Tuple, Dict, Set, Optional, NoReturn, Literal, Union, Callable
 a: int = 528
 b: float = 5.28
 c: str = "rico"

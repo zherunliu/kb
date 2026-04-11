@@ -128,7 +128,7 @@ import viteDevConfig from "./vite.dev.config";
 import viteProdConfig from "./vite.prod.config";
 
 const envResolve = {
-  build: () => Object.assign({}, viteBaseConfig, viteProcConfig),
+  build: () => Object.assign({}, viteBaseConfig, viteProdConfig),
   serve: () => Object.assign({}, viteBaseConfig, viteDevConfig),
 };
 

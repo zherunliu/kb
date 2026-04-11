@@ -4,19 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier -w ./",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview --port 8080"
+    "docs:preview": "vitepress preview --port 8080",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.15.1",
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.2",
     "vitepress": "2.0.0-alpha.12"
   },
   "dependencies": {
     "vue": "^3.5.22"
+  },
+  "lint-staged": {
+    "*": "prettier --experimental-cli --ignore-unknown -w ./"
   }
 }
