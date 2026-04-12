@@ -89,11 +89,7 @@ React 使用 `MessageChannel` 来实现一个自定义的调度器，模拟 `req
 | 替换 | arr[i] = newVal，splice() | map()，toSpliced()，with()     |
 | 排序 | reverse()，sort()         | toReversed()，toSorted()       |
 
-## Hooks
-
-所有的 hook 只能在组件或自定义 hook 的顶层调用，不能在循环、条件语句或嵌套函数中调用
-
-### useState
+## useState
 
 ```tsx
 const [state /** 状态 */, setState /** 更新状态的函数 */] =
@@ -105,7 +101,9 @@ const [state /** 状态 */, setState /** 更新状态的函数 */] =
 - setState 可以被批处理，一次渲染中合并多次更新
 - setState 多次传入同一个 state 值，React 会进行优化，避免不必要的渲染
 
-### useReducer
+> 所有的 hook 只能在组件或自定义 hook 的顶层调用，不能在循环、条件语句或嵌套函数中调用
+
+## useReducer
 
 集中式状态管理，适合复杂的状态逻辑
 
@@ -163,7 +161,7 @@ export default function App() {
 }
 ```
 
-### useImmer & useImmerReducer
+## useImmer & useImmerReducer
 
 `useImmer` 和 `useImmerReducer` 是 `immer` 库提供的 hook，用于简化不可变状态的更新，允许直接修改 state 的草稿（draft），底层会自动生成新的 state
 
@@ -227,7 +225,7 @@ export default function App() {
 
 :::
 
-### useSyncExternalStore
+## useSyncExternalStore
 
 订阅外部数据源的变化，确保组件在外部数据源更新时同步更新，支持服务端渲染（SSR）
 
@@ -242,7 +240,7 @@ const state = useSyncExternalStore(
 - onStoreChange 通知 React 调用 getSnapshot 获取数据源的快照，以更新 state，触发组件更新
 - getSnapshot 获取数据源的快照，如果 getSnapshot 返回值的内存地址与上一个返回值的内存地址不同，则会触发组件更新；如果 getSnapshot 返回值的内存地址总是不同的，则会报错 `Maximum update depth exceeded`
 
-#### 订阅 Web API: window.localStorage 的自定义 hook useLocalStorage
+### 订阅 Web API：window.localStorage 的自定义 hook useLocalStorage
 
 ::: code-group
 
@@ -292,7 +290,7 @@ export default function App() {
 
 :::
 
-#### 订阅 Web API: window.history 的自定义 hook useHistory
+### 订阅 Web API：window.history 的自定义 hook useHistory
 
 ::: code-group
 
@@ -340,7 +338,7 @@ export default function App() {
 
 :::
 
-### useTransition(perf)
+## useTransition(perf)
 
 管理过渡状态，降低更新优先级，适合处理一些需要等待的更新，例如数据加载、路由切换等
 
@@ -433,7 +431,7 @@ export default defineConfig({
 
 :::
 
-### useDeferredValue(perf)
+## useDeferredValue(perf)
 
 根据设备性能情况延迟某些值的更新，直到主渲染任务完成。适用于高频更新的内容（如输入框、滚动等）
 
@@ -492,7 +490,7 @@ export default function App() {
 }
 ```
 
-### useEffect
+## useEffect
 
 ```tsx
 useEffect(
@@ -511,7 +509,7 @@ useEffect(
 - 如果传入的 deps 是空数组，则 effect 副作用函数只会在组件挂载后执行一次
 - effect 副作用函数和 destructor 清理函数都是异步执行的，destructor 清理函数在下一次 effect 副作用函数执行前或组件卸载时执行
 
-### useLayoutEffect
+## useLayoutEffect
 
 同步执行副作用函数，可以避免浏览器回流和重绘时的闪烁问题，适合需要读取布局并同步触发重绘的场景
 
@@ -554,7 +552,7 @@ export default function App() {
 }
 ```
 
-### useRef
+## useRef
 
 `const refVal = useRef(initialVal);`
 
@@ -562,3 +560,242 @@ export default function App() {
 - useRef 只在组件挂载时调用 1 次，组件更新时，不会重新调用 useRef，即不会重新创建 refVal
 - React 的 useRef 返回的 refVal 是普通 JS 对象，改变 refVal.current 的值时，不会触发组件更新
 - useRef 返回的 refVal 不能作为 useEffect 等其他 hooks 的 deps 中的依赖项
+
+## useImperativeHandle
+
+父组件获取子组件的 DOM 节点，访问子组件暴露的属性，调用子组件暴露的方法
+
+```tsx
+import React, { useImperativeHandle, useRef } from "react";
+interface ChildHandle {
+  name: string;
+  count: number;
+  increment: () => void;
+}
+const Child = ({ ref }: { ref: React.RefObject<ChildHandle | null> }) => {
+  const [count, setCount] = React.useState(0);
+
+  useImperativeHandle(
+    ref, // 父组件通过子组件的 props 传递的 ref 对象
+    () => {
+      // 返回子组件暴露的属性，方法
+      return {
+        name: "Child",
+        count,
+        increment: () => setCount((prev) => prev + 1),
+      };
+    },
+    [count], // 依赖项数组，可选
+  );
+  return (
+    <div>
+      <h3>Child</h3>
+      <p>Count: {count}</p>
+    </div>
+  );
+};
+
+export default function App() {
+  const childRef = useRef<ChildHandle | null>(null);
+  return (
+    <div>
+      <h3>Parent</h3>
+      <button onClick={() => console.log(childRef.current)}>
+        Get Child Data
+      </button>
+      <button className="counter" onClick={() => childRef.current?.increment()}>
+        Increment Child Count
+      </button>
+      <Child ref={childRef} />
+    </div>
+  );
+}
+```
+
+## useContext
+
+跨组件传递数据，避免层层传递 props，对于同一个 context，内层 context 的值会覆盖外层 context 的值
+
+```tsx {8,47-49}
+import React from "react";
+
+interface IThemeContext {
+  theme: string;
+  setTheme: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const ThemeContext = React.createContext({} as IThemeContext);
+
+const Child = () => {
+  const { theme, setTheme } = React.useContext(ThemeContext);
+  return (
+    <div>
+      <h3>Child</h3>
+      <p>Child theme: {theme}</p>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        Switch
+      </button>
+    </div>
+  );
+};
+
+const Parent = () => {
+  const { theme, setTheme } = React.useContext(ThemeContext);
+  return (
+    <div>
+      <h3>Parent</h3>
+      <p>Parent theme: {theme}</p>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        Switch
+      </button>
+      <hr />
+      <Child />
+    </div>
+  );
+};
+export default function App() {
+  const [theme, setTheme] = React.useState("light");
+  return (
+    <div>
+      <h3>App</h3>
+      <p>App theme: {theme}</p>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        Switch
+      </button>
+      <hr />
+      <ThemeContext value={{ theme, setTheme }}>
+        <Parent />
+      </ThemeContext>
+    </div>
+  );
+}
+```
+
+## React.memo(perf)
+
+React.memo 可以缓存组件的渲染结果，当组件的 props 没有发生变化时，直接复用之前的渲染结果，避免不必要的渲染，常用于包裹子组件
+
+触发组件渲染的条件：
+
+- `useState`：组件的 state 改变
+- `useContext`：依赖的 context 改变
+- 组件的 props 改变
+- 父组件重新渲染时，子组件会重新渲染
+
+## useMemo(perf)
+
+缓存计算结果，当依赖项没有发生变化时，直接复用之前的计算结果，避免不必要的计算，常用于包裹计算函数，传递给子组件的计算结果
+
+```tsx
+import { useMemo, useState } from "react";
+
+export default function App() {
+  const [value, setValue] = useState("");
+  const [num1, setNum1] = useState(0);
+  const [num2, setNum2] = useState(0);
+  const getSum = () => {
+    console.log("Calculating sum...");
+    return num1 + num2;
+  };
+
+  const getProduct = useMemo(() => {
+    console.log("Calculating product...");
+    return num1 * num2;
+  }, [num1, num2]);
+
+  return (
+    <div>
+      <input value={value} onChange={(e) => setValue(e.target.value)} />
+      <p>Number1: {num1}</p>
+      <p>Number2: {num2}</p>
+      <button onClick={() => setNum1(num1 + 1)}>Increment Number1</button>
+      <button onClick={() => setNum2(num2 + 1)}>Increment Number2</button>
+      <p>Sum: {getSum()}</p>
+      <p>Product: {getProduct}</p>
+    </div>
+  );
+}
+```
+
+## useCallback(perf)
+
+缓存计算函数，当依赖项没有发生变化时，直接复用之前的函数实例，避免不必要的函数重新创建，常用于包裹事件处理函数，传递给子组件的回调函数
+
+```tsx
+import React, { type ChangeEvent, useCallback, useState, useRef } from "react";
+
+interface IProps {
+  cb: () => void;
+}
+
+const Child = React.memo(({ cb }: IProps) => {
+  console.log("Child update...");
+  return <button onClick={cb}>hello</button>;
+});
+
+const App: React.FC = () => {
+  const [inputVal, setInputVal] = useState("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) =>
+    setInputVal(ev.target.value);
+
+  const cachedCb = useCallback(() => console.log("Hello Rico!"), []);
+  return (
+    <>
+      <input ref={inputRef} value={inputVal} onChange={handleChange} />
+      <Child cb={cachedCb} />
+    </>
+  );
+};
+
+export default App;
+```
+
+## useDebugValue
+
+```tsx
+import { useDebugValue, useState } from "react";
+
+const useCookie = (name: string, initVal: string = "") => {
+  const getCookie = () => {
+    const match = document.cookie.match(
+      new RegExp("(^| )" + name + "=([^;]+)"),
+    );
+    return match ? decodeURIComponent(match[2]) : initVal;
+  };
+
+  const [cookie, setCookie] = useState(getCookie());
+
+  const updateCookie = (value: string) => {
+    document.cookie = `${name}=${encodeURIComponent(value)}; path=/`;
+    setCookie(value);
+  };
+
+  const deleteCookie = () => {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+    setCookie("");
+  };
+
+  useDebugValue(cookie, () => `Cookie: ${cookie}` /* formatter */);
+  return [cookie, updateCookie, deleteCookie] as const;
+};
+export default function App() {
+  const [cookie, setCookie, deleteCookie] = useCookie(
+    "myCookie",
+    "initialValue",
+  );
+  return (
+    <>
+      <p>Cookie: {cookie}</p>
+      <button onClick={() => setCookie("newValue")}>Update Cookie</button>
+      <button onClick={deleteCookie}>Delete Cookie</button>
+    </>
+  );
+}
+```
+
+## useId
+
+生成一个唯一的 ID，适合在服务端渲染（SSR）和客户端渲染（CSR）之间保持一致的 ID
+`const id: string = useId();`
