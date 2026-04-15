@@ -89,6 +89,151 @@ React 使用 `MessageChannel` 来实现一个自定义的调度器，模拟 `req
 | 替换 | arr[i] = newVal，splice() | map()，toSpliced()，with()     |
 | 排序 | reverse()，sort()         | toReversed()，toSorted()       |
 
+## 受控组件和非受控组件
+
+- 受控组件：组件的状态由 React 组件控制，表单元素的值通过 state 来管理，表单元素的变化通过事件处理函数来更新 state
+- 非受控组件：组件的状态由 DOM 元素控制，表单元素的值通过 ref 来获取，表单元素的变化不通过事件处理函数来更新 state
+
+```tsx
+import { useRef, useState, type ChangeEvent } from "react";
+
+export default function App() {
+  const [val, setVal] = useState("controlled value");
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setVal(ev.target.value);
+    console.log("controlled value:", ev.target.value);
+  };
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const handleInput2 = () => {
+    console.log("non-controlled value:", inputRef.current?.value);
+  };
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  const handleUpload = () => {
+    console.log("files:", fileRef.current?.files);
+  };
+
+  return (
+    <>
+      {/* 受控组件 */}
+      <input type="text" value={val} onChange={handleChange} />
+      {/* 非受控组件 */}
+      <input
+        type="text"
+        ref={inputRef}
+        defaultValue="non-controlled value"
+        onChange={handleInput2}
+      />
+      {/* 特殊的非受控组件 */}
+      <input type="file" ref={fileRef} onChange={handleUpload} />
+    </>
+  );
+}
+```
+
+## 高阶组件
+
+高阶组件（Higher-Order Component，HOC）是一个函数，接收一个组件作为参数，返回一个新的组件，常用于复用组件逻辑，例如权限控制、数据获取等
+
+::: code-group
+
+```tsx [App.tsx]
+import { useEffect } from "react";
+
+const trackService = {
+  sendEvent: <T,>(trackType: string, data?: T) => {
+    const eventData = {
+      timestamp: new Date().toISOString(),
+      trackType,
+      data,
+      url: window.location.href,
+      ua: navigator.userAgent,
+    };
+    navigator.sendBeacon("/track", JSON.stringify(eventData));
+  },
+};
+
+export interface TrackProps {
+  trackEvent: (eventType: string, data: unknown) => void;
+}
+
+const withTrack = <T,>(
+  Component: React.ComponentType<T & TrackProps>,
+  trackType: string,
+) => {
+  return (props: T) => {
+    useEffect(() => {
+      trackService.sendEvent(`${trackType}-MOUNT`);
+      return () => {
+        trackService.sendEvent(`${trackType}-UNMOUNT`);
+      };
+    }, []);
+
+    const trackEvent = (eventType: string, data: unknown) => {
+      trackService.sendEvent(`${trackType}-${eventType}`, data);
+    };
+
+    return <Component {...props} trackEvent={trackEvent} />;
+  };
+};
+
+const Button = ({
+  trackEvent,
+}: {
+  trackEvent: (eventType: string, data: unknown) => void;
+}) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    trackEvent(e.type, {
+      name: "BUTTON",
+      clientX: e.clientX,
+      clientY: e.clientY,
+    });
+  };
+  return <button onClick={handleClick}>Click me</button>;
+};
+
+// 关联 HOC
+const TrackedButton = withTrack(Button, "BUTTON");
+
+export default function App() {
+  return <TrackedButton />;
+}
+```
+
+```tsx [vite.config.ts]
+import { defineConfig, type Plugin } from "vite";
+import react from "@vitejs/plugin-react";
+
+const trackServerPlugin: Plugin = {
+  name: "mock-track-server",
+  configureServer(server) {
+    // 拦截 /track 路由
+    server.middlewares.use("/track", (req, res) => {
+      // navigator.sendBeacon 只能发送 POST 请求
+      if (req.method === "POST") {
+        let body = "";
+        req.on("data", (chunk) => {
+          body += chunk.toString();
+        });
+        req.on("end", () => {
+          console.log("[received data]:", JSON.parse(body));
+          res.statusCode = 200;
+          res.end("ok");
+        });
+      }
+    });
+  },
+};
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(), trackServerPlugin],
+});
+```
+
+:::
+
 ## useState
 
 ```tsx
@@ -799,3 +944,77 @@ export default function App() {
 
 生成一个唯一的 ID，适合在服务端渲染（SSR）和客户端渲染（CSR）之间保持一致的 ID
 `const id: string = useId();`
+
+## Suspense
+
+Suspense 组件用于处理组件的加载状态，配合 React.lazy 实现组件的懒加载（代码分包），适合处理一些需要等待的组件，例如路由组件、图片等
+
+::: code-group
+
+```tsx [App.tsx]
+import { Suspense, lazy } from "react";
+// 使用 React.lazy 动态导入子组件，打包时会将子组件单独打包成一个 chunk
+const ChildAsync = lazy(() => import("./ChildAsync"));
+
+export default function App() {
+  return (
+    <>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ChildAsync />
+      </Suspense>
+    </>
+  );
+}
+```
+
+```tsx [ChildAsync.tsx]
+import { use } from "react";
+
+interface IData {
+  name: string;
+  age: number;
+  address: string;
+}
+
+const fetchData = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  return await fetch("/data.json").then((res) => res.json());
+};
+const dataPromise = fetchData();
+
+export default function ChildAsync() {
+  // 使用 use() 来读取数据，use() 会在数据未准备好时抛出一个 Promise，React 会捕获这个 Promise 并在 Promise 解决后重新渲染组件
+  const { data } = use(dataPromise) as { data: IData };
+  console.log(data);
+  return (
+    <>
+      <div>ChildAsync</div>
+      <div>data: {JSON.stringify(data)}</div>
+    </>
+  );
+}
+```
+
+```json [public/data.json]
+{
+  "data": {
+    "name": "rico",
+    "age": 4,
+    "address": "Nanjing, China"
+  }
+}
+```
+
+:::
+
+## createPortal
+
+Portal 允许将子组件渲染到父组件 DOM 层次结构之外的 DOM 节点中，适合处理一些需要脱离父组件样式限制的组件，例如模态框、工具提示等
+
+```tsx
+import { createPortal } from "react-dom";
+
+export default function App() {
+  return <>{createPortal(<h1>Hello, world!</h1>, document.body)}</>;
+}
+```
