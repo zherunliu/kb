@@ -23,10 +23,9 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
   },
 ];
 
-const NODEJS: DefaultTheme.NavItemWithLink[] = [
-  { text: "NodeJS Basic", link: "/nodejs/nodejs-basic" },
-  { text: "Express", link: "/nodejs/express" },
-  { text: "NestJS", link: "/nodejs/nestjs" },
+const REACT: DefaultTheme.NavItemWithLink[] = [
+  { text: "React", link: "/react/react" },
+  { text: "React Router", link: "/react/react-router" },
 ];
 
 const FRONTEND: DefaultTheme.NavItemWithLink[] = [
@@ -38,6 +37,12 @@ const FRONTEND: DefaultTheme.NavItemWithLink[] = [
   { text: "Web API", link: "/frontend/web-api" },
   { text: "Vite", link: "/frontend/vite" },
   { text: "Tools", link: "/frontend/tools" },
+];
+
+const NODEJS: DefaultTheme.NavItemWithLink[] = [
+  { text: "NodeJS Basic", link: "/nodejs/nodejs-basic" },
+  { text: "Express", link: "/nodejs/express" },
+  { text: "NestJS", link: "/nodejs/nestjs" },
 ];
 
 const DATABASE: DefaultTheme.NavItemWithLink[] = [
@@ -56,8 +61,9 @@ const GENERAL: DefaultTheme.NavItemWithLink[] = [
 
 const sidebar = {
   "/vue/": VUE,
-  "/nodejs/": NODEJS,
+  "/react/": REACT,
   "/frontend/": FRONTEND,
+  "/nodejs/": NODEJS,
   "/database/": DATABASE,
   "/general/": GENERAL,
 };
@@ -70,14 +76,19 @@ const nav: DefaultTheme.NavItem[] = [
     activeMatch: "^/vue/",
   },
   {
-    text: "NodeJS",
-    items: NODEJS,
-    activeMatch: "^/nodejs/",
+    text: "React",
+    items: REACT,
+    activeMatch: "^/react/",
   },
   {
     text: "FrontEnd",
     items: FRONTEND,
     activeMatch: "^/frontend/",
+  },
+  {
+    text: "NodeJS",
+    items: NODEJS,
+    activeMatch: "^/nodejs/",
   },
   {
     text: "Database",
