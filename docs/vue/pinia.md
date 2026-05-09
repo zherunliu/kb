@@ -1,6 +1,6 @@
 # Pinia
 
-## 使用 pinia
+## 使用 Pinia
 
 ```bash
 pnpm install pinia

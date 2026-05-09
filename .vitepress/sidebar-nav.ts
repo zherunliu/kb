@@ -26,6 +26,7 @@ const VUE: DefaultTheme.NavItemWithLink[] = [
 const REACT: DefaultTheme.NavItemWithLink[] = [
   { text: "React", link: "/react/react" },
   { text: "React Router", link: "/react/react-router" },
+  { text: "Zustand", link: "/react/zustand" },
 ];
 
 const FRONTEND: DefaultTheme.NavItemWithLink[] = [

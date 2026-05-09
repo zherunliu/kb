@@ -1,6 +1,6 @@
 # Vue Router
 
-## 使用 vue-router
+## 使用 Vue Router
 
 ::: code-group
 
