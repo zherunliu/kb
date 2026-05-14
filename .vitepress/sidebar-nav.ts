@@ -47,6 +47,7 @@ const NODEJS: DefaultTheme.NavItemWithLink[] = [
 ];
 
 const DATABASE: DefaultTheme.NavItemWithLink[] = [
+  { text: "MySQL", link: "/database/mysql" },
   { text: "MongoDB", link: "/database/mongodb" },
   { text: "Redis", link: "/database/redis" },
 ];
