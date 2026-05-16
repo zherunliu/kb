@@ -170,3 +170,11 @@ getbit <key> <offset>
 bitcount <key> [start end]
 bitpos <key> <value> [start end]
 ```
+
+| 数据类型 | 底层实现             |
+| -------- | -------------------- |
+| string   | int / embstr / raw   |
+| hash     | listpack / hashtable |
+| list     | quicklist            |
+| set      | intset / hashtable   |
+| zset     | listpack / skiplist  |
