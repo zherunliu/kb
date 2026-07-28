@@ -62,7 +62,7 @@ Tgender = Literal['female', 'male']
 | 读取整行字符串         | `text = input().strip()`                                       |
 | 读取 JSON 输入         | `data = json.loads(sys.stdin.read())`                          |
 
-> `strip()` 移除字符串两端的空行
+> `strip()` 移除字符串两端的空白字符，包括空格、换行符和制表符
 >
 > `splitlines()` 用换行符分隔
 
@@ -79,7 +79,7 @@ for line in sys.stdin:  # 持续读取每一行，直到 EOF
     print(num * num)
 ```
 
-- `read()` 一次性读取整个文件或输入流，并返回字符串，`read(size)` 最多读取 `size` 个字节
+- `read()` 一次性读取整个文件或输入流；文本流返回字符串，`read(size)` 表示最多读取 `size` 个字符；二进制流返回字节串，`size` 表示字节数
 
 - `readline()` 每次调用 `readline()` 读取一行，返回字符串（包括换行符 `\n`）
 

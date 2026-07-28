@@ -194,7 +194,7 @@ keep-alive 会缓存组件的 DOM 结构和实例状态。当组件被缓存后�
 
 ### scoped 样式隔离
 
-vue 中的 scoped 通过在 DOM 结构以及 css 样式上加唯一不重复的标记 `data-v-[hash:base64:8]` 属性的方式，达到样式私有模块化的目的（由 PostCSS 转译实现）
+Vue SFC 的 scoped CSS 会为当前组件生成作用域标识，并把该标识附加到 DOM 与编译后的选择器上
 
 scoped 渲染规则：
 
@@ -208,7 +208,7 @@ scoped 渲染规则：
 <!-- ChildDemo -->
 <style type="text/css">
 /* 编译后 */
-.child-bg[data-v-<child-hash:base64:8>] {
+.child-bg[data-v-child] {
   color: red;
 }
 </style>
@@ -216,9 +216,9 @@ scoped 渲染规则：
 <!-- ParentDemo -->
 <style type="text/css">
 /* 编译后 */
-.wrap[data-v-<parent-hash:base64:8>] {
+.wrap[data-v-parent] {
 }
-.child-bg[data-v-<parent-hash:base64:8>] {
+.child-bg[data-v-parent] {
   color: green;
 }
 /* 使用 :deep() 穿透样式 */
@@ -226,7 +226,7 @@ scoped 渲染规则：
   color: green;
 }
 /* 编译后 */
-[data-v-<parent-hash:base64:8>] .child-bg {
+[data-v-parent] .child-bg {
   color: green;
 }
 </style>
@@ -235,7 +235,7 @@ scoped 渲染规则：
 ### :slotted 和 :global
 
 - `:slotted` 选择器只能在父组件中使用，选择器的参数是父组件中插槽元素的选择器，作用于父组件中插槽元素的样式控制
-- `:global` 选择器用于定义全局样式，不会被 CSS Modules 编译
+- `:global` 选择器用于让指定规则绕过 scoped 选择器改写；它与 CSS Modules 是不同机制
   - `<style lang="css">` 中的选择器，是全局选择器
   - `<style lang="css" scoped>` 中，使用 `:global` 的选择器，也是全局选择器
 
@@ -301,10 +301,10 @@ export function nextTick<T = void>(
 
 ## 错误处理
 
-Vue 会捕获组件树中所有子组件在框架核心同步执行流程中抛出的未手动捕获错误，并将这些错误统一收敛到全局配置的 handleError 中处理（提供了 `config.errorHandler` 便于自定义错误处理）；但该机制无法捕获异步回调（如 setTimeout/setInterval）、资源加载、语法解析等错误
+Vue 会把渲染、事件处理器、生命周期钩子、侦听器以及框架调用的异步钩子中未处理的错误交给 `errorCaptured` 或 `app.config.errorHandler`。脱离 Vue 调用链的错误需要单独处理
 
 ```js
-// Vue2 使用 Vue.config.errorHandler
+// Vue 3；Vue 2 对应 Vue.config.errorHandler
 app.config.errorHandler = function (err, vm, info) {
   // handleError 方法用来处理错误并上报
   handleError(err);
@@ -320,32 +320,27 @@ app.config.errorHandler = function (err, vm, info) {
 import { type Directive } from "vue";
 
 // 加载图片 glob 默认懒加载
-const images: Record<string, { default: string }> = import.meta.glob(
-  ["@/assets/*.jpg", "@/assets/*.png"],
-  {
-    eager: true, // 指定立即加载（静态）
-  },
-);
+const images = import.meta.glob<string>(["@/assets/*.jpg", "@/assets/*.png"], {
+  eager: true, // 指定立即加载（静态）
+  query: "?url",
+  import: "default",
+});
 // eager = false 时，类似于 './img.jpg': () => import('./img.jpg') 的形式
 
-const arr = Object.values(images).map((item) => item.default);
+const arr = Object.values(images);
 const flattedArr = arr.flatMap((item) => new Array(10).fill(item));
 
 const vLazy: Directive<HTMLImageElement, string> = async (el, binding) => {
   const placeholder = await import("@/assets/vue.svg");
   el.src = placeholder.default;
 
-  // 监听目标元素与祖先元素或视口 viewport 的相交情况
-  // 监听目标元素和视口 viewport 的相交情况，即监听一个元素是否可见
-  // entries[0].intersectionRatio 相交的比例、一个元素可见的比例
-  const intersectionObserver = new IntersectionObserver((entries) => {
-    const visibleRatio = entries[0].intersectionRatio;
-    if (visibleRatio > 0) {
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
       setTimeout(() => (el.src = binding.value), 1500);
-      intersectionObserver.unobserve(el);
+      observer.unobserve(el);
     }
   });
-  intersectionObserver.observe(el);
+  observer.observe(el);
 };
 </script>
 

@@ -104,7 +104,9 @@ const useGroupStore = create<IGroup>()(
 export default useGroupStore;
 ```
 
-### immer 原理
+### Immer 原理
+
+Immer 使用 Proxy 记录对 draft 的修改，通过 copy-on-write 生成新对象，并让未变化的分支继续共享原引用
 
 ```js
 const obj = {
@@ -113,6 +115,8 @@ const obj = {
     age: 25,
   },
 };
+
+// import { produce } from "immer";
 
 const produce = (obj, fn) => {
   const modifyObj = {};
@@ -144,6 +148,7 @@ const newObj = produce(obj, (draft) => {
 });
 
 console.log(newObj); // { user: { name: "Rico", age: 30 } }
+console.log(newObj.user === obj.user); // false，变化分支生成新引用
 ```
 
 ## useShallow
@@ -367,7 +372,10 @@ import useProfileStore from "./stores/profile";
 function IsTeenager() {
   // 组件仅在 isTeenager 变化时重新渲染
   console.log("render...");
-  const [isTeenager, setIsTeenager] = useState(true);
+  const [isTeenager, setIsTeenager] = useState(() => {
+    const age = useProfileStore.getState().age;
+    return age >= 13 && age <= 19;
+  });
 
   useEffect(() => {
     const cleanup = useProfileStore.subscribe((state) => {

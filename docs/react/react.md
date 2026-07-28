@@ -48,7 +48,7 @@ requestIdleCallback(
   },
   {
     timeout: 1000 /* 超时时间，超时后强制执行 */,
-    // deadline.didTimeout() 判断是否为超时后执行
+    // deadline.didTimeout 判断是否因 timeout 到期而执行
   },
 );
 ```
@@ -246,7 +246,7 @@ const [state /** 状态 */, setState /** 更新状态的函数 */] =
 - setState 可以被批处理，一次渲染中合并多次更新
 - setState 多次传入同一个 state 值，React 会进行优化，避免不必要的渲染
 
-> 所有的 hook 只能在组件或自定义 hook 的顶层调用，不能在循环、条件语句或嵌套函数中调用
+> Hook 只能在组件或自定义 Hook 的顶层调用，不能在循环、条件语句或嵌套函数中调用；React 19 的 `use` API 可以在循环和条件语句中调用
 
 ## useReducer
 
@@ -320,8 +320,24 @@ export default function App() {
   return (
     <>
       <div>state.cnt: {state.cnt}</div>
-      <button onClick={() => setState((draft) => (draft.cnt += 1))}>+1</button>
-      <button onClick={() => setState((draft) => (draft.cnt -= 1))}>-1</button>
+      <button
+        onClick={() =>
+          setState((draft) => {
+            draft.cnt += 1;
+          })
+        }
+      >
+        +1
+      </button>
+      <button
+        onClick={() =>
+          setState((draft) => {
+            draft.cnt -= 1;
+          })
+        }
+      >
+        -1
+      </button>
     </>
   );
 }
@@ -489,7 +505,7 @@ export default function App() {
 
 `const [isPending, startTransition] = useTransition();`
 
-> 传递给 startTransition 的回调函数必须同步执行状态更新
+> React 19 支持向 `startTransition` 传入 async Action；`await` 之后的状态更新仍需再次使用 `startTransition` 包裹
 
 ::: code-group
 
@@ -651,8 +667,8 @@ useEffect(
   > - 依赖项改变时，先执行 destructor 清理函数，再执行 effect 副作用函数（类比 Vue 的 onUpdated）
   > - 组件卸载后，执行 destructor 清理函数（类比 Vue 的 onUnmounted），此时获取不到 DOM 元素
 - 如果不传入 deps，即 deps 为 undefined，则组件挂载，每次更新后，都会执行 effect 副作用函数
-- 如果传入的 deps 是空数组，则 effect 副作用函数只会在组件挂载后执行一次
-- effect 副作用函数和 destructor 清理函数都是异步执行的，destructor 清理函数在下一次 effect 副作用函数执行前或组件卸载时执行
+- 如果传入的 deps 是空数组，生产环境通常只在挂载后执行一次；开发环境的 Strict Mode 会额外执行一次 setup → cleanup → setup，以帮助发现缺少清理的问题
+- `useEffect` 在提交后调度执行；cleanup 会在依赖变化后的下一次 effect 执行前或组件卸载时执行
 
 ## useLayoutEffect
 
@@ -702,9 +718,9 @@ export default function App() {
 `const refVal = useRef(initialVal);`
 
 - 每次组件更新时，都会重新执行组件函数，重新创建所有的局部变量
-- useRef 只在组件挂载时调用 1 次，组件更新时，不会重新调用 useRef，即不会重新创建 refVal
-- React 的 useRef 返回的 refVal 是普通 JS 对象，改变 refVal.current 的值时，不会触发组件更新
-- useRef 返回的 refVal 不能作为 useEffect 等其他 hooks 的 deps 中的依赖项
+- 组件每次渲染都会调用 `useRef`，React 会返回同一个 `refVal` 对象，并忽略后续渲染传入的 `initialVal`
+- `refVal` 是普通 JavaScript 对象，改变 `refVal.current` 时不会触发组件更新
+- `refVal.current` 不是响应式数据，修改它不会触发渲染和依赖检查，因此不应作为其他 Hook 的依赖项
 
 ## useImperativeHandle
 
@@ -947,7 +963,7 @@ export default function App() {
 
 ## Suspense
 
-Suspense 组件用于处理组件的加载状态，配合 React.lazy 实现组件的懒加载（代码分包），适合处理一些需要等待的组件，例如路由组件、图片等
+Suspense 组件用于在组件挂起时显示后备界面，常与 `React.lazy` 配合实现代码分包，适合处理一些需要等待的组件，例如路由组件、图片等
 
 ::: code-group
 

@@ -14,7 +14,7 @@ redis-cli -h <host> -p <port> -a <password>
 - Redis 的字符串对象底层编码为 `int` / `embstr` / `raw`（其中 `embstr` / `raw` 使用 SDS 保存内容），可用 `OBJECT ENCODING <key>` 查看
   - `int`：整数编码
   - `embstr`：短字符串编码，字符串对象头和 SDS 一次性分配在同一块连续内存中，减少内存碎片、访问更快
-    > - 常见阈值为字符串值长度 <= 44 字节
+    > - Redis 8.0 中，字符串值长度不超过 44 字节时使用该编码
     > - 对现有字符串做原地修改（如 `APPEND` / `SETRANGE`）时，Redis 通常会先把它转换为 `raw`，再执行修改
   - `raw`：长字符串编码，对象头和 SDS 分开分配在不同内存块中
 
@@ -53,7 +53,8 @@ ttl <key>
 
 ```bash
 hset <key> <field value ...>
-hget <key> <field ...>
+hget <key> <field>
+hmget <key> <field ...>
 hgetall <key>
 
 hsetnx <key> <field value>
@@ -119,7 +120,7 @@ sunionstore <key> <key1> <key2>
 
 ### zset
 
-有序集合，在 `set` 的基础上，每个成员关联一个 float64 类型的分数，成员按照分数从小到大排序，分数相同时按照成员字典序排序
+有序集合，在 `set` 的基础上，每个成员关联一个双精度浮点数分数，成员按照分数从小到大排序，分数相同时按照成员字典序排序
 
 ```bash
 zadd <key> <score member ...>
@@ -142,12 +143,12 @@ geoadd <key> <longitude latitude member ...>
 geopos <key> <member ...>
 
 geodist <key> <member1> <member2> [unit: m|km|ft|mi]
-georadius <key> <longitude latitude> <radius> <unit> [withdist] [count <count>]
+geosearch <key> fromlonlat <longitude> <latitude> byradius <radius> <unit> [withdist] [count <count>]
 ```
 
 ### HyperLogLog
 
-基于 HyperLogLog 算法实现的基数估计算法，提供不精确的去重计数（误算率 0.81%），适用于大数据量的去重计数场景，内存占用固定为 12KB
+基于 HyperLogLog 算法实现的基数估计算法，提供不精确的去重计数（标准误差约 0.81%），适用于大数据量的去重计数场景。稀疏表示可以占用更少内存，转换为稠密表示后通常最多占用约 12KB
 
 ```bash
 pfadd <key> <elem ...>

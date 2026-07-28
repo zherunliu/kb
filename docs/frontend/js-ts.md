@@ -78,7 +78,7 @@
 - `ReturnType<F>` 获取函数类型 F 的返回值类型
 - `ConstructorParameters<F>` 获取构造函数 F 的参数类型
 - `InstanceType<C>` 获取类的实例类型
-- `Awaited<Y>` 获取 Promise `resolve(value)` 的值类型（也即 `onfulfilled` 的返回值类型）
+- `Awaited<Y>` 递归展开 Promise 或 thenable 最终兑现值的类型
 - `Uppercase<S>`，`Lowercase<S>`，`Capitalize<S>`，`Uncapitalize<S>`
 
 ```ts
@@ -131,7 +131,7 @@ function mockInstanceof(obj, Constructor) {
 
   const CProto = Constructor.prototype;
   // prototype 可写性，需检查其类型
-  if (typeof CProto !== "object" && CProto !== null) {
+  if (typeof CProto !== "object" || CProto === null) {
     throw new TypeError("Constructor.prototype is not an object");
   }
 
@@ -226,8 +226,8 @@ promise.then(
     throw error;
   },
 );
-// finally 总会返回原来的结果值或错误原因
-// 除非 finally 的回调函数抛出新的错误或返回一个新的 Promise 对象
+// finally 返回 fulfilled Promise 时，会等待它完成并保留原结果
+// finally 抛出错误或返回 rejected Promise 时，新错误会替代原结果
 ```
 
 > 没有使用 `catch` 或 `then` 处理失败回调的 rejected 状态会导致未处理的 Promise 拒绝错误，浏览器会在控制台输出警告信息，Node.js 会触发 `unhandledRejection` 事件
@@ -237,7 +237,7 @@ promise.then(
 | static method          | fulfilled                                                          | rejected                                                                                      |
 | ---------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
 | `Promise.all()`        | 全部 fulfilled，返回 aggregateValues 数组                          | 任一 rejected，返回第一个 rejected 的 reason                                                  |
-| `Promise.any()`        | 任一 fulfilled，返回第一个 fulfilled 的 value                      | 全部 rejected，返回 aggregateReasons 数组                                                     |
+| `Promise.any()`        | 任一 fulfilled，返回第一个 fulfilled 的 value                      | 全部 rejected，抛出 `AggregateError`，各失败原因位于其 `errors` 属性                          |
 | `Promise.race()`       | 第一个 settled 为 fulfilled 的 value                               | 第一个 settled 为 rejected 的 reason                                                          |
 | `Promise.allSettled()` | 返回 aggregateResults 数组，包含每个 Promise 的状态和 value/reason | 始终 fulfilled，`[{status: 'fulfilled', value: value}, {status: 'rejected', reason: reason}]` |
 
@@ -369,7 +369,7 @@ import "./student.js";
 >
 > `<script type="module" src="./index.js"></script>`
 >
-> 导出数据和导入数据共享同一块内存，需要谨慎使用
+> ESM 命名导入是导出变量的只读 live binding：导出方重新赋值时导入方能观察到变化，但导入方不能直接给该绑定赋值
 
 **node 中运行 ES6 模块**
 
@@ -378,7 +378,7 @@ import "./student.js";
 
 ## V8 垃圾回收（Garbage Collection）
 
-v8 垃圾回收采用分代回收策略，将堆内存分为新生代和老年代，新生代中的对象存活时间较短，老生代中的对象存活时间较长，甚至常驻内存
+V8 垃圾回收采用分代回收策略，将堆内存分为新生代和老年代，新生代中的对象存活时间较短，老生代中的对象存活时间较长，甚至常驻内存
 
 ### 新生代垃圾回收
 

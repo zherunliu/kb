@@ -22,21 +22,29 @@ HTML（HyperText Markup Language）用于构建网页结构，使用语义化标
 - `<base>`：为页面上的所有链接规定默认地址或默认目标
   > `<base href="/">` 所有 `a` 标签以此为基本路径
 - `<meta>`：提供有关页面的基本信息
-  > `<meta http-equiv="refresh" content="3;http://www.baidu.com">` 3 秒后跳转
-- `<body>`：用于定义 HTML 文档所要显示的内容，也称为主体标签
+  > `<meta http-equiv="refresh" content="3; url=https://example.com">` 3 秒后跳转
 - `<link>`：定义文档与外部资源的关系
   > `<link rel="stylesheet" href="./css/style.css" />`
   >
   > `<link rel="icon" href="./favicon.svg" type="image/svg+xml" />`
 
-## 标签
+## 元素与内容模型
 
-- 文本级标签：`p`，`span`，`a`，`i`，`em`... 只能放文字，图片，表单元素
-- 内容级标签：`div`，`h`，`li`，`dt`，`dd`...
+HTML 使用内容分类描述元素可以出现的位置，使用内容模型（content model）规定元素可以包含什么。一个元素可以同时属于多个分类，这些分类与 CSS 的 `display` 类型无关
+
+- Flow content：`body` 中的大多数元素，例如 `div`、`p`、标题、列表以及文本级元素
+- Phrasing content：构成段落的文本和文本级元素，例如文本、`span`、`em`、`strong`、`a`
+- Interactive content：用于用户交互的元素，例如带 `href` 的 `a`、`button`、`input`、`select`、`textarea`
+
+常见内容模型：
+
+- 可以包含 flow content：例如 `div`、`section`、`article`，内部可以放文本、`span`、`p`、`div`、列表等流式内容
+- 只能包含 phrasing content：例如 `p`、`span`、`em`，内部可以放文本、`span`、`em`、`strong`、`a` 等短语内容，不能放 `div`、`p`、列表等流式结构
+- Interactive content 不是统一的容器类型：`button` 可以包含 phrasing content，但不能包含其他 interactive content；`input` 是空元素，不能包含子元素
 
 ### a
 
-`a` 元素可以包裹除它自身外的任何元素
+`a` 使用透明内容模型：它能包含的内容取决于所在的父元素。例如，在 `div` 中可以包含 flow content，在 `p` 中只能包含 phrasing content；后代中不能再包含 `a` 或其他 interactive content
 
 - 跳转到指定页面
   > 在本窗口打开 `target="_self"`（默认），在新窗口打开 `target="_blank"`
@@ -62,7 +70,7 @@ HTML（HyperText Markup Language）用于构建网页结构，使用语义化标
 
 ### link
 
-- `rel="preload"` 预加载任意资源，优先级高，需要 `as` 指定资源类型，可用 `importance` 属性调整优先级（auto/high/low）
+- `rel="preload"` 预加载当前页面即将使用的资源，通常需要用 `as` 指定资源类型；支持时可用 `fetchpriority="high|low|auto"` 提供优先级提示
   > - `<link rel="preload" href="/fonts/roboto.woff2" as="font" type="font/woff2" crossorigin>` CORS对字体更严格
   > - `<link rel="preload" href="/css/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'">`
 - `rel="prefetch"` 预获取未来可能会用到的资源，浏览器空闲时加载，优先级低
@@ -93,8 +101,9 @@ picture 标签用于响应式图片，根据设备特性（如屏幕分辨率，
     sizes="(min-width: 1200px) 1200px, (min-width: 768px) 768px, 100vw"
     src="/images/product-480.jpg"
     alt="product"
-    width="100%"
-    height="auto"
+    width="1200"
+    height="800"
+    style="width: 100%; height: auto"
   />
 </picture>
 ```

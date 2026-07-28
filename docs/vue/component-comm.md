@@ -51,6 +51,8 @@ console.log("[Child] props:", props);
 ```
 
 ```ts [(1+default)]
+import type { PropType } from "vue";
+
 const props = defineProps({
   str: {
     type: String,
@@ -61,7 +63,7 @@ const props = defineProps({
     default: "refStr_default",
   },
   reactiveArr: {
-    type: Array<number>,
+    type: Array as PropType<number[]>,
     default: () => [5, 2, 8], // 引用类型必须转换为箭头函数
   },
 });
@@ -151,10 +153,7 @@ const receiveFromChild = (...args: unknown[]) => console.log(args);
 
 <template>
   <!-- 父组件为子组件的自定义事件绑定回调函数，监听子组件派发的自定义事件 -->
-  <Child
-    @evName="(...args: unknown[]) => receiveFromChild(args)"
-    @evName2="receiveFromChild"
-  />
+  <Child @evName="receiveFromChild" @evName2="receiveFromChild" />
 </template>
 ```
 
@@ -187,11 +186,11 @@ defineExpose({
 import { ref } from "vue";
 import Child from "./Child.vue";
 
-const childRef = ref<InstanceType<typeof Child>>();
+const childRef = ref<InstanceType<typeof Child> | null>(null);
 
 const handleAccessChild = () => {
-  console.log(childRef.value.count);
-  childRef.value.increment();
+  console.log(childRef.value?.count);
+  childRef.value?.increment();
 };
 </script>
 
@@ -355,9 +354,9 @@ const [model, modifiers] = defineModel("customInput", {
 
 :::
 
-## UseAttrs ($attrs)
+## useAttrs ($attrs)
 
-`UseAttrs` 用于实现当前组件的父组件，向当前组件的子组件通信，**祖 => 孙**
+`useAttrs` 用于读取未被当前组件声明为 props 或 emits 的透传属性，可用于把祖先传入的属性继续转交给后代组件，**祖 => 孙**
 
 ::: code-group
 
@@ -441,15 +440,15 @@ console.log("[Child] attrs:", attrs);
 import { ref, useTemplateRef } from "vue";
 
 // 通过 ref 获取元素
-let refInput = ref<HTMLInputElement>();
-let input = useTemplateRef("refInput"); // 可以取别名
+// const refInput = ref<HTMLInputElement>();
+// Vue 3.5+：通过模板 ref 获取元素
+const refInput = useTemplateRef<HTMLInputElement>("refInput");
 function showLog() {
   // 通过 id 获取元素
   const idInput = document.getElementById("idInput");
 
-  console.log(refInput.value.value);
-  console.log(input.value.value);
-  console.log((idInput as HTMLInputElement).value);
+  console.log(refInput.value?.value);
+  console.log((idInput as HTMLInputElement | null)?.value);
 }
 </script>
 ```

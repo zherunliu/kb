@@ -93,11 +93,11 @@
 }
 ```
 
-- swap 浏览器使用系统字体占位，下载完成后替换为 web 字体（核心文本）
-- fallback 隐藏文本，等待 web 字体加载完成后显示，超过 100ms 则放弃加载，继续使用系统字体（非核心文本）
-- optional 隐藏文本，等待 web 字体加载完成后显示，超过 100ms 则放弃加载，如果网络状况不佳，放弃加载 web 字体，继续使用系统字体（装饰性文本）
-- block 隐藏文本，等待 web 字体加载完成后显示，超过 3s 则放弃加载，继续使用系统字体
-- auto 浏览器决定是否加载（默认值，多数为 block）
+- swap：极短或没有不可见文本期，先显示后备字体；Web 字体可用后替换
+- fallback：短暂阻塞文本显示，随后显示后备字体；Web 字体只在有限的交换期内完成时替换
+- optional：短暂阻塞后使用后备字体，浏览器可以根据网络状况决定不下载或不替换 Web 字体
+- block：先给 Web 字体较长的阻塞期，超时后显示后备字体；字体稍后可用时仍可替换
+- auto：由浏览器决定策略（默认值）
 
 ### 文本
 
@@ -193,9 +193,9 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
   > - border-box 从 border 左上角开始显示背景图片
   > - content-box 从 content 左上角开始显示背景图片
 - background-clip 背景图片的裁剪方式
-  > - border-box 从 padding 左上角开始裁剪背景图片（默认）
-  > - padding-box 从 border 左上角开始裁剪背景图片
-  > - content-box 从 content 左上角开始裁剪背景图片
+  > - border-box 裁剪到边框外边缘（默认）
+  > - padding-box 裁剪到内边距外边缘，不绘制到边框区域
+  > - content-box 裁剪到内容区外边缘
   > - text 背景只呈现在文字上（webkit 私有）
 - background-size 背景图片的大小
   > - 长度或百分比
@@ -227,7 +227,7 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
 
   /* to top (0deg)，增加角度值，顺时针 */
   background-image: linear-gradient(to top, red, green, blue);
-  background-image: linear-gradient(180deg, red, green, blue);
+  background-image: linear-gradient(0deg, red, green, blue);
 
   /* 设置渐变的位置 */
   /**
@@ -266,8 +266,6 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 
 盒子宽度 = content 宽度 + 2\*padding + 2\*border
 
-默认盒子宽度 = 父元素 content 宽度 - 2\*margin
-
 `box-sizing: content-box`：width 和 height 设置盒子内容区的大小
 
 `box-sizing: border-box`：width 和 height 设置盒子总大小（怪异盒模型）
@@ -284,7 +282,7 @@ cursor：鼠标指针样式：pointer，move，text，crosshair，wait，help，
 - px 像素
 - rem 相对根元素（html）font-size 的倍数，默认 16px
 - em 相对自身 font-size 的倍数（属性为 font-size 则相对包含块的 font-size）
-- % 相对父元素 font-size 的倍数
+- % 百分比的参照对象取决于具体属性，例如 `font-size` 通常相对父元素字体大小，`width` 通常相对包含块宽度
 - vw：viewport width，1vw = 视口宽度的 1%
 - vh：viewport height，1vh = 视口高度的 1%
 - vmax：vmax = Math.max(vw，vh)
@@ -300,7 +298,7 @@ Normal flow / Block-and-inline flow：文档流通过 BFC 和 IFC 协同组织�
 - 宽度撑满父元素
 - 高度由内容撑开
 - 可以使用 CSS 设置宽高
-  > 默认块级元素有：`html, body, div, h1-h6, p, hr, ul, ol, li, dl, dt, dd, table, tbody, thead, tfoot, tr, caption, form, option`
+  > 常见默认块级元素有：`html, body, div, h1-h6, p, hr, ul, ol, li, dl, dt, dd, form`
 
 ### 行内盒子（inline）
 
@@ -316,7 +314,7 @@ Normal flow / Block-and-inline flow：文档流通过 BFC 和 IFC 协同组织�
 - 宽度由内容撑开
 - 高度由内容撑开
 - 可以使用 CSS 设置宽高
-  > 默认行内块元素有：`img, td, th, input, textarea, button, select, iframe`
+  > `img`、部分表单控件和 `iframe` 是常见的行内级替换元素，其具体默认 display 由浏览器样式表决定
 
 ::: tip
 行内，行内块元素，可以视为文本，即可以设置文本属性，如 color，font-size，line-height，text-align 等
@@ -331,10 +329,12 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 - 根元素 html
 - 浮动元素，float 属性值不等于 none 的元素 `float: left | right`
 - absolute 绝对或 fixed 固定定位的元素 `position: absolute | fixed`
-- 非 block 的块级容器 `display: inline | flex | inline-flex | grid | inline-grid | flow-root*` 的元素
+- `display: flow-root ｜ inline-block` 的元素
 - overflow 属性值不等于 visible 或 clip 的元素 `overflow: hidden | auto | scroll`
-- 表格单元格：table，thead，tbody，tfoot，tr，th，td，caption, `display: table-cell | table-caption`
+- 表格单元格和表格标题：`display: table-cell | table-caption`
 - 多列容器
+
+> `flex`、`inline-flex`、`grid`、`inline-grid` 分别创建 Flex 或 Grid 格式化上下文，具有部分与 BFC 相似的布局隔离效果
 
 **开启 BFC 后：**
 
@@ -348,7 +348,7 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 
 - 顶部子元素的上外边距 margin-top 会转移给父元素
 - 底部子元素的下外边距 margin-bottom 会转移给父元素
-- 上方元素的下外边距 marginBottom 和下方元素的上外边距 marginTop 合并为 `Math.max(marginBottom, marginTop)`，而不是预期的 marginBottom + marginTop
+- 两个正外边距折叠时取较大值；存在负外边距时，取最大正值与最小负值之和
 
 **解决方法：**
 
@@ -458,9 +458,9 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 
 ### 显示层级
 
-- 定位元素的显示层级比普通元素高
-- 只有定位的元素设置 z-index 才有效
-- z-index 属性值越大，显示层级越高
+- 绘制顺序由层叠上下文决定，定位元素不一定始终位于普通元素之上
+- `z-index` 可用于定位元素以及 flex/grid 项目等场景；某些属性会创建新的层叠上下文
+- `z-index` 只在同一层叠上下文内比较，数值更大不代表能越过祖先层叠上下文
 - 如果位置发生重叠，默认情况是：后面的元素，会显示在前面元素之上
 
 ## 隐藏元素

@@ -221,9 +221,7 @@ flex 项目在主轴上的排列顺序，值越小越靠前，默认 `order: 0`
 
 flex 项目在主轴方向的初始大小
 
-- 默认 `flex-basis: auto`，即默认 flex 项目在主轴方向的初始大小等于 flex 项目的宽或高
-- 主轴水平时，flex 项目的宽度失效
-- 主轴垂直时，flex 项目的高度失效
+- 默认 `flex-basis: auto`，此时会参考主轴对应的 `width` 或 `height`；若该尺寸也是 `auto`，再根据内容确定基础大小
 
 **flex 复合属性**
 
@@ -303,18 +301,18 @@ flex 项目在主轴方向的初始大小
 - grid-row 复合属性
   > `grid-row: <grid-row-start> / <grid-row-end>` 也可以使用 `span 2` 表示从当前位置占据 2 行
 - grid-column 复合属性
-  > `grid-column: <grid-column-start> / <grid-column-end>` 也可以使用 `span 2` 表示从当前位置占据 2 行
-- grid-area: grid 项目放置的区域，或复合属性 `grid-area: <grid-row-start> <grid-column-start> <grid-row-end> <grid-column-end>`
+  > `grid-column: <grid-column-start> / <grid-column-end>` 也可以使用 `span 2` 表示从当前位置占据 2 列
+- grid-area: grid 项目放置的命名区域，或复合属性 `grid-area: <grid-row-start> / <grid-column-start> / <grid-row-end> / <grid-column-end>`
 - grid-template 复合属性
 
-  > `grid-template: <grid-template-rows> <grid-template-columns> <grid-template-areas>`
+  > 例如 `grid-template: "header header" 4rem "sidebar main" 1fr / 16rem 1fr`
 
 - grid-auto-flow 布局算法
   > - row 先行后列
   > - column 先列后行
   > - dense 尽可能填满
-- grid 复合属性
-  > `grid: <grid-template-rows> <grid-template-columns> <grid-template-areas> <grid-auto-rows> <grid-auto-columns> <grid-auto-flow>`
+- grid 复合属性用于一次设置显式网格或隐式网格参数，语法有多个互斥分支
+  > 例如 `grid: auto-flow 4rem / repeat(3, 1fr)`；复杂布局通常分别写 `grid-template-*` 与 `grid-auto-*` 更清晰
 
 ### 位置对齐
 

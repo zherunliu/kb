@@ -28,15 +28,16 @@ buffer1[0] = 1; // 超过 255 高位舍弃
 - 流式写入
   - `fs.createWriteStream(file, [options])`
   ```js
-    const fs = require("fs");
-    const ws = fs.createWriteStream('./data.txt');
-    ws.write('hello, world')
-    ...
-    ws.end()
+  const fs = require("fs");
+  const ws = fs.createWriteStream("./data.txt");
+  ws.write("hello, world");
+  // 继续调用 ws.write(...) 写入其他数据
+  ws.end();
   ```
 - 文件读取
   - `fs.readFile(file, [options], callback)`
-  - `fs.readFile(file, [options])` 返回值：`string | Buffer`
+    > callback 版本本身返回 `undefined`，数据通过回调参数取得
+  - `require("fs/promises").readFile(file, [options])` 返回 `Promise<Buffer | string>`，是否返回字符串取决于是否指定字符编码
 - 流式读取
   - `fs.createReadStream(file, [options])`
   ```js
@@ -44,7 +45,7 @@ buffer1[0] = 1; // 超过 255 高位舍弃
   const rs = fs.createReadStream("./data.txt");
   rs.on("data", (data) => {
     console.log(data);
-    console.log(data.length); // 65536 64KB
+    console.log(data.length); // 默认块通常不超过 65536 字节，最后一块可能更小
   });
   rs.on("end", () => {
     console.log("Read over");
@@ -62,19 +63,14 @@ buffer1[0] = 1; // 超过 255 高位舍弃
 
 ```js
 const fs = require("fs");
+
 // 方式一
 const data = fs.readFileSync("./readme.md");
 fs.writeFileSync("./readme2.md", data);
 
-//方式二
+// 方式二
 const rs = fs.createReadStream("./readme.md");
 const ws = fs.createWriteStream("./readme2.md");
-rs.on("data", (chunk) => ws.write(chunk));
-rs.on("end", () => {
-  ws.close();
-});
-
-// 方式三
 rs.pipe(ws);
 ```
 
@@ -86,9 +82,9 @@ rs.pipe(ws);
 - 读取文件夹
   - `fs.readdir(path, [options], callback)`
   - `fs.readdirSync(path, [options])`
-- 删除文件夹（推荐使用 `fs.rm`）
-  - `fs.rmdir(path, [options], callback)`
-  - `fs.rmdirSync(path, [options])` （递归删除 `{recursive: true}`）
+- 删除文件夹
+  - `fs.rm(path, { recursive: true, force: true }, callback)`
+  - `fs.rmSync(path, { recursive: true, force: true })`
 
 ### 查看资源状态
 
@@ -159,13 +155,13 @@ server.listen(8000, () => {
 
 HTTP 是一种无状态的协议，两次请求间，服务器不会保存任何数据
 
-| cookie                                                   | localStorage                      | sessionStorage                     | IndexedDB                         |
-| -------------------------------------------------------- | --------------------------------- | ---------------------------------- | --------------------------------- |
-| 每次请求时，请求头上都会携带 cookie                      | 只在客户端存储                    | 只在客户端存储                     | 只在客户端存储                    |
-| 4KB                                                      | 5MB                               | 5MB                                | 无限制                            |
-| 可以设置过期时间，默认有效期是会话期，页面关闭后自动删除 | 不会过期                          | 有效期是会话期，页面关闭后自动删除 | 不会过期                          |
-| 同源窗口共享，可以设置 domain 属性以跨子域名共享         | 同源窗口共享                      | 不共享                             | 同源窗口共享                      |
-| 可以设置 httponly 属性，以防止 XSS 攻击                  | 只在客户端存储，容易受到 XSS 攻击 | 只在客户端存储，容易受到 XSS 攻击  | 只在客户端存储，容易受到 XSS 攻击 |
+| cookie                                           | localStorage     | sessionStorage                 | IndexedDB                      |
+| ------------------------------------------------ | ---------------- | ------------------------------ | ------------------------------ |
+| 满足 Domain、Path 等条件时随请求发送             | 只在客户端存储   | 只在客户端存储                 | 只在客户端存储                 |
+| 单个 Cookie 通常约 4KB                           | 通常约 5MB       | 通常约 5MB                     | 配额由浏览器和可用磁盘空间决定 |
+| 可以设置过期时间，默认有效期是会话期             | 默认不会过期     | 有效期是当前标签页会话         | 默认不会过期                   |
+| 同源窗口共享，可以设置 domain 属性以跨子域名共享 | 同源窗口共享     | 同一标签页中的同源页面共享     | 同源窗口共享                   |
+| 可以设置 HttpOnly，阻止 JavaScript 读取          | 同源脚本可以访问 | 当前标签页中的同源脚本可以访问 | 同源脚本可以访问               |
 
 ### Cookie
 
@@ -266,7 +262,7 @@ app.listen(3000, () => {
 
 ### token
 
-token 是服务端生成并返回给 HTTP 客户端的一串加密字符串， token 中保存着用户信息，服务器校验通过后响应 token，token 一般是在响应体中返回给客户端，后续发送请求时，需要手动将 token 添加在请求报文中，一般是放在请求头中。token 可以避免 CSRF（跨站请求伪造）
+Token 是客户端用于证明授权状态的凭据，通常由客户端手动放在 `Authorization` 请求头中。常见的签名 JWT 格式为 `header.payload.signature`，其中 header 和 payload 可以解码读取，signature 用于校验内容是否被篡改，并不提供加密
 
 ```js
 const jwt = require("jsonwebtoken");

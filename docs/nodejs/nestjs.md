@@ -62,7 +62,7 @@ export class UserController {
 | ---------------------------------------------- | -------------- |
 | `@Get(), @Post(), @Put(), @Patch(), @Delete()` | 请求方法       |
 | `@HttpCode(200)`                               | 响应状态码     |
-| `@Headers("Content-Type", "application/json")` | 响应头参数     |
+| `@Header("Content-Type", "application/json")`  | 设置响应头     |
 | `@Redirect(url?: string, statusCode?: number)` | 重定向         |
 | `@Request()`, `@Req()`                         | 请求对象       |
 | `@Response()`, `@Res()`                        | 响应对象       |
@@ -342,7 +342,12 @@ bootstrap();
 ::: code-group
 
 ```ts [common/response.ts]
-import { NestInterceptor, CallHandler, Injectable } from "@nestjs/common";
+import {
+  NestInterceptor,
+  CallHandler,
+  Injectable,
+  ExecutionContext,
+} from "@nestjs/common";
 import { map, Observable } from "rxjs";
 
 interface IData<T> {
@@ -355,7 +360,10 @@ interface IData<T> {
 // 响应拦截器
 @Injectable()
 export class Response<T> implements NestInterceptor {
-  intercept(contest, next: CallHandler): Observable<IData<T>> {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<IData<T>> {
     return next.handle().pipe(
       map((data: T) => {
         return {
@@ -404,15 +412,19 @@ import { Request, Response } from "express";
 
 @Catch()
 export class HttpFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-    const status = exception.getStatus();
+    const status =
+      exception instanceof HttpException ? exception.getStatus() : 500;
     response.status(status).json({
       success: false,
       time: new Date(),
-      data: exception,
+      data:
+        exception instanceof HttpException
+          ? exception.getResponse()
+          : "Internal server error",
       status,
       path: request.url,
     });
@@ -456,10 +468,10 @@ void bootstrap();
 管道绑定
 
 ```ts
-@Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+@Get(":id")
+  findOne(@Param("id", ParseIntPipe) id: number) {
     console.log(typeof id);
-    return this.catsService.findOne(+id);
+    return this.catsService.findOne(id);
   }
 ```
 

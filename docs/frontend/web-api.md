@@ -59,8 +59,8 @@
   - `event.target`：触发事件的元素
   - `event.currentTarget`：当前正在处理事件的元素
   - `event.preventDefault()`：阻止默认行为
-  - `event.stopPropagation()`：阻止事件冒泡
-  - `event.stopImmediatePropagation()`：阻止事件冒泡并阻止当前元素的其他事件监听器执行
+  - `event.stopPropagation()`：阻止事件继续沿捕获或冒泡路径传播，但不会阻止当前目标上的其他监听器
+  - `event.stopImmediatePropagation()`：阻止继续传播，并阻止当前目标上的后续监听器执行
 
 ### DOM 事件模型
 
@@ -112,24 +112,26 @@
 
 #### navigator.sendBeacon
 
-`navigator.sendBeacon` 方法用于在页面卸载时，向服务器异步发送少量数据（ping 请求），常用于发送分析数据或日志信息
+`navigator.sendBeacon` 用于在页面进入后台时，向服务器异步发送少量数据，常用于发送分析数据或日志信息
 
 - 不会阻塞页面卸载过程
 - 可以发送跨域请求
 - 只能发送 POST 请求
-- 发送的数据量有限制（<= 64KB）
+- 浏览器会限制待发送数据的总量
 - 不能自定义请求头
 - 只能传输 `ArrayBuffer`，`ArrayBufferView`，`Blob`，`DOMString`，`FormData` 或 `URLSearchParams` 类型的数据
 
 ```js
-window.addEventListener("unload", () => {
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "hidden") return;
   const url = "http://localhost:3000/log";
   const data = JSON.stringify({
-    event: "page_unload",
+    event: "page_hide",
     timestamp: Date.now(),
   });
   const blob = new Blob([data], { type: "application/json" });
-  navigator.sendBeacon(url, blob);
+  const queued = navigator.sendBeacon(url, blob);
+  if (!queued) console.warn("Beacon was not queued");
 });
 ```
 
@@ -168,8 +170,9 @@ SSE 是基于 HTTP 的服务器推送技术，允许服务器主动向客户端�
           /* 也可以使用 eventSource.addEventListener('message')
             可自定义 默认 message */
           eventSource.onmessage = (event) => {
-            const data = event.data;
-            document.getElementById("sse").innerHTML += `<p>${data}</p>`;
+            const paragraph = document.createElement("p");
+            paragraph.textContent = event.data;
+            document.getElementById("sse").appendChild(paragraph);
           };
           eventSource.onerror = (err) => {
             console.error(err);
@@ -190,7 +193,6 @@ app.get("/sse", (req, res) => {
   console.log("Client connected");
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "Keep-Alive");
   let counter = 0;
   const sendData = () => {
     counter++;
@@ -250,9 +252,9 @@ WebSocket 前，如果需要在服务器和客户端间双向通信，则需要�
 - 长轮询：浏览器发送请求后，服务器保持连接，等到有新消息时才返回，减少了请求次数，提高了实时性
   > 缺点：
   >
-  > - 多线程服务器的 listener 线程长时间挂起，等待新消息，浪费 CPU 资源
+  > - 服务器需要维护大量长期连接和超时状态
   > - 一个长时间无数据传输的 HTTP 连接，链路上的任何一个网关都可能关闭该 HTTP 连接，这是不可控的
-  >   HTML5 新增 WebSocket 协议，可以在浏览器和服务器间建立不受限制的双向通信的通道
+  >   WebSocket 可以在浏览器和服务器间建立持久的双向通信通道
 
 HTTP 通过 header 中是否包含 `Connection: Upgrade` 和 `Upgrade: websocket`，以判断是否升级到 WebSocket 协议，其他 header 字段
 
@@ -267,14 +269,14 @@ HTTP 通过 header 中是否包含 `Connection: Upgrade` 和 `Upgrade: websocket
 - 未加密的 WebSocket 协议标识符是 `ws://`，端口号是 80，对应 `http://`；加密的 WebSocket 协议标识符是 `wss://`，端口号是 443，对 `https://`
 - 协议开销小，HTTP 每次通信都需要携带完整的 HTTP 头部，WebSocket 协议的头部较小，减小了数据传输的开销
 - 支持扩展：用户可以扩展 WebSocket 协议，也可以自定义子协议（例如可以自定义压缩算法等）
-- 没有跨域问题
+- WebSocket 不使用 CORS 预检，但浏览器握手会发送 `Origin`，服务器应校验允许的源
 
 **SSE 和 WebSocket 的区别**
 
 - SSE 基于 HTTP，利用 HTTP 的长连接特性，在客户端和服务器间建立持久连接；WebSocket 基于 TCP
 - SSE 支持传输 text 文本字符串；WebSocket 支持传输 text 文本字符串和 blob 二进制数据
-- SSE 只支持单向数据流，即只支持服务器向客户端推送数据；WebSocket 支持双向数据流，没有消息大小限制
-- SSE 不能手动关闭或重新连接；WebSocket 可以手动关闭和重新连接等
+- SSE 只支持服务器向客户端推送文本事件；WebSocket 支持双向文本和二进制消息
+- EventSource 会自动重连，可以调用 `close()` 手动关闭；需要重新连接时可创建新的 EventSource。WebSocket 的重连策略通常由应用自行实现
 
 ::: code-group
 
@@ -323,45 +325,44 @@ wss.on("connection", (socket) => {
       <input type="text" id="input" />
       <button id="btn">Send</button>
     </div>
+    <script>
+      const ws = new WebSocket("ws://localhost:8080");
+
+      const input = document.querySelector("#input");
+      const btn = document.querySelector("#btn");
+      const list = document.querySelector("#list");
+      btn.addEventListener("click", () => {
+        if (input.value) {
+          ws.send(input.value);
+          input.value = "";
+        }
+      });
+
+      ws.onopen = () => {
+        console.log("WebSocket connection established");
+      };
+
+      ws.onmessage = (event) => {
+        console.log("Message from server:", event.data);
+        let data = JSON.parse(event.data);
+        if (data.type === 2) {
+          let li = document.createElement("li");
+          li.innerText = event.data;
+          list.appendChild(li);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      /* 调用 ws.close() 可以主动断开 */
+      ws.onclose = () => {
+        console.log("WebSocket connection closed");
+      };
+    </script>
   </body>
 </html>
-
-<script>
-  const ws = new WebSocket("ws://localhost:8080");
-
-  const input = document.querySelector("#input");
-  const btn = document.querySelector("#btn");
-  const list = document.querySelector("#list");
-  btn.addEventListener("click", () => {
-    if (input.value) {
-      ws.send(input.value);
-      input.value = "";
-    }
-  });
-
-  ws.onopen = () => {
-    console.log("WebSocket connection established");
-  };
-
-  ws.onmessage = (event) => {
-    console.log("Message from server:", event.data);
-    let data = JSON.parse(event.data);
-    if (data.type === 2) {
-      let li = document.createElement("li");
-      li.innerText = event.data;
-      list.appendChild(li);
-    }
-  };
-
-  ws.onerror = (error) => {
-    console.error("WebSocket error:", error);
-  };
-
-  /* 调用 ws.close() 可以主动断开 */
-  ws.onclose = () => {
-    console.log("WebSocket connection closed");
-  };
-</script>
 ```
 
 :::
@@ -411,7 +412,7 @@ xhr.onload = function () {
     console.log(xhr.status);
   }
 };
-xhr.send(null /* params */);
+xhr.send(JSON.stringify({ name: "rico", age: 20 }));
 ```
 
 ### Fetch
@@ -470,8 +471,8 @@ Web Worker 允许在后台线程中运行 JavaScript 代码，避免阻塞主线
 
 特点：
 
-- worker 线程执行的脚本与主线程执行的脚本必须同源
-- 为了防止中间人攻击，worker 线程不允许读取本地文件，只允许加载网络文件
+- Worker 脚本受同源策略和 CORS 约束
+- 普通网页应通过 HTTP(S) 加载 Worker，不要直接使用 `file:` URL 运行
 - worker 线程不允许操作 DOM，不能使用 window，document，parent（parent === window）对象，可以使用 navigator 和 location 对象
 
 ## Service Worker
@@ -481,13 +482,13 @@ Service worker 充当 Web 应用程序、浏览器与网络之间的代理服务
 特点：
 
 - Service Worker 完全异步，同步的 XHR 和 Web Storage 不能在 Service Worker 中使用
-- 作用域为整个域名（多个页面共享），页面关闭仍可运行
-- Service Worker 只能使用 HTTPS（更加严格的 worker）
+- 默认作用域是 Service Worker 脚本所在目录及其子路径；浏览器可以在空闲时终止 Worker，并在事件到来时重新启动
+- Service Worker 需要安全上下文，通常是 HTTPS，`localhost` 可用于本地开发
 - Service Worker 是客户端脚本，有下载，安装，激活的生命周期
 
 场景：
 
-- 后台数据同步：启动一个 Service Worker，即使用户没有访问页面，也可以更新缓存
-- 响应推送：启动一个 Service Worker，向用户发送消息，通知新的内容可用
+- 后台数据同步：Background Sync 可以让 Service Worker 重试短期任务
+- 响应推送：Push 服务可以向 Service Worker 投递事件，再由它展示通知或更新数据
 - 离线访问：Service Worker 可以缓存资源，使应用在没有网络连接时仍然可用
 - 性能增强：预取用户可能需要的资源

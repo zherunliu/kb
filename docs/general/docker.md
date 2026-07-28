@@ -46,7 +46,8 @@ Docker 使用了 Linux 内核的容器化技术来实现轻量级的虚拟化。
 - `-e`：传递环境变量
 - `--restart`：重启策略，`always`：停止则重启；`unless-stopped`：手动停止不重启
 
-> 使用绑定挂载时，宿主机目录会暂时覆盖容器目录，而使用命名挂载时，容器的文件夹会同步到命名卷中
+> - 绑定挂载：宿主机目录会遮蔽容器目录，不会自动复制容器目录中的原有内容
+> - 命名卷：卷为空时，Docker 默认把容器目录中的原有内容复制到卷中；卷不为空时，卷中内容会遮蔽容器目录，不会复制或合并
 
 **查看容器：**
 `docker ps`：查看正在运行中的容器，`-a` 查看所有容器
@@ -63,7 +64,7 @@ Docker 使用了 Linux 内核的容器化技术来实现轻量级的虚拟化。
 - `docker exec -it <CONTAINER_ID/NAME> sh`：进入容器交互终端执行（精简镜像常用）
 
 **删除容器：**
-`docker rm -f <CONTAINER_ID/NAME>`：`-f` 强制删除在运行中的文件
+`docker rm -f <CONTAINER_ID/NAME>`：`-f` 强制删除正在运行的容器
 
 **容器日志：**
 `docker logs <CONTAINER_ID/NAME>`：`-f` 持续输出，滚动查看
@@ -73,7 +74,7 @@ Docker 使用了 Linux 内核的容器化技术来实现轻量级的虚拟化。
 ### 卷
 
 - `docker volume create <VOLUME_NAME>`：创建卷
-- `docker volume list`：查看所有卷
+- `docker volume ls`：查看所有卷
 - `docker volume inspect <VOLUME_NAME>`：查看卷信息
 - `docker volume rm <VOLUME_NAME>`：删除卷
 - `docker volume prune -a`：删除未使用卷
@@ -114,20 +115,20 @@ docker push username/docker_test
 
 ### Bridge 模式
 
-Docker 网络默认 Bridge（桥接模式），所有的容器都连接到这个网络中，每一个容器都分配了一个内部的 IP 地址，一般都是 172.17 开头。在这个内部子网里面，容器可以通过内部 IP 地址互相访问
+未显式指定网络的容器会连接到默认 bridge 网络并获得内部 IP。需要通过容器名称通信时，应使用用户自定义 bridge 网络
 
-可以使用 `docker network create <NETWORK_NAME>` 命令创建子网，默认情况下，子网也是桥接模式的一种，然后指定容器加入不同的子网`--network <NETWORK_NAME>`，同一个子网内的容器可以互相通信（直接使用名称），而跨子网则不可以通信
+可以使用 `docker network create <NETWORK_NAME>` 创建用户自定义 bridge 网络，并通过 `--network <NETWORK_NAME>` 指定容器加入。同一网络内的容器可以使用名称通信，不同网络默认隔离
 
 ### Host 模式
 
-Host 模式下，docker 容器直接共享宿主机的网络，容器直接使用宿主机的 IP 地址 `--network host` ，无需 `-p` 参数进行端口映射，容器内的服务直接运行在宿主机的端口上，通过宿主机的 IP 和端口就能访问到容器中服务
+Host 模式下，容器使用宿主机的网络命名空间，无需使用 `-p` 进行端口映射
 
 ### None 模式
 
 不联网
 
 **查看网络：**
-`docker network list`
+`docker network ls`
 
 **删除自定义网络：**
 `docker network rm <NETWORK ID/NAME>`

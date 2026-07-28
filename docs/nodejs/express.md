@@ -20,7 +20,7 @@ app.all("/search", (req, res) => {
   res.send("loading...");
 });
 
-app.all("*splat", (req, res) => {
+app.all("/{*splat}", (req, res) => {
   res.send("<h1>404 Not Found</h1>");
 });
 

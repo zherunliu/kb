@@ -1,4 +1,4 @@
-# Test
+# Jest
 
 ## 测试结构
 
@@ -86,7 +86,7 @@ mockFn.mock.results; // 所有返回值
 mockFn.mock.lastCall; // 最后一次调用参数
 mockFn.mockClear(); // 清除调用记录
 mockFn.mockReset(); // 清除调用记录 + 返回值设置
-mockFn.mockRestore(); // 恢复原始实现
+mockFn.mockRestore(); // 仅 spyOn/replaceProperty 创建的 mock 可恢复原始实现
 ```
 
 ## 生命周期
@@ -152,12 +152,14 @@ jest.useRealTimers(); // 恢复真实定时器
 第一次运行时会生成快照文件，后续运行会将结果与快照进行对比，以检测意外更改
 
 ```typescript
+import { render } from "@testing-library/react";
+
 it("snapshot test", () => {
-  const tree = render(<Component />);
+  const { container } = render(<Component />);
   // 匹配快照
-  expect(tree).toMatchSnapshot();
+  expect(container).toMatchSnapshot();
   // 内联快照
-  expect(tree).toMatchInlineSnapshot(`
+  expect(container.firstChild).toMatchInlineSnapshot(`
     <div>content</div>
   `);
 });

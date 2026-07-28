@@ -6,20 +6,20 @@
 
 #### 解决的问题
 
-1. Typescript：需要使用 tsc 将 Typescript 代码转换为 JavaScript 代码
-2. React/Vue：需要安装 react-compiler/vue-compiler，将 jsx 文件或 vue 文件转换为 render 函数
-3. less/sass/postcss/component-style：需要安装 less-loader，sass-loader 等一系列编译工具
-4. 语法降级：Babel --> 将 es 的新语法转换为旧版浏览器可以接受的语法
-5. 体积优化：UglifyJs --> 将代码进行压缩变成体积更小性能更高的文件
+1. TypeScript：移除类型并转换为 JavaScript；Vite 默认只转译，不执行类型检查，类型检查仍使用 `tsc --noEmit` 或框架对应工具
+2. React/Vue：由 `@vitejs/plugin-react`、`@vitejs/plugin-vue` 等插件处理 JSX、Fast Refresh 或 Vue SFC
+3. Less/Sass/PostCSS：安装 `less`、`sass` 等预处理器
+4. 语法兼容：根据目标浏览器转换现代语法，必要时另行配置 polyfill
+5. 体积优化：压缩代码、Tree-Shaking、代码分割和静态资源优化
 
 #### 承担的任务
 
 1. 模块化开发支持：支持直接从 node_modules 里引入模块 + 多种模块化支持
-2. 处理代码兼容性：集成了 babel 语法降级、less、ts 语法转换工具
+2. 处理代码兼容性：提供 JavaScript/TypeScript 转换和 CSS 预处理器集成
 3. 提高项目性能：压缩文件，代码分割
 4. 优化开发体验：
    - 构建工具自动监听文件的变化，自动调用对应的集成工具重新打包，浏览器再重新运行（热更新 hot replacement）
-   - 开发服务器：用 react-cli，create-react-element，vue-cli 解决跨域问题
+   - 开发服务器：提供 HMR 和代理配置，用于本地开发时转发 API 请求
 
 ## Webpack
 
@@ -37,16 +37,16 @@
    - 模块按需加载，浏览器请求源码时，vite 按需提供转换后的源码
    - 代码修改时，只重新加载修改的模块（HMR），响应速度快
 
-   同时 Vite 会借助 esbuild 对第三方依赖进行预构建与依赖合并，将大量细碎的 CommonJS 模块转为 ESM 并合并，避免浏览器发起过多请求，进一步提升开发体验
+   同时 Vite 使用 Rolldown 对第三方依赖进行预构建与依赖合并，将 CommonJS 等模块转换为适合开发服务器使用的格式，并减少大量细碎模块造成的请求开销
 
 2. 生产环境的优化打包
 
-   开发阶段追求速度，生产环境则更关注性能与加载效率，不打包会导致额外的网络请求，Vite 会使用 Rollup 对代码进行打包（Rollup 在 Tree-Shaking 和代码压缩上更高效），Rollup 同时会完成依赖合并和业务代码分包，最终生成体积小、加载快的构建产物
+   开发阶段追求反馈速度，生产环境更关注加载效率。Vite 使用 Rolldown 打包，使用 Oxc 处理 JavaScript 转换与压缩，使用 Lightning CSS 压缩 CSS
 
 ## 依赖预构建
 
 - 路径补全：vite 在处理过程中将非绝对路径或相对路径的引用开启了路径补全（解决了原生 esm 不支持 node_module 的问题）
-- 依赖预构建：vite 找到相应的依赖，调用 esbuild 将其他规范的代码换成 esm 规范，同时对 esm 规范的各个模块进行统一集成（将有多个内部模块的 esm 依赖合成单个模块，减少网络请求数量）
+- 依赖预构建：Vite 使用 Rolldown 转换和合并依赖，处理 CommonJS/UMD 兼容性，并减少细碎 ESM 模块请求（将有多个内部模块的 ESM 依赖合成单个模块，减少网络请求数量）
 - 预构建缓存：依赖预构建的产物缓存到 `node_modules/.vite/deps` 目录, 方便 vite 转换导入路径
 
 ::: code-group
@@ -103,18 +103,18 @@ console.log(Object.keys(lodash));
 - 找到 `.env` 文件，解析其中的环境变量，放进一个对象里
 - 将传进来的 mode 变量的值进行拼接，生成对应的环境变量文件名，如 `.env.development`，根据提供的目录取对应的配置文件进行解析，并放进一个对象（相同的 key 会覆盖）
 - 如果是客户端，vite 会将对应的环境变量注入到 `import.meta.env` 里，防止隐私性变量直接送入 `import.meta.env`，vite 做了一层拦截，环境变量需要以 `VITE_` 开头，可以使用 envPrefix 更改前缀
-- Node 环境下，vite 推荐手动确认 env 文件：`const env = loadEnv(mode, process.cwd(), '.env')`
+- 在 Vite 配置中可使用 `loadEnv(mode, process.cwd(), "")` 加载所有变量，或使用 `"VITE_"` 只加载指定前缀
 
 **`import.meta.env` 的内置变量：**
 
-```json
+```jsonc
 /* 通过 JSON.stringify 硬编码注入浏览器 */
 {
   "BASE_URL": "/", // 部署时的 URL 前缀
   "MODE": "development", // 运行模式
   "DEV": true, // 是否在 dev 环境
   "PROD": false, // 是否是 build 环境
-  "SSR": false // 是否是 SSR 服务端渲染模式
+  "SSR": false, // 是否是 SSR 服务端渲染模式
 }
 ```
 
@@ -191,10 +191,10 @@ HMR 是一种在开发过程中允许模块热替换的机制，在应用程序�
 ## CSS 处理
 
 1. 浏览器请求 `index.css` 或 `App.vue`
-2. esbuild 解析 `index.tsx` 或 `App.vue`，发现 `index.tsx` 导入 `index.css`，或 `App.vue` 有 `<style>` vue 标签
-3. vite 读取 `index.css` 文件内容或 `<style>` vue 标签内容
-4. vite 处理 CSS 模块类型，如果是 `.module.css` 或 `<style scoped>`，则改写选择器名，以实现样式隔离
-5. vite 开发服务器将 `index.css` 文件内容或 `<style>` vue 标签内容转换为 JS 代码并返回，设置 http 响应头 `Content-Type: text/javascript`，让浏览器使用 JS 的方式解析，目的是实现 `.module.css` 或 `<style scoped>` 的样式隔离和模块热替换（HMR）
+2. Vite/Oxc 处理 `index.tsx` 的模块导入；Vue SFC 则由 `@vitejs/plugin-vue` 和 `@vue/compiler-sfc` 解析
+3. Vite 读取普通 CSS；Vue 插件提取并处理 `<style>` 内容
+4. Vite 处理 `.module.css` 的 CSS Modules 映射；`<style scoped>` 的选择器改写由 Vue 插件完成
+5. 开发服务器把样式包装为可参与模块图和 HMR 的模块，浏览器端运行更新代码并维护 `<style>` 标签
 6. 浏览器执行 JS 代码，创建 `<style>` html 标签插入到 `index.html` 的 `<head>` 标签中
 
 > 生产环境还是生成静态 CSS 文件通过 `<link>` 标签引入，使浏览器可并行加载、缓存复用
@@ -230,8 +230,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 2000,
     cssCodeSplit: true, // 开启 CSS 拆分
     sourcemap: false, // 不生成源代码映射文件 source-map
-    minify: "esbuild", // JS 最小化混淆
-    cssMinify: "esbuild", // CSS 最小化混淆
+    minify: "oxc", // 使用 Oxc 压缩 JavaScript
+    cssMinify: "lightningcss", // 使用 Lightning CSS 压缩 CSS
     assetsInlineLimit: 5000, // 静态资源大小 < 5000B 时, 内联为 base64
   },
 });

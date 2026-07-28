@@ -7,15 +7,13 @@ HTTP（HyperText Transfer Protocol）：基于 Client/Server 模型，是无状�
 #### HTTP/1.1
 
 **1.0 局限性：**
-HTTP/1.0 是短连接，每次 HTTP 请求都需要建立 TCP 连接，传输数据和断开 TCP 连接
+HTTP/1.0 默认使用短连接，每次 HTTP 请求通常都需要重新建立 TCP 连接
 
 **1.1 新特性：**
 
-- HTTP/1.1 **新增持久连接**，特点是一个 TCP 连接上可以发送多次 HTTP 请求，只要浏览器或服务器没有明确断开连接，该 TCP 连接就会一直保活 `Connection: Keep-Alive`；HTTP/1.1 中持久连接默认开启，如果不想使用持久连接，可以在 HTTP 请求头中设置 `Connection: Close` 字段
-- 使用 CDN 内容分发网络实现域名分片
-- **支持虚拟主机**：HTTP/1.0 中，一个域名绑定一个唯一的 IP 地址，一个服务器只能绑定一个域名；随着虚拟主机技术的发展，一个物理主机可以虚拟化为多个虚拟主机，每个虚拟主机有单独的域名，这些虚拟主机（域名）共用同一个 IP 地址；HTTP/1.1 的请求头中增加了 Host 字段，表示域名 URL 地址，服务器可以根据不同的 Host 字段，进行不同的处理（HTTPS 使用 SNI 来实现多域名支持）
+- HTTP/1.1 **标准化并默认启用持久连接**，一个 TCP 连接可以承载多个请求；任一端都可以使用 `Connection: close` 表示本次响应后关闭连接
+- **支持虚拟主机**：请求头中的 `Host` 字段使服务器可以区分同一 IP 地址上的不同域名
 - **支持动态大小的响应数据**：HTTP/1.0 中，需要在响应头中指定传输数据的大小，例如 Content-Length：1024，这样浏览器可以根据指定的传输数据大小接收数据；HTTP/1.1 通过引入 Chunk Transfer 分块传输机制解决该问题，服务器将传输数据分割为若干个任意大小的数据块，每个数据块发送时，附加上一个数据块的长度，最后使用一个 0 长度的数据块作为数据发送结束的标志，提供对动态大小的响应数据的支持
-- HTTP/1.1 还引入了**客户端 cookie**
 
 #### HTTP/2.0
 
@@ -28,10 +26,10 @@ HTTP/1.0 是短连接，每次 HTTP 请求都需要建立 TCP 连接，传输数
 
 **2.0 新特性：**
 
-- 一个域名只使用一个 TCP 长连接传输数据，整个页面资源的加载只需要一次 TCP 慢启动，同时避免了多个 TCP 连接竞争带宽的问题
-- **HTTP 多路复用技术，引入二进制分帧层，并行处理请求**，转换为若干个带有请求 ID 编号的帧，通过 TCP/IP 协议栈发送给服务器，服务器收到请求帧后，将所有 ID 相同的帧合并为一个完整的请求，并处理该请求；类似的，服务器的二进制分帧层将响应数据转换为若干个带有响应 ID 编号的帧，通过 TCP/IP 协议栈发送给浏览器，浏览器收到响应帧后，将所有 ID 相同的帧合并为一个完整的响应
-- **请求优先级**：HTTP/2.0 支持请求优先级，发送请求时，标记该请求的优先级，服务器收到请求后，优先处理优先级高的请求
-- **服务器推送**：HTTP/2.0 服务器推送（Server Push）允许客户端请求某个资源（例如 index.html）时，服务器推送其他资源（例如 `style.css`，`main.js`），避免发送额外的请求
+- 一个 HTTP/2 连接可以并发承载多个流
+- **二进制分帧和多路复用**：请求和响应被拆分为带有流 ID 的帧，多个流的帧可以在同一连接中交错传输
+- **请求优先级提示**：客户端可以表达资源优先级，由服务端决定如何调度
+- **服务器推送**：服务器可以在响应请求时主动推送关联资源，例如请求 HTML 时同时推送 CSS 和 JavaScript
 - **头部压缩**：HTTP/2.0 使用 HPACK 对请求头和响应头进行压缩
 - 可重置：HTTP/2.0 可以在不中断 TCP 连接的前提下，取消当前的请求或响应
 
@@ -39,13 +37,13 @@ HTTP/1.0 是短连接，每次 HTTP 请求都需要建立 TCP 连接，传输数
 
 **2.0 局限性：**
 
-- 随着丢包率的增加，HTTP/2.0 的传输效率降低，2% 丢包率时，HTTP/2.0 的传输效率可能低于 HTTP/1.1
-- 只使用一个 TCP 长连接，仍然受到队头阻塞影响（1.1 多条 TCP 连接可以分散风险），TCP 三次握手，TLS 一次握手，浪费 3 到 4 个 RTT
+- HTTP/2 的多个流共享同一条 TCP 连接；发生丢包时，TCP 必须先恢复缺失字节，可能同时阻塞连接上的多个 HTTP 流
+- 新连接通常需要完成传输层与 TLS 握手，增加首次请求延迟
 
 **3.0 新特性：**
 
-- HTTP/3.0（QUIC，Quick UDP Internet Connection）基于 UDP，实现类似 TCP 的多路数据流，可靠传输等特性，同时**避免了 TCP 的慢启动，队头阻塞**等问题
-- 引入了 **0-RTT 连接建立机制**，对于之前连接过的服务器，HTTP/3.0 可以在 0 RTT 内建立连接并发送数据；对于第一次连接的服务器，HTTP/3.0 需要 1 RTT 建立连接并发送数据
+- HTTP/3 使用 QUIC 在 UDP 之上提供可靠的多路流，不同流可以独立恢复丢失数据，避免 TCP 连接级队头阻塞
+- 恢复连接时可以使用 0-RTT 提前发送数据；首次连接通常需要 1-RTT
 - HTTP/3.0 还引入了**连接迁移机制**，允许在网络环境变化时（例如：从 Wi-Fi 切换到 5G），保持连接不中断，继续传输数据
 
 ### HTTP 报文
@@ -64,17 +62,17 @@ HTTP 报文分为请求报文和响应报文
   - `Accept-Language` 客户端的偏好语言
   - `Expect` 客户端询问服务器是否接受请求体
   - `If-Modified-Since` 字段值时间戳；询问服务器指定时间戳后，资源是否有修改
-  - `If-None-Match` 字段值是 etag 版本号，询问服务器 etag 版本号是否有更新，即资源是否有修改
-  - `Authorization` 字段值是 token
+  - `If-None-Match` 携带 ETag，资源未变化时服务器可以返回 304
+  - `Authorization` 携带身份验证凭据，例如 Bearer Token
   - `Cookie`
   - `Host` 请求的主机名和端口号
-  - `Range` 请求实体的字节范围，用于范围请求（分块传输，断点续传）
+  - `Range` 请求资源的指定字节范围，用于范围请求和断点续传
   - `Referer` 请求的源页面的 URL
   - `User-Agent` 用户代理，即使用的浏览器和操作系统
-  - `Origin` 预检请求或实际请求的源主机
-  - `Access-Control-Request-Method` 用于预检请求，告诉浏览器实际请求使用的请求方法
-  - `Access-Control-Request-Headers` 用于预检请求，告诉浏览器实际请求的请求头字段
-  - `Connection` 当前会话结束后，是否关闭 HTTP 连接，默认 `Connection: Keep-Alive`
+  - `Origin` 预检请求或实际请求的源
+  - `Access-Control-Request-Method` 用于预检请求，告诉服务器实际请求将使用的方法
+  - `Access-Control-Request-Headers` 用于预检请求，告诉服务器实际请求将携带的非简单请求头
+  - `Connection` 控制 HTTP/1.1 连接是否继续复用，例如 `Connection: close`；HTTP/2 和 HTTP/3 不使用该字段
   - `Cache-Control` 缓存控制
     > Cache-Control: max-age=10, stale-while-revalidate=60 表示资源在客户端的缓存有效期为 10 秒，过期后，在 60 秒内，浏览器可以直接使用过期的资源，同时在后台发送请求更新资源（swr 策略）
   - `Content-Length` 请求体的长度
@@ -83,12 +81,12 @@ HTTP 报文分为请求报文和响应报文
 
 **响应报文**
 
-- `Access-Control-Allow-Credentials` 服务器是否允许跨域请求携带凭据，凭据包括 cookie，TLS 客户端证书等，默认不允许跨域请求携带凭据，以防止跨站请求伪造攻击
-- `Access-Control-Expose-Headers` 可以通过 `xhr.getResponseHeader(）` 获取响应头字段，默认跨域响应仅暴露 CORS 白名单中的响应头字段，可以在跨域响应的 `Access-Control-Expose-Headers` 响应头字段中，指定暴露的其他响应头字段
+- `Access-Control-Allow-Credentials` 表示浏览器是否允许前端代码读取带凭据跨源请求的响应
+- `Access-Control-Expose-Headers` 可以通过 `xhr.getResponseHeader()` 获取响应头字段，默认跨域响应仅暴露 CORS 白名单中的响应头字段，可以在跨域响应的 `Access-Control-Expose-Headers` 响应头字段中，指定暴露的其他响应头字段
 - `Access-Control-Allow-Methods` 用于响应预检请求，指定实际请求允许使用的请求方法
 - `Access-Control-Allow-Origin` 指定允许（跨域）资源共享的源站
 - `Access-Control-Allow-Headers` 用于响应预检请求，指定实际请求允许使用的请求头字段
-- `Access-Control-Max-Age` 指定缓存预检请求的响应头字段 `Access-Control-Allow-Methods` 和 `Access-Control-Allow-Headers` 的有效期，单位是秒；有效期内，浏览器可以直接发送复杂请求的跨域请求，不需要先发送预检请求
+- `Access-Control-Max-Age` 指定预检结果的缓存时间，单位是秒，缓存有效期内，符合该预检结果的跨源请求可以跳过预检
 - `Age` 对象在代理缓存中停留的时间
 - `Allow` 服务器响应状态码为 405 Method Not Allowed 时，必须携带 `Allow` 响应头字段，表示服务器允许哪些请求方法
 - `Content-Disposition` 指定响应体以网页，或以网页的一部分，或以附件的形式下载到本地
@@ -99,11 +97,11 @@ HTTP 报文分为请求报文和响应报文
 - `Location` 3xx 重定向的 URL，或 201 Created 新创建的资源的 URL
 - `Content-Range` 响应体在整个资源中的字节范围
 - `Content-Type` 响应体的媒体类型
-- `Accept-Ranges` 表示服务器支持范围请求（分块传输，断点续传）
+- `Accept-Ranges` 表示服务器支持范围请求
 - `Vary` 使用内容协商时，创建缓存键
 - `Set-Cookie` 用于服务器将 cookie 发送到 User-Agent 用户代理，用户代理在后续的请求中，可以将 cookie 发送回服务器，可以在一个响应中，设置多个 Set-Cookie 字段以发送多个 cookie
 - `WWW-Authentication` 定义 HTTP 身份验证方法：质询，用于获取资源的访问权限
-- `ETag` 资源的版本号，资源更新时，必须生成新的 ETag 值
+- `ETag` 是资源表示的校验值，用于协商缓存
 - `Expires` 资源的过期时间，无效的日期（例如 0）也表示资源已过期
 - `Last-Modified` 资源的上一次修改时间
 - `Date` 消息创建的日期，时间
@@ -124,9 +122,9 @@ HTTP 报文分为请求报文和响应报文
 
 **3XX Redirection 重定向响应**
 
-- 301 Moved Permanently 永久重定向，请求的资源永久移动到 Location 头部指定的 URL，会将 POST 请求重定向为 GET 请求
-- 302 Found 临时重定向，请求的资源临时移动到 Location 头部指定的 URL，会将 POST 请求重定向为 GET 请求
-- 303 See Other 指定请求重定向的页面时，必须使用 GET 方法
+- 301 Moved Permanently 永久重定向，浏览器通常会将 POST 后续请求改为 GET
+- 302 Found 临时重定向，浏览器通常会将 POST 后续请求改为 GET
+- 303 See Other 使用 GET 请求重定向目标
 - 304 Not Modified 协商缓存
   - 请求强缓存的资源，不会请求服务器
   - 请求协商缓存的资源，仍会请求服务器
@@ -140,7 +138,7 @@ HTTP 报文分为请求报文和响应报文
 - 403 Forbidden 客户端（可能）有身份验证凭证，但服务器拒绝客户端访问资源
 - 404 Not Found 请求的资源不存在（可能临时丢失或永久丢失）
 - 405 Method Not Allowed 客户端使用的请求方法不被允许
-- 408 Request Timeout 服务器决定关闭空闲连接，而不是继续等待新请求
+- 408 Request Timeout 服务器等待接收完整请求超时
 - 410 Gone 请求的资源已永久丢失
 - 429 Too Many Requests 客户端发送了过多的请求，服务器暂时拒绝处理请求
 
@@ -153,7 +151,7 @@ HTTP 报文分为请求报文和响应报文
 
 ## DNS 域名系统
 
-DNS 域名系统是一个分布式数据库（应用层），存储域名到 IP 地址的映射，使用 UDP，端口号 53
+DNS 域名系统是一个分布式数据库（应用层）。传统 DNS 通常使用 UDP 53，响应过大、区域传送等场景会使用 TCP 53
 
 - 递归查询：直接返回域名解析结果
 - 迭代查询：返回下一级 DNS 服务器地址
@@ -228,8 +226,7 @@ client <---- waving2 <---------- server
        <==== ack1 = seq1+1 <==== # 确认收到 seq1
        <==== ACK1 = 1      <==== # 服务器第 1 次确认 FIN1
 
-FIN_WAIT_2 # 服务器发送剩余数据，客户端等待服务器第 2 次确认 FIN1
-# 和服务器向客户端请求终止的 FIN2
+FIN_WAIT_2 # 服务器可以继续发送剩余数据，客户端等待服务器主动发送 FIN2
 
 # ACK=1 FIN=1 ack=x1+1 seq=y2 (服务器剩余分段序号 y1-y2)
 client <---- waving3 <---------- server
@@ -244,7 +241,7 @@ client ----- waving4 ----------> server
        ====> ack2 = seq2+1 ====> # 确认收到 seq2
 
 TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, 客户端关闭 CLOSED
-# MSL（Maximum Segment Lifetime）最长分段寿命，大约 1-4 分钟
+# MSL（Maximum Segment Lifetime）最长分段寿命
 ```
 
 **TCP 与 UDP 的区别：**
@@ -263,27 +260,27 @@ TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, �
 1. 判断地址栏内容是搜索关键字，还是请求 URL
    - 如果是搜索关键字，则组合为携带搜索关键字的新 URL
    - 如果是请求 URL，则按需加上 `https://` 协议字段，组合为新 URL
-2. beforeunload 事件：用户回车后，会触发 beforeunload 事件，beforeunload 事件允许页面卸载前，执行数据清理等操作；也可以询问用户是否离开当前页面，用户可以通过 beforeunload 事件取消导航（页面跳转）
+2. 如果页面注册了 `beforeunload`，浏览器可能在离开前触发它，用于提示尚未保存的修改
 3. 渲染进程通过进程间通信（IPC）将请求 URL 发送给网络进程
 4. 网络进程先检查本地缓存是否缓存了请求资源，如果有缓存，则直接返回请求资源给渲染进程（强制缓存）；如果没有缓存，则发送网络请求
 5. DNS 解析：对 URL 的域名进行 DNS 解析，以获取服务器 IP 地址；HTTP 的默认端口号是 80，HTTPS 默认端口号是 443，如果是 HTTPS 协议，还需要建立 TLS 或 SSL 连接
-6. 建立 TCP 连接：进入 TCP 队列，通过三次握手与服务器建立连接（在 HTTP/1.1 协议下，chrome 限制一个域名最多同时建立 6 个 TCP 连接）
+6. 建立连接：HTTP/1.1 和 HTTP/2 基于 TCP，HTTP/3 基于 QUIC
 7. 浏览器发送 HTTP 请求：浏览器生成请求行（get，post，... 请求方法，URL，协议），请求头，请求体等，并将 cookie 等数据附加到请求头中，发送 HTTP 请求给服务器
    - RESTful：get，post，put，delete，patch，...
    - 应用层：加 HTTP 头部，包括请求方法，URL，协议等
-   - 传输层：加 TCP 头部，包括源端口号，目标端口号等
+   - 传输层：以 TCP 为例，加 TCP 头部，包括源端口号，目标端口号等
    - 网络层：加 IP 头部，包括源 IP 地址，目标 IP 地址等
 8. 服务器收到 HTTP 请求：服务器生成响应行，响应头，响应体等，发送 HTTP 响应给浏览器网络进程
    1. 服务器网络层解析出 IP 头部，将数据包向上交付给传输层
-   2. 服务器传输层解析出 TCP 头部，将数据包向上交付给应用层
+   2. 服务器传输层解析传输协议头部，将数据包向上交付给应用层
    3. 服务器应用层解析出请求头和请求体
       - 如果不需要重定向，服务器根据请求头中的 `If-None-Match` 字段值判断请求资源是否被更新（协商缓存），如果没有更新，则返回 304 状态码，不返回请求资源；如果有更新，则同时返回 200 状态码和请求资源
-      - 如果希望使用强缓存，则设置响应头字段 `Cache-Control: max-age=2000`，例如 Nginx 配置文件 `add_header Cache-Control "public，immutable";` 对应的响应头字段 `Cache-Control: public，immutable`
+      - 如果希望使用长期强缓存，可以设置响应头字段，例如 Nginx 配置 `add_header Cache-Control "public, max-age=31536000, immutable";`
       - 如果需要重定向，则服务器直接返回 301 或 302 状态码，在响应头的 `Location` 字段中指定重定向地址，浏览器根据状态码和 `Location` 字段进行重定向操作
-   4. 关于是否断开连接：数据传输完成，TCP 四次挥手断开连接，如果浏览器或服务器在 HTTP 头部设置 `Connection: Keep-Alive` 字段，则会建立持久的 TCP 连接，节省下一次 HTTP 请求时建立连接的时间，提高资源加载速度
+   4. 关于是否断开连接：HTTP/1.1 默认使用持久连接，可通过 `Connection: close` 关闭；HTTP/2 和 HTTP/3 不使用 `Connection: Keep-Alive`
    5. 关于重定向：浏览器收到服务器返回的响应头后，网络进程解析响应头，如果状态码是 301 或 302，则网络进程获取响应头的 `Location` 字段值（重定向的地址），发送新的 HTTP/HTTPS 请求
    6. 关于响应体的数据类型：浏览器根据 HTTP 响应头的 `Content-Type` 字段值判断响应数据类型，并根据响应数据类型决定如何处理响应体。如果 `Content-Type` 字段值是二进制数据流类型：`Content-Type: application/octet-stream`，则提交给浏览器的下载管理器，同时该 URL 请求的导航（页面跳转）结束；如果 `Content-Type` 字段值是 HTML 类型：`Content-Type: text/html; charset=utf-8`，则网络进程通知浏览器进程分配一个渲染进程进行页面渲染
-9. 分配渲染进程：浏览器进程检查新 URL 和已打开 URL 的域名是否相同，如果相同则复用已有的渲染进程，如果不同则创建新的渲染进程
+9. 分配渲染进程：浏览器根据站点隔离策略决定新建或复用渲染进程
 10. 渲染文档：渲染进程解析文档；将 HTML 解析为 DOM 树，将 CSS 解析为 CSSOM 树，将 DOM 树和 CSSOM 树合并为渲染树；回流，重绘
 
 ## 预检请求
@@ -298,15 +295,15 @@ TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, �
 
 **复杂请求**
 
-浏览器每次发送复杂请求前，都会先发送 OPTIONS 预检请求，询问服务器允许哪些 HTTP 请求方法和请求头字段，是否允许跨域请求等，OPTIONS 预检请求的目的是确保实际请求对服务器是安全的，OPTIONS 预检请求包含以下请求头字段
+发送不满足上述条件的跨源请求前，浏览器通常会先发送 OPTIONS 预检请求，询问服务器是否允许实际请求的方法和请求头
 
 1. `Origin` 发送请求的域名
 2. `Access-Control-Request-Method` 实际请求将使用的 HTTP 请求方法
 3. `Access-Control-Request-Headers` 实际请求将携带的请求头字段
 
-服务器通过请求头告诉浏览器：允许发送跨域请求的域名，允许哪些 HTTP 请求方法和请求头字段等
+服务器通过响应头告诉浏览器：允许读取响应的源、允许的 HTTP 方法和请求头字段等
 
-1. `Access-Control-Allow-Origin` 允许发送跨域请求的域名
+1. `Access-Control-Allow-Origin` 允许读取响应的源
 2. `Access-Control-Allow-Methods` 允许哪些 HTTP 请求方法
 3. `Access-Control-Allow-Headers` 允许哪些 HTTP 请求头字段
 
@@ -338,7 +335,7 @@ HTTP 缓存是保存资源副本的技术，提高页面性能，减少网络流
 1. 请求协商缓存的资源，仍会请求服务器，服务器根据请求头的 `Last-Modified/If-Modified-Since` 和 `ETag/If-None-Match` 两对字段判断协商缓存是否命中；如果命中，服务器返回 `304 Not Modified`，响应体为空；如果未命中，服务器返回 `200 OK`，响应体中携带更新的资源
 2. 服务器可以使用响应头中的 `ETag` 或 `Last-Modified` 字段设置协商缓存，客户端请求时自动携带 `If-None-Match`（对应 `ETag`）或 `If-Modified-Since`（对应 `Last-Modified`）请求头，`ETag` 的优先级高于 `Last-Modified`
 
-- `Etag: "1.0.0"` 哈希值或自定义字符
+- `ETag: "1.0.0"` 哈希值或自定义字符
 - `Last-Modified: Mon, 01 Jan 2025 00:00:00 GMT` 最后修改时间
 
 > 1. index.html 使用协商缓存
@@ -406,9 +403,9 @@ CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚�
 
 跨域：当 A 源浏览器网页向 B 源服务器地址（不满足同源策略）请求对应信息，就会产生跨域，跨域默认情况下会被浏览器拦截，除非对应的浏览器出具标记允许 A 源的访问（服务器有响应，但被浏览器拦截）
 
-- DOM 层面：不同源则不允许相互操作 DOM，但是引入了跨文档消息机制，允许一个窗口使用另一个窗口的引用，`targetWindow.postMessage`，和不同源的 DOM 进行通信
-- 数据层面：不同源则不允许相互访问 cookie，sessionStorage，localStorage，IndexedDB 等，但是页面中可以嵌入第三方页面（仍然有 CSP 内容安全策略限制）
-- 网络层面：不同源则不允许使用 fetch，XMLHttpRequest 发送数据给不同源的主机，但是引入了 CORS 跨域资源共享
+- DOM 层面：不同源窗口通常不能直接读取或修改彼此 DOM，但可以通过 `postMessage` 进行显式消息通信
+- 存储层面：Web Storage 和 IndexedDB 等按源隔离；Cookie 按自身的 Domain、Path、SameSite 等规则发送
+- 网络层面：`fetch` 和 XMLHttpRequest 可以发起跨源请求；CORS 响应头决定浏览器是否允许调用方脚本读取响应。某些非简单请求会先预检
 
 ::: code-group
 
@@ -571,20 +568,20 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
 - 跨站脚本攻击（XSS，Cross-Site Scripting）
   > XSS 是指攻击者在网页中注入恶意脚本代码，当用户浏览该网页时，恶意脚本被执行，攻击者可以窃取用户的敏感信息（如 cookie，localStorage）
 - 跨站请求伪造（CSRF，Cross-Site Request Forgery）
-  > CSRF 是指攻击者诱导用户在已认证的情况下，向受信任的网站发送恶意请求，攻击者可以利用用户的身份进行未授权的操作（本质是利用 cookie 会在同源请求中携带发送给服务器的特点）
+  > CSRF 是指攻击者诱导已登录用户向受信任的网站发送恶意请求，利用浏览器自动携带的身份凭据执行未授权操作
 - 中间人攻击（MITM，Man-in-the-Middle）
   > MITM 是指攻击者在用户和服务器之间拦截和篡改通信数据，攻击者可以窃取敏感信息，篡改数据，甚至冒充服务器与用户通信
 
 #### XSS 跨站脚本攻击
 
 - 反射型 XSS：非持久型 XSS，反射型 XSS 的恶意代码在地址栏上 `http://127.0.0.1:5500/index.html?a=<script>alert(1)</script>`
-- 存储型 XSS：持久型 XSS，存储型 XSS 的恶意代码存储在数据库中，**最严重**
-- DOM 型 XSS：例如 `document.write()`，`eval()`，innerHTML，location，v-html，dangerouslySetInnerHTML 等
+- 存储型 XSS：持久型 XSS，恶意代码存储在数据库中
+- DOM 型 XSS：将 URL、用户输入等不可信数据传给 `innerHTML`、`document.write()`、`eval()` 等危险 API
 
 **预防 XSS**
 
 - 处理用户输入时，对输入进行过滤；输出到页面时，对输出进行转义
-- 禁用 `document.write()`，`eval()`，innerHTML，location，v-html，dangerouslySetInnerHTML 等
+- 避免把不可信数据直接传给 `document.write()`、`eval()`、`innerHTML`、`v-html`、`dangerouslySetInnerHTML` 等危险 API
 - 设置响应头的 CSP 内容安全策略 `Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted.cdn.com;`
   > 也可以通过设置 `<meta>` 标签定义内容安全策略
   > `<meta http-equiv="content-security-policy" content="default-src 'self'; script-src 'self' https://trusted.cdn.com;">`
@@ -597,11 +594,11 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
   - FCP（First Contentful Paint）：首次内容绘制，指浏览器首次将任何文本、图片、非空白 canvas 或 SVG 等内容渲染到屏幕上的时间点
   - LCP（Largest Contentful Paint）：最大内容绘制，指浏览器首次将页面上最大的文本块或图像渲染到屏幕上的时间点（<= 2.5s）
   - SI（Speed Index）：速度指数，指页面内容在加载过程中可见部分的平均绘制时间，衡量页面加载过程中内容的可见程度
-  - TBT（Total Blocking Time）：总阻塞时间，指 FCP 和 TTI（Time to Interactive）之间所有长任务的时间总和，衡量页面加载过程中主线程被阻塞的程度
+  - TBT（Total Blocking Time）：总阻塞时间，统计 FCP 和 TTI 之间每个长任务超过 50ms 的时间总和
 - 视觉稳定性
-  - CLS（Cumulative Layout Shift）：累计布局偏移，指页面在加载过程中发生的所有意外布局偏移的总和，衡量页面视觉稳定性的指标
+  - CLS（Cumulative Layout Shift）：累计布局偏移，通过会话窗口统计意外布局偏移，衡量页面的视觉稳定性
 - 交互响应性
-  - INP（Interaction to Next Paint）：交互到下一次绘制，指用户与页面交互（例如点击按钮）后，浏览器完成下一次绘制的时间点，替代了 FID（First Input Delay）作为交互性能的指标（<= 200ms）
+  - INP（Interaction to Next Paint）：交互到下一次绘制，衡量用户交互到页面完成下一次绘制的延迟（<= 200ms）
 
 ### 优化方法
 
@@ -620,19 +617,18 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
 - 关键渲染路径优化：减少阻塞渲染的资源（将非关键 CSS 内联，异步加载非关键 JS）
 - 减少重排重绘：避免一次性修改多个 DOM 样式（使用类名批量修改，dom 离线修改，使用 DocumentFragment），使用 content-visibility 优化长列表，减少布局计算
 
-- CSS 优化：降低选择器复杂度，提升合成层性能（Will-change）
+- CSS 优化：降低选择器复杂度；使用 `will-change` 提示即将变化的属性
 - JavaScript 解析：优化长任务拆分、避免脚本阻塞解析
 
 ```css
 .long-list-item {
   content-visibility: auto;
-  /* 提前预渲染视口外 500px 的内容，避免滚动时闪烁 */
+  /* 内容被跳过渲染时提供占位内在尺寸，减少滚动时的布局偏移 */
   contain-intrinsic-size: 500px;
 }
 .box {
-  will-change:
-    transform, opacity; /* 告诉浏览器即将修改这些属性，避免动画临时计算，减少卡顿 */
-  transform: translateZ(0); /* 强制创建合成层（老浏览器兼容） */
+  /* 仅在即将发生动画时短暂声明；滥用会增加内存和合成成本 */
+  will-change: transform, opacity;
 }
 ```
 

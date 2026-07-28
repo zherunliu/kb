@@ -73,11 +73,11 @@ createRoot(document.getElementById("root")!).render(
 - replace 替换当前路径，不保留历史记录
 - state 传递参数
 - relative
-  > - relative="route" 使用绝对路径，默认
-  > - relative="path" 可以使用相对路径，数据模式默认开启
+  > - `relative="route"` 按路由层级解析相对路径（默认）
+  > - `relative="path"` 按 URL pathname 的路径段解析相对路径
 - reloadDocument 页面跳转时，是否重新加载页面
 - preventScrollReset 是否阻止滚动位置重置
-- viewTransition 页面跳转时，是否开启 opacity 过渡动画
+- viewTransition 是否使用浏览器 View Transitions API 包裹导航，开启过渡动画
 
 ### `<NavLink />`
 
@@ -111,7 +111,7 @@ a.transitioning {
         ? { backgroundColor: "yellow", color: "black" }
         : isTransitioning
           ? { backgroundColor: "green", color: "white" }
-          : ""
+          : undefined
   }
 >
   About
@@ -428,7 +428,7 @@ export default function Home() {
   return (
     <div>
       <h1>Home</h1>
-      <NavLink to="/about" state={{ id: "1", age: "25", address: "Beijing" }}>
+      <NavLink to="/about" state={{ id: 1, age: 25, address: "Beijing" }}>
         About
       </NavLink>
     </div>
@@ -444,7 +444,10 @@ export default function About() {
     id: number;
     age: number;
     address: string;
-  };
+  } | null;
+  if (!state) {
+    return <p>No state available</p>;
+  }
   return (
     <div>
       <h1>About</h1>
@@ -460,9 +463,9 @@ export default function About() {
 
 ## 路由操作 loader、action
 
-- loader 用于查询，GET 请求会触发 loader
+- loader 在匹配路由的导航、重新验证或 fetcher 加载时运行，用于读取数据
 - loader 路由导航时，导航状态 idle -> loading -> idle
-- action 用于增删改，POST，DELETE，PATCH 请求会触发 action
+- action 处理提交到对应路由的非 GET mutation，例如 POST、PUT、PATCH、DELETE；普通 `fetch()` 不会自动触发路由 action
 - action 路由导航时，导航状态 idle -> submitting -> loading -> idle
 
 ::: code-group
@@ -543,7 +546,10 @@ export default function About() {
       <input
         placeholder="age"
         value={age}
-        onChange={(ev) => setAge(Number.parseInt(ev.target.value))}
+        onChange={(ev) => {
+          const nextAge = ev.target.valueAsNumber;
+          setAge(Number.isNaN(nextAge) ? 0 : nextAge);
+        }}
         type="number"
       />
       {/* action */}

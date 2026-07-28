@@ -195,9 +195,9 @@ userStore.$subscribe(
     // 是否立即执行 callback
     // 默认 false，即默认懒执行 callback
     flush: "pre", // "pre" | "post" | "sync"，默认 pre
-    // pre: state 更新前调用
-    // post: state 更新后调用 callback
-    // sync: 同步调用 callback
+    // pre: mutation 已发生，在组件 DOM 更新前调度 callback
+    // post: 在组件 DOM 更新后调度 callback
+    // sync: mutation 后同步调用 callback
     once: false, // 一次性侦听，callback 只调用一次
   },
 );
@@ -237,8 +237,8 @@ userStore.$onAction(
 
 页面刷新后，store 中的 state 状态会丢失，可以使用浏览器存储 API 实现持久化：
 
-- localStorage：数据持久化存储到磁盘，无过期时间，需手动清除
-- sessionStorage：数据存储在内存中，当前会话（标签页）关闭时自动清除
+- localStorage：按 origin 持久保存，默认无过期时间
+- sessionStorage：按 origin 和标签页隔离，标签页会话结束时清除
 
 > 也可以使用 [pinia-plugin-persistedstate](https://prazdevs.github.io/pinia-plugin-persistedstate/) 插件简化持久化配置
 

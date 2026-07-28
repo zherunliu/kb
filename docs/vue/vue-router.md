@@ -21,7 +21,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/register",
     name: "register",
-    // 函数形式打包时候会进行代码分割，需要使用相对路径
+    // 动态导入通常会生成独立 chunk；可使用相对路径或构建工具已配置的别名
     component: () => import("@/views/RegisterView.vue"),
   },
 ];
@@ -96,7 +96,7 @@ location / {
 > - 调用 history.forward()，history.back()，history.go(delta: number) 改变 url 时，也会触发 popstate 事件
 > - 调用 history.pushState()，history.replaceState() 改变 url 时，不会触发 popstate 事件，页面一定不会重新加载
 
-### hash mode (default)
+### hash mode
 
 **概述：**
 `createWebHashHistory()` 基于浏览器的 URL 哈希（`#` 后面的部分） 实现。哈希值的变化不会触发浏览器向服务器发送请求，但会被浏览器记录在历史记录中，从而实现无刷新的页面跳转
@@ -135,14 +135,14 @@ const routeJumpByName = (name: string) => {
 
 const routeJump2prev = (delta?: number) => {
   // window.history.go(delta ?? -1);
-  router.go(delta ?? -1);
+  // router.go(delta ?? -1);
   // window.history.back();
   router.back();
 };
 
 const routeJump2next = (delta?: number) => {
   // window.history.go(delta ?? 1);
-  router.go(delta ?? 1);
+  // router.go(delta ?? 1);
   // window.history.forward();
   router.forward();
 };
@@ -223,7 +223,7 @@ console.log(route.params);
 >
 > 使用 `query` 传参时，会显示在地址栏；使用已经在路径中声明的 `params` 时，也会直接体现在地址栏中
 >
-> 使用 `params` 传参时若未在路由路径中占位，刷新页面后参数会丢失；而 `query` 参数保存在 URL 中，刷新不会丢失
+> Vue Router 会移除未在路由 path 中声明的额外 `params`。URL 参数应使用 path params 或 query；导航状态可以使用 History state
 
 ### props
 
@@ -264,12 +264,14 @@ const routes: Array<RouteRecordRaw> = [
     alias: ["/", "/home"],
 
     // 字符串形式
-    redirect: "/views/ab",
+    // redirect: "/views/ab",
+
     // 对象形式
-    redirect: {
-      path: "/views/ab",
-      // name: 'ab',
-    },
+    // redirect: {
+    //   path: "/views/ab",
+    //   // name: 'ab',
+    // },
+
     // 函数形式
     redirect: (to) => {
       console.log("[redirect] to:", to);
@@ -421,7 +423,7 @@ const routes: Array<RouteRecordRaw> = [
 
 ## 滚动行为
 
-仅点击浏览器的前进/后退按钮 (触发 popstate 事件) 时可用
+`scrollBehavior` 会在每次路由导航时运行；`savedPosition` 通常仅在浏览器前进/后退（popstate）导航时提供
 
 ```ts
 const router = createRouter({

@@ -15,11 +15,11 @@ commit --> tree --> blob
 > 所有的分支和引用都指向某个提交对象
 
 ::: tip blob 清理
-blob 对象一旦被创建，就不会被修改或删除
+blob 对象一旦创建，其内容不可变；内容变化会生成新对象
 
 `git reset` 使 blob 对象成为没有被引用的悬空对象
 
-`git gc --prune=now` 立即清理所有过期对象
+`git gc --prune=now` 立即清理不可达对象
 :::
 
 ## 基础操作
@@ -71,12 +71,13 @@ git merge --abort            # 遇到严重冲突时，一键撤销并恢复到�
 ### stash
 
 ```bash
-git stash save "message"     # 储藏当前未提交的所有修改
-git stash list               # 查看所有储藏记录
-git stash pop                # 恢复最近一次储藏，并从列表中删除该记录
-git stash apply              # 恢复最近一次储藏，但不删除记录
-git stash drop stash@{0}     # 删除指定的某条储藏记录
-git stash clear              # 清空所有储藏
+git stash push -m "message"   # 储藏已跟踪文件的修改
+git stash push -u             # 储藏已跟踪文件的修改和未追踪的文件
+git stash list                # 查看所有储藏记录
+git stash pop                 # 恢复最近一次储藏，并从列表中删除该记录
+git stash apply stash@{0}     # 恢复指定的储藏，但不删除记录
+git stash drop stash@{0}      # 删除指定的储藏记录
+git stash clear               # 清空所有储藏
 ```
 
 ## 撤销与回退

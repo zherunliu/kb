@@ -184,7 +184,7 @@ const stopWatch = watch(
 > 1. 若修改的是 `ref` 定义的对象中的属性，`newValue` 和 `oldValue` 都是新值，因为它们是同一个对象；若修改整个 `ref` 定义的对象，`newValue` 是新值， `oldValue` 是旧值，因为不是同一个对象了
 > 2. 对于 `reactive` 定义的对象，`newValue` 和 `oldValue` 都是新值，`reactive` 定义的对象数据默认开启深度监视
 > 3. 可以传递一个 `getter`，侦听响应式对象中指定的属性，如 `() => person.name`
-> 4. 监视多个数据可写成数组形式，如 `[() => person.name, person.age]`
+> 4. 监视多个数据可写成 source 数组，如 `[() => person.name, () => person.age]`
 
 ### watchEffect
 
@@ -227,11 +227,11 @@ const stopWatch = watchEffect(
 
 ## readonly
 
-**作用：**用于创建一个对象的深只读副本
+**作用：**为对象创建深层只读代理，不会复制原始对象
 
 **注意点：**
 
-- 对象的所有嵌套属性都将变为只读
+- 通过只读代理访问的嵌套属性也会表现为只读；如果原始响应式对象从其他位置被修改，只读代理仍会反映最新值
 - 任何尝试修改这个对象的操作都会被阻止
 - 使用 `shallowReadonly` 只作用于对象的顶层属性
 

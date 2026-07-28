@@ -27,10 +27,14 @@ mongosh "mongodb://<username>:<password>@<host>:<port>/?authSource=<authDB>"
 
 **文档命令：**
 
-- `db.<collection_name>.insert(<document>)` 插入文档
+- `db.<collection_name>.insertOne(<document>)` 插入单个文档
+- `db.<collection_name>.insertMany(<documents>)` 插入多个文档
 - `db.<collection_name>.find(<query>)` 查询文档
-- `db.<collection_name>.update(<query>, <update>)` 更新文档（更新某个字段 `{$set:<update>}`）
-- `db.<collection_name>.remove(<query>)` 删除文档
+- `db.<collection_name>.updateOne(<query>, <update>)` 更新单个文档
+- `db.<collection_name>.updateMany(<query>, <update>)` 更新多个文档
+  > 更新指定字段可使用 `$set`，例如 `{ $set: { name: "new name" } }`
+- `db.<collection_name>.deleteOne(<query>)` 删除单个文档
+- `db.<collection_name>.deleteMany(<query>)` 删除多个文档
 
 ## Mongoose
 
@@ -104,7 +108,7 @@ const Schema = new mongoose.Schema({
     type: String,
     enum: ["男", "女"],
   },
-  // 唯一值
+  // 唯一索引
   username: {
     type: String,
     unique: true,
@@ -226,7 +230,7 @@ db(() => {
 module.exports = function (success, error) {
   const mongoose = require("mongoose");
 
-  mongoose.connect("mongodb://127.0.0.1:27018/database");
+  mongoose.connect("mongodb://127.0.0.1:27017/database");
 
   if (typeof error !== "function") {
     error = () => {
@@ -249,7 +253,7 @@ module.exports = function (success, error) {
 };
 ```
 
-```js [module/bookModel.js]
+```js [modules/bookModel.js]
 const mongoose = require("mongoose");
 
 const BookSchema = new mongoose.Schema({
