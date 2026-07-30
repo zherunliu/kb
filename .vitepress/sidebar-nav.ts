@@ -1,4 +1,4 @@
-import { DefaultTheme } from "vitepress";
+import type { DefaultTheme } from "vitepress";
 
 const VUE: DefaultTheme.NavItemWithLink[] = [
   {
@@ -27,6 +27,7 @@ const REACT: DefaultTheme.NavItemWithLink[] = [
   { text: "React", link: "/react/react" },
   { text: "React Router", link: "/react/react-router" },
   { text: "Zustand", link: "/react/zustand" },
+  { text: "Nextjs", link: "/react/nextjs" },
 ];
 
 const FRONTEND: DefaultTheme.NavItemWithLink[] = [
@@ -104,4 +105,4 @@ const nav: DefaultTheme.NavItem[] = [
   },
 ];
 
-export { sidebar, nav };
+export { nav, sidebar };
