@@ -11,11 +11,10 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
-      "@kb/content-guard": ["packages/content-guard/src/index.ts"],
+      "@kb/content-guard": ["./packages/content-guard/src/index.ts"],
       "@kb/vitepress-content-guard": [
-        "packages/vitepress-content-guard/src/index.ts"
+        "./packages/vitepress-content-guard/src/index.ts"
       ]
     }
   }
