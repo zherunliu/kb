@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    { "path": "./packages/content-guard" },
+    { "path": "./packages/vitepress-content-guard" }
+  ]
+}

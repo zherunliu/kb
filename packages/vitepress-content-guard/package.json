@@ -1,0 +1,26 @@
+{
+  "name": "@kb/vitepress-content-guard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@kb/content-guard": "workspace:*"
+  },
+  "peerDependencies": {
+    "vitepress": "^1.0.0 || ^2.0.0-0"
+  }
+}

@@ -1,0 +1,49 @@
+[data-content-guard-mode="strict"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-content-guard-mode="strict"]
+  :is(
+    pre,
+    code,
+    input,
+    textarea,
+    select,
+    option,
+    [contenteditable]:not([contenteditable="false"]),
+    [data-content-guard-allow]
+  ) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+@media print {
+  :is(
+    [data-content-guard-mode="strict"],
+    [data-content-guard-mode="copyright"]
+  ) {
+    visibility: hidden !important;
+    color: transparent !important;
+  }
+
+  :is([data-content-guard-mode="strict"], [data-content-guard-mode="copyright"])
+    > * {
+    display: none !important;
+  }
+
+  :is(
+    [data-content-guard-mode="strict"],
+    [data-content-guard-mode="copyright"]
+  )::after {
+    display: block !important;
+    visibility: visible !important;
+    color: #000 !important;
+    font: 12pt/1.6 sans-serif !important;
+    white-space: pre-wrap;
+    content: attr(data-content-guard-print-message) "\A\A"
+      attr(data-content-guard-copyright) "\A\A Title: "
+      attr(data-content-guard-title) "\A Source: "
+      attr(data-content-guard-source);
+  }
+}
