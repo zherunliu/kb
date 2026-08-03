@@ -38,7 +38,7 @@ App Router 中的组件默认是 RSC（React Server Component）。它在服务�
 
 需要使用状态、事件、Effect 或浏览器 API 时，在文件顶部添加 `"use client"`，将其作为 RCC（React Client Component）的入口。RCC 的代码需要发送到浏览器，但它不等同于 CSR：首次访问页面时，Next.js 默认仍会在服务端预渲染包含 RCC 的 HTML，然后在浏览器中进行水合（Hydration），使其可以交互；页面的主要内容依赖浏览器执行 JavaScript 后生成时，才是在使用 CSR
 
-> Next.js 支持流式渲染（HTTP/1.1 `Transfer-Encoding: chunked`；HTTP/2 通过连续的 DATA 帧传输，并以 `END_STREAM` 标记结束），RSC 可以在服务端边渲染边发送 HTML，RCC 也可以在浏览器边水合边执行 JavaScript
+> Next.js 支持流式渲染（HTTP/1.1 `Transfer-Encoding: chunked`；HTTP/2 通过连续的 DATA 帧传输，并以 `END_STREAM` 标记结束；HTTP/3 通过 QUIC 流中的 DATA 帧传输，并由 QUIC 流结束标记结束），RSC 可以在服务端边渲染边发送 HTML，RCC 也可以在浏览器边水合边执行 JavaScript
 > 服务器组件中可以导入客户端组件，客户端组件中不能直接导入服务器组件
 > 在模块中导入 `server-only`，可以在该模块被 Client Component 错误引用时产生构建错误
 
