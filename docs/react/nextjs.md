@@ -38,6 +38,10 @@ App Router 中的组件默认是 RSC（React Server Component）。它在服务�
 
 需要使用状态、事件、Effect 或浏览器 API 时，在文件顶部添加 `"use client"`，将其作为 RCC（React Client Component）的入口。RCC 的代码需要发送到浏览器，但它不等同于 CSR：首次访问页面时，Next.js 默认仍会在服务端预渲染包含 RCC 的 HTML，然后在浏览器中进行水合（Hydration），使其可以交互；页面的主要内容依赖浏览器执行 JavaScript 后生成时，才是在使用 CSR
 
+> Next.js 支持流式渲染（HTTP/1.1 `Transfer-Encoding: chunked`；HTTP/2 通过连续的 DATA 帧传输，并以 `END_STREAM` 标记结束），RSC 可以在服务端边渲染边发送 HTML，RCC 也可以在浏览器边水合边执行 JavaScript
+> 服务器组件中可以导入客户端组件，客户端组件中不能直接导入服务器组件
+> 在模块中导入 `server-only`，可以在该模块被 Client Component 错误引用时产生构建错误
+
 ## CLI
 
 ```bash
@@ -123,4 +127,347 @@ redirect("/login");
 // redirect("/login", RedirectType.push);
 // redirect("/login", RedirectType.replace);
 // permanentRedirect("/new-location");
+```
+
+## 动态路由、平行路由、路由组
+
+### 动态路由
+
+- `[id]`：捕获单个路径参数
+- `[...id]`：捕获多个路径参数
+- `[[...id]]`：捕获多个路径参数，参数可以为空
+
+```tsx
+// app/about/[[...id]]/page.tsx
+"use client";
+import { useParams } from "next/navigation";
+
+export default function About() {
+  const { id } = useParams();
+  return <div>AboutPage id: {id}</div>;
+}
+```
+
+### 平行路由
+
+在同一个路由层级下定义多个并行的路由，这些路由可以同时渲染
+
+```shell
+app
+├── @header
+│   ├── default.tsx
+│   ├── page.tsx
+│   ├── error.tsx
+│   ├── loading.tsx
+│   └── parallel
+│       └── page.tsx
+├── @footer
+│   ├── default.tsx
+│   └── page.tsx
+├── default.tsx
+├── layout.tsx
+└── page.tsx
+```
+
+```tsx
+import Link from "next/link";
+
+export default function RootLayout({
+  children,
+  header,
+  footer,
+}: Readonly<{
+  children: React.ReactNode;
+  header: React.ReactNode;
+  footer: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body>
+        {header}
+        {children}
+        {footer}
+        <Link href="/parallel">Parallel</Link>
+      </body>
+    </html>
+  );
+}
+```
+
+### 路由组
+
+在同一个路由层级下，可以使用括号目录对路由进行分组，分组名称不会出现在 URL 中
+
+```shell
+app
+├── (group1)
+│   └── user
+│       └── page.tsx # /user
+├── (group2)
+│   └── manager
+│       └── page.tsx # /manager
+├── layout.tsx # 也可以定义各自的 layout.tsx
+└── page.tsx
+```
+
+## 后端路由
+
+- 在 `app` 目录中使用 `route.ts` 定义 Route Handler
+- Route Handler 支持 `GET`、`POST`、`PUT`、`PATCH`、`DELETE`、`HEAD` 和 `OPTIONS` 方法
+
+::: code-group
+
+```ts [app/api/user/route.ts]
+import { type NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const name = searchParams.get("name");
+  return NextResponse.json({
+    message: `Hello, ${name}!`,
+  });
+}
+
+export async function POST(request: NextRequest) {
+  const { name } = await request.json();
+  return NextResponse.json(
+    {
+      message: `Hello, ${name}!`,
+    },
+    { status: 201 },
+  );
+}
+```
+
+```ts [app/api/user/[name]/route.ts]
+import { type NextRequest, NextResponse } from "next/server";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> },
+) {
+  const { name } = await params;
+  return NextResponse.json({
+    message: `Hello, ${name}!`,
+  });
+}
+```
+
+:::
+
+## cookie
+
+```ts
+// app/api/login/route.ts
+import { cookies } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+export async function GET(request: NextRequest) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token");
+  if (token && token.value === "admin-token") {
+    return NextResponse.json(
+      { code: 1, message: "Login successful" },
+      { status: 200 },
+    );
+  } else {
+    return NextResponse.json(
+      { code: 0, message: "Login failed" },
+      { status: 401 },
+    );
+  }
+}
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  if (body.name === "admin" && body.password === "admin") {
+    const cookieStore = await cookies();
+    cookieStore.set("token", "admin-token", {
+      maxAge: 60 * 60 * 24 * 7, // 7 days,
+      httpOnly: true, // 禁止客户端访问
+      path: "/", // 作用域为根路径
+    });
+    return NextResponse.json(
+      { code: 1, message: "Login successful" },
+      { status: 200 },
+    );
+  } else {
+    return NextResponse.json(
+      { code: 0, message: "Login failed" },
+      { status: 401 },
+    );
+  }
+}
+```
+
+## [AI-SDK](https://ai-sdk.dev/)
+
+```shell
+pnpm add ai @ai-sdk/deepseek @ai-sdk/react
+```
+
+::: code-group
+
+```tsx [app/api/chat/route.ts]
+import { createDeepSeek } from "@ai-sdk/deepseek";
+import {
+  convertToModelMessages,
+  createUIMessageStreamResponse,
+  streamText,
+  toUIMessageStream,
+  type UIMessage,
+} from "ai";
+import type { NextRequest } from "next/server";
+
+const deepSeek = createDeepSeek({ apiKey: process.env.API_KEY || "" });
+
+export async function POST(req: NextRequest) {
+  const { messages }: { messages: UIMessage[] } = await req.json();
+  const result = streamText({
+    model: deepSeek("deepseek-chat"),
+    messages: await convertToModelMessages(messages),
+  });
+  return createUIMessageStreamResponse({
+    stream: toUIMessageStream({ stream: result.stream }),
+  });
+}
+```
+
+```tsx [app/chat/page.tsx]
+"use client";
+
+import { useChat } from "@ai-sdk/react";
+import { type SubmitEvent, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export default function ChatPage() {
+  const [input, setInput] = useState("");
+  const { messages, sendMessage } = useChat();
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const lastMessage = messages.at(-1);
+
+  useEffect(() => {
+    if (!lastMessage) return;
+
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [lastMessage]);
+
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const text = input.trim();
+    if (!text) return;
+
+    sendMessage({ text });
+    setInput("");
+  };
+
+  return (
+    <main className="mx-auto flex h-dvh w-full max-w-xl flex-col">
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        {messages.map((message) => (
+          <div key={message.id} className="whitespace-pre-wrap">
+            {message.role === "user" ? "User: " : "AI: "}
+            {message.parts.map((part, i) => {
+              switch (part.type) {
+                case "text":
+                  return <div key={`${message.id}-${i}`}>{part.text}</div>;
+                default:
+                  return null;
+              }
+            })}
+          </div>
+        ))}
+        <div ref={chatEndRef} />
+      </div>
+
+      <form
+        className="flex shrink-0 gap-2 border-t bg-background p-4"
+        onSubmit={handleSubmit}
+      >
+        <Input
+          value={input}
+          placeholder="Say something..."
+          onChange={(e) => setInput(e.currentTarget.value)}
+        />
+        <Button type="submit" disabled={!input.trim()}>
+          Send
+        </Button>
+      </form>
+    </main>
+  );
+}
+```
+
+:::
+
+## proxy
+
+```ts
+// app/proxy.ts
+import { type NextRequest, NextResponse, type ProxyConfig } from "next/server";
+
+export async function proxy(request: NextRequest) {
+  console.log("[proxy] url:", request.url);
+  const { pathname } = request.nextUrl;
+  console.log("[proxy] pathname:", pathname);
+  if (pathname.startsWith("/home")) {
+    return NextResponse.next();
+  }
+  if (pathname.startsWith("/api")) {
+    const cookie = request.cookies.get("token");
+    if (pathname === "/api/login" || cookie) {
+      return NextResponse.next();
+    }
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+  return NextResponse.next();
+}
+
+export const config: ProxyConfig = {
+  // matcher: "/home/:path*"
+  // matcher: ["/home/:path*", "/api/:path*"]
+  // matcher: ["^(/home/.*)$"]
+
+  matcher: [
+    "/home/:path*",
+    {
+      source: "/api/login",
+      has: [{ type: "header", key: "Content-Type", value: "application/json" }],
+    },
+    {
+      source: "/api/user",
+      // 需要匹配
+      has: [
+        { type: "cookie", key: "token", value: "admin-token" },
+        { type: "query", key: "username", value: "rico" },
+      ],
+      // 需要不匹配
+      missing: [{ type: "query", key: "username", value: "root" }],
+    },
+  ],
+};
+```
+
+允许跨域
+
+```ts
+import { type NextRequest, NextResponse, type ProxyConfig } from "next/server";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+};
+
+export async function proxy(request: NextRequest) {
+  const response = NextResponse.next();
+  Object.entries(corsHeaders).forEach(([k, v]) => {
+    response.headers.set(k, v);
+  });
+  return response;
+}
+
+export const config: ProxyConfig = {
+  matcher: "/api/:path*",
+};
 ```
