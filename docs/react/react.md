@@ -77,6 +77,33 @@ React 使用 `MessageChannel` 来实现一个自定义的调度器，模拟 `req
 - setTimeout 嵌套超时，可能会有 4ms 最小延迟
 - 如果浏览器不支持 `MessageChannel`，会回退到 `setTimeout`
 
+## React 生命周期
+
+### 渲染流程
+
+`trigger -> render -> commit`
+
+| 阶段    | 主要工作                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------- |
+| trigger | 首次调用 `root.render`，后续由组件自身或祖先组件的 state 更新触发渲染                       |
+| render  | React 调用函数组件并递归计算 JSX、对比 Fiber 树；该阶段必须保持纯函数，可以被暂停或重新执行 |
+| commit  | 将计算出的最小变更同步提交到真实 DOM，并更新 ref；提交阶段不可中断                          |
+
+- 挂载：执行组件函数和 state 初始化函数 -> commit DOM 和 ref -> 执行 `useLayoutEffect` setup -> 浏览器绘制 -> 通常执行 `useEffect` setup
+- 更新：事件处理函数或其他代码调用 state setter -> React 调度下一次 render -> commit DOM -> 执行依赖发生变化的 effect cleanup 和新 setup
+- 卸载：组件从 React 树中移除，组件 state 被销毁，并执行 effect cleanup
+- state setter 只会请求下一次渲染，不会修改当前渲染中的 state；当前事件处理函数读取的仍是创建它时的 state 快照
+- 开发环境的 Strict Mode 可能额外执行组件函数，以及一次 effect 的 `setup -> cleanup -> setup`，用于检查不纯渲染和缺少 cleanup 的问题
+
+> `useEffect` 通常在浏览器绘制后执行，但交互触发的 effect 也可能在绘制前执行；需要保证在绘制前读取布局或同步修改 DOM 时，应使用 `useLayoutEffect`
+
+### state 的保留与重置
+
+React 根据组件在树中的位置、组件类型和 `key` 判断组件身份：
+
+- 相同位置渲染相同类型且 `key` 不变的组件，会保留其 state；传给 `useState` 的惰性初始化函数不会在普通更新时重新调用
+- 组件被移除、类型改变或 `key` 改变时，旧组件会卸载，新组件会重新挂载并重新初始化 state
+
 ## 状态不可变性
 
 - 直接修改原对象/原数组，不会触发组件更新
@@ -91,8 +118,12 @@ React 使用 `MessageChannel` 来实现一个自定义的调度器，模拟 `req
 
 ## 受控组件和非受控组件
 
-- 受控组件：组件的状态由 React 组件控制，表单元素的值通过 state 来管理，表单元素的变化通过事件处理函数来更新 state
-- 非受控组件：组件的状态由 DOM 元素控制，表单元素的值通过 ref 来获取，表单元素的变化不通过事件处理函数来更新 state
+- 受控组件：某个值由外部 props 驱动，父组件是该值的唯一数据源；对于原生文本输入框通常使用 `value + onChange`，复选框和单选框使用 `checked + onChange`
+- 非受控组件：某个值由 DOM 或组件内部 state 保存，外部通常只通过 `defaultValue`、`defaultChecked` 提供初始值，需要时可以通过 ref 或回调读取当前值
+
+::: tip
+原生输入框从挂载到卸载期间不应在受控与非受控之间切换；受控文本框的 `value` 应始终为字符串，不能先传入 `undefined` 再传入字符串
+:::
 
 ```tsx
 import { useRef, useState, type ChangeEvent } from "react";
@@ -667,18 +698,18 @@ useEffect(
   > - 依赖项改变时，先执行 destructor 清理函数，再执行 effect 副作用函数（类比 Vue 的 onUpdated）
   > - 组件卸载后，执行 destructor 清理函数（类比 Vue 的 onUnmounted），此时获取不到 DOM 元素
 - 如果不传入 deps，即 deps 为 undefined，则组件挂载，每次更新后，都会执行 effect 副作用函数
-- 如果传入的 deps 是空数组，生产环境通常只在挂载后执行一次；开发环境的 Strict Mode 会额外执行一次 setup → cleanup → setup，以帮助发现缺少清理的问题
-- `useEffect` 在提交后调度执行；cleanup 会在依赖变化后的下一次 effect 执行前或组件卸载时执行
+- 如果传入的 deps 是空数组，生产环境通常只在挂载后执行一次；开发环境的 Strict Mode 会额外执行一次 setup -> cleanup -> setup，以帮助发现缺少清理的问题
+- `useEffect` 在提交后调度执行，非交互触发时通常允许浏览器先绘制；cleanup 会在依赖变化后的下一次 setup 前或组件卸载时执行
 
 ## useLayoutEffect
 
-同步执行副作用函数，可以避免浏览器回流和重绘时的闪烁问题，适合需要读取布局并同步触发重绘的场景
+在 React 提交 DOM 后、浏览器绘制前同步执行副作用，适合读取布局并立即同步修改 DOM，避免用户看到中间状态
 
-| 区别                       | useLayoutEffect        | useEffect              |
-| -------------------------- | ---------------------- | ---------------------- |
-| destructor/effect 执行时机 | 浏览器回流，重绘前执行 | 浏览器回流，重绘后执行 |
-| destructor/effect 执行方式 | 同步执行               | 异步执行               |
-| DOM 渲染                   | 会阻塞 DOM 渲染        | 不会阻塞 DOM 渲染      |
+| 区别     | useLayoutEffect                         | useEffect                                  |
+| -------- | --------------------------------------- | ------------------------------------------ |
+| 执行时机 | commit 后、浏览器绘制前                 | commit 后调度，非交互触发时通常在绘制后    |
+| 页面绘制 | setup 和其中的 state 更新会阻塞页面绘制 | 通常不阻塞页面绘制                         |
+| 使用场景 | 测量布局、同步调整 DOM                  | 网络连接、订阅、日志等与外部系统同步的操作 |
 
 ```tsx
 import { useLayoutEffect, useRef } from "react";
