@@ -35,7 +35,6 @@ const FRONTEND: DefaultTheme.NavItemWithLink[] = [
   { text: "JS/TS", link: "/frontend/js-ts" },
   { text: "CSS Basic", link: "/frontend/css-basic" },
   { text: "CSS Pro", link: "/frontend/css-pro" },
-  { text: "React", link: "/react/react" },
   { text: "Web API", link: "/frontend/web-api" },
   { text: "Vite", link: "/frontend/vite" },
   { text: "Tools", link: "/frontend/tools" },
