@@ -107,3 +107,56 @@ picture 标签用于响应式图片，根据设备特性（如屏幕分辨率，
   />
 </picture>
 ```
+
+## 自定义数据属性 `data-*`
+
+`data-*` 是 HTML 标准提供的自定义数据属性，可以添加到任意 HTML 元素，用于保存当前页面或应用私有的数据、状态和注解。已有合适的标准属性时，优先使用标准属性
+
+```html
+<article
+  data-snapshot="prop=1, state=2"
+  data-user-id="42"
+  data-state="active"
+></article>
+```
+
+- 属性名必须以 `data-` 开头，连字符后至少有一个字符；HTML 中使用小写字母
+- 属性值在 DOM 中按字符串处理
+- 浏览器不会根据属性值自动产生业务行为或可访问性语义
+
+### 通过 `dataset` 读写
+
+HTML 元素的 `dataset` 属性返回 `DOMStringMap`，用于访问该元素的所有 `data-*` 属性。属性名会从连字符形式转换为驼峰形式：
+
+| HTML 属性名            | JavaScript 属性名       |
+| ---------------------- | ----------------------- |
+| `data-snapshot`        | `dataset.snapshot`      |
+| `data-user-id`         | `dataset.userId`        |
+| `data-form-field-name` | `dataset.formFieldName` |
+
+```js
+const article = document.querySelector("article");
+
+article?.dataset.snapshot; // "prop=1, state=2"
+article?.dataset.userId; // "42"
+
+if (article) {
+  article.dataset.state = "inactive"; // 更新 data-state
+  delete article.dataset.userId; // 删除 data-user-id
+}
+```
+
+读取不存在的属性时，`dataset` 返回 `undefined`，`getAttribute()` 返回 `null`：
+
+```js
+article?.dataset.missing; // undefined
+article?.getAttribute("data-missing"); // null
+```
+
+CSS 也可以通过属性选择器读取状态：
+
+```css
+article[data-state="active"] {
+  border-color: green;
+}
+```
