@@ -341,7 +341,7 @@ import { Input } from "@/components/ui/input";
 
 export default function ChatPage() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage } = useChat();
+  const { messages, sendMessage } = useChat({ id: "deepseek-chat" });
   const chatEndRef = useRef<HTMLDivElement>(null);
   const lastMessage = messages.at(-1);
 
@@ -471,3 +471,106 @@ export const config: ProxyConfig = {
   matcher: "/api/:path*",
 };
 ```
+
+## 缓存组件
+
+| 路由渲染方式                                                                          | 说明                                         |
+| ------------------------------------------------------------------------------------- | -------------------------------------------- |
+| ○ (Static) prerendered as static content                                              | 整个路由在构建时预渲染                       |
+| ƒ (Dynamic) server-rendered on demand                                                 | 整个路由在请求时渲染                         |
+| ◐ (Partial Prerender) prerendered as static HTML with dynamic server-streamed content | 静态部分预渲染，动态部分请求时渲染并流式填充 |
+
+### 未开启缓存组件
+
+- 使用 `export const revalidate = n` 配置 ISR；`revalidate = 0` 强制动态渲染
+- 使用 `export const dynamic = "force-dynamic"` 强制请求时渲染
+- `fetch(url, { cache: "no-store" })`、`cookies()`、`headers()`、`connection()` 和页面的 `searchParams` 会让相关路由采用动态渲染
+
+```tsx [app/cache/page.tsx]
+import Image from "next/image";
+
+// export const revalidate = 5;
+// export const dynamic = "force-dynamic";
+
+const DynamicContent = async () => {
+  const data = await fetch("https://picflare.netlify.app/api/picflare", {
+    cache: "no-store",
+  });
+  const buffer = await data.arrayBuffer();
+  const base64 = Buffer.from(buffer).toString("base64");
+  const contentType = data.headers.get("content-type") ?? "image/png";
+
+  return (
+    <div className="relative h-128 w-lg">
+      <Image
+        src={`data:${contentType};base64,${base64}`}
+        alt="base64"
+        fill
+        className="object-contain"
+      />
+    </div>
+  );
+};
+
+export default function CachePage() {
+  return (
+    <div>
+      <h1>Cache Page</h1>
+      <DynamicContent />
+    </div>
+  );
+}
+```
+
+### 开启缓存组件
+
+::: code-group
+
+```ts [next.config.ts]
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  reactCompiler: true,
+  cacheComponents: true, // 开启缓存组件
+};
+
+export default nextConfig;
+```
+
+```tsx [app/cache/page.tsx]
+import { cacheLife } from "next/cache";
+import { connection } from "next/server";
+import { Suspense } from "react";
+
+const DynamicContent = async () => {
+  "use cache"; // 缓存返回值
+  cacheLife({
+    stale: 30, // 客户端 30 秒内可直接使用 Router Cache，不检查服务器
+    revalidate: 5, // 服务端缓存超过 5 秒后：下次请求先返回旧缓存，同时在后台刷新
+    expire: 60, // 长时间没有请求，超过 60 秒后：下次请求不能返回旧缓存，必须等待新数据
+  });
+  const data = await fetch("https://www.mocklib.com/mock/random/name");
+  const json = await data.json();
+  return <div>{json.name}</div>;
+};
+
+const RandomNumber = async () => {
+  await connection();
+  return <p>{Math.floor(Math.random() * 1000)}</p>;
+};
+
+export default function CachePage() {
+  return (
+    <div>
+      <h1>Cache Page</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <DynamicContent />
+        <RandomNumber />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+:::
