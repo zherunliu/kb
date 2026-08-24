@@ -16,6 +16,156 @@ function App() {
 }
 ```
 
+## React 常用类型
+
+React 类型可以先按描述对象分为两类：
+
+- `ReactNode`、`ReactElement`、`React.JSX.Element` 描述已经产生的内容或元素
+- `ComponentType`、`FC`、`ElementType` 描述能够产生元素的组件或标签
+
+| 类型                     | 含义                                          | 常见场景                         |
+| ------------------------ | --------------------------------------------- | -------------------------------- |
+| `React.ReactNode`        | React 可以渲染的所有内容                      | `children`、插槽                 |
+| `React.ReactElement`     | 一个已经创建的 React 元素对象                 | 要求传入单个 JSX 元素            |
+| `React.JSX.Element`      | JSX 表达式在 React 中的结果类型               | 组件返回值，通常交给 TS 自动推断 |
+| `React.ComponentType<P>` | 接收 `P` 的函数组件或类组件                   | 将自定义组件作为参数传递         |
+| `React.FC<P>`            | 接收 `P` 的函数组件，`FunctionComponent` 别名 | 声明函数组件变量                 |
+| `React.ElementType`      | 原生标签名或自定义组件                        | 多态组件的 `as` 属性             |
+
+### ReactNode、ReactElement、React.JSX.Element
+
+`ReactNode` 范围最广，包括 React 元素、字符串、数字、数组、`null`、`undefined` 和布尔值等 React 可以处理的内容；其中 `null`、`undefined` 和布尔值通常不会显示内容
+
+`ReactElement` 表示 JSX 或 `createElement` 已经创建出的 React 元素对象，它不是组件函数，也不是真实 DOM 节点
+
+```tsx
+const node1: React.ReactNode = "hello";
+const node2: React.ReactNode = [<span key="1">A</span>, "B"];
+const node3: React.ReactNode = null;
+
+const element1: React.ReactElement = <button>保存</button>;
+// const element2: React.ReactElement = "保存"; // 类型错误
+// const element3: React.ReactElement = null; // 类型错误
+```
+
+`React.JSX.Element` 是 TypeScript 对 JSX 表达式结果的描述；在 React 中它建立在 `ReactElement` 上，两者在普通业务代码中非常接近
+
+### ComponentType、FC、ElementType
+
+`ComponentType<P>` 表示接收 `P` 类型 props 的函数组件或类组件，适合接收组件本身，再在内部创建元素
+
+```tsx
+type IconProps = {
+  size?: number;
+};
+
+type ToolbarProps = {
+  Icon: React.ComponentType<IconProps>;
+};
+
+function Toolbar({ Icon }: ToolbarProps) {
+  return <Icon size={16} />;
+}
+
+function SearchIcon({ size = 16 }: IconProps) {
+  return <span style={{ fontSize: size }}>🔍</span>;
+}
+
+<Toolbar Icon={SearchIcon} />;
+// <Toolbar Icon={<SearchIcon />} />; // 类型错误：这里需要组件，不是元素
+```
+
+- `SearchIcon` 是组件，类型属于 `ComponentType<IconProps>`
+- `<SearchIcon />` 是组件创建出的元素，类型属于 `ReactElement`，同时也是 `ReactNode`
+
+`React.FC<P>` 是 `React.FunctionComponent<P>` 的别名，只表示函数组件；`ComponentType<P>` 还包括类组件
+
+```tsx
+type ButtonProps = {
+  label: string;
+  children?: React.ReactNode;
+};
+
+const Button: React.FC<ButtonProps> = ({ label, children }) => {
+  return (
+    <button>
+      {label}
+      {children}
+    </button>
+  );
+};
+```
+
+`React.FC` 不会自动为 props 添加 `children`，需要显式声明；它不是必需的，普通函数组件直接标注 props 通常更简单
+
+```tsx
+function Button({ label, children }: ButtonProps) {
+  return (
+    <button>
+      {label}
+      {children}
+    </button>
+  );
+}
+```
+
+`React.ElementType` 比 `ComponentType` 更宽，既可以表示自定义组件，也可以表示 `"div"`、`"button"` 等原生标签名
+
+```tsx
+type BoxProps<T extends React.ElementType> = {
+  as?: T;
+} & Omit<React.ComponentPropsWithoutRef<T>, "as">;
+
+function Box<T extends React.ElementType = "div">({
+  as,
+  ...props
+}: BoxProps<T>) {
+  const Component = as ?? "div";
+  return <Component {...props} />;
+}
+
+<Box as="button" type="button" />;
+<Box as={SearchIcon} size={24} />;
+```
+
+### Props、DOM 和事件类型
+
+| 类型                                          | 作用                                             |
+| --------------------------------------------- | ------------------------------------------------ |
+| `React.PropsWithChildren<P>`                  | 为 `P` 添加可选的 `children`                     |
+| `React.ComponentProps<T>`                     | 提取原生标签或自定义组件的 props                 |
+| `React.ComponentPropsWithoutRef<T>`           | 提取 props，但排除 `ref`                         |
+| `React.ComponentPropsWithRef<T>`              | 提取 props，并按目标类型保留或计算其支持的 `ref` |
+| `React.CSSProperties`                         | 描述 JSX 的 `style` 对象                         |
+| `React.Ref<T>`、`React.RefObject<T>`          | 描述 ref 或 ref 对象                             |
+| `React.ChangeEvent<T>`、`React.MouseEvent<T>` | 描述表单、鼠标等 React 合成事件                  |
+
+```tsx
+type NativeButtonProps = React.ComponentPropsWithoutRef<"button">;
+
+type MyButtonProps = NativeButtonProps & {
+  loading?: boolean;
+};
+
+function MyButton({ loading, children, ...buttonProps }: MyButtonProps) {
+  return (
+    <button {...buttonProps} disabled={loading || buttonProps.disabled}>
+      {loading ? "加载中..." : children}
+    </button>
+  );
+}
+```
+
+::: tip 类型选择
+
+- 可渲染的任意内容：`ReactNode`
+- 已经创建的单个 React 元素：`ReactElement`
+- 自定义组件本身：`ComponentType<P>`
+- 自定义组件或原生标签名：`ElementType`
+- 普通函数组件：直接标注 props，返回类型通常交给 TypeScript 推断
+
+:::
+
 ## Fiber 架构
 
 - 时间分片、任务切片：React 通过时间分片，将大渲染任务切片为多个工作单元（unitOfWork），低优先级的工作单元可以在浏览器空闲时执行，避免一次性完成大渲染任务（即构建 workInProgressFiberTree），导致主渲染线程阻塞
