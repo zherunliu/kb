@@ -125,6 +125,48 @@ git push origin --delete <branch>      # 删除远程分支
 git fetch --prune                      # 清理失效的远程跟踪引用
 ```
 
+## worktree
+
+- 主工作区：执行 `git clone` 或 `git init` 时创建的工作目录
+- 链接工作区：通过 `git worktree add` 创建的额外工作目录
+- 共享内容：Git 对象、分支和其他引用
+- 独立内容：工作目录、暂存区和 `HEAD`，所以各工作区的未提交修改互不影响
+
+### 创建和查看
+
+```bash
+git worktree list
+
+# 从当前 HEAD 创建新分支，并在指定目录检出
+git worktree add -b feature/login ../project-feature
+
+# 在新工作区检出已有的本地分支
+git worktree add ../project-hotfix hotfix
+
+# 基于远程跟踪分支创建本地分支和工作区
+git fetch origin
+git worktree add -b feature/api ../project-api origin/feature/api
+
+# 不关联分支，只检出指定提交，适合临时检查或测试
+git worktree add --detach ../project-test <commit_id>
+```
+
+同一个本地分支默认不能同时在多个工作区中检出。不同工作区共享分支和提交历史，因此在一个工作区创建的提交，可以立即在其他工作区中看到；但未提交修改和暂存内容不会共享
+
+### 删除和清理
+
+```bash
+git worktree remove ../project-feature  # 删除干净的链接工作区及其管理信息
+git worktree prune --dry-run            # 预览失效的 worktree 管理信息
+git worktree prune                      # 清理失效的 worktree 管理信息
+```
+
+优先使用 `git worktree remove`，不要直接删除工作区目录。如果目录已经被手动删除，可使用 `git worktree prune` 清理残留记录。工作区包含未提交修改或未追踪文件时，`remove` 会拒绝删除；`--force` 会丢弃这些内容，使用前应先检查 `git status`
+
+::: tip worktree 与分支的关系
+删除 worktree 不会删除它检出的分支。确认分支已经合并且不再需要后，仍需单独执行 `git branch -d <branch>`
+:::
+
 ## 临时保存修改
 
 ```bash
