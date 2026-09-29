@@ -373,6 +373,7 @@ AJAX：Asynchronous JavaScript And XML
 
 ### XMLHttpRequest
 
+- `withCredentials = true`：跨源请求允许携带 Cookie 等凭据，仍受 Cookie 发送规则限制
 - readyState 0：已创建 xhr 实例，未调用 open 方法
 - readyState 1：已调用 open 方法，未调用 send 方法
 - readyState 2：已调用 send 方法，已收到服务器返回的响应头
@@ -422,6 +423,12 @@ xhr.send(JSON.stringify({ name: "rico", age: 20 }));
 - `blob()` 将响应体解析为二进制数据，并返回一个 Blob 对象
 - `arrayBuffer()` 将响应体解析为二进制数据，并返回一个 ArrayBuffer 对象
 - `formData()` 将响应体解析为表单数据，并返回一个 FormData 对象
+
+`credentials` 控制 Cookie 等凭据的携带，以及是否接受响应中的 `Set-Cookie`：
+
+- `omit`：不携带凭据，也不接受 `Set-Cookie`
+- `same-origin`：默认值，仅同源请求携带凭据并接受 `Set-Cookie`
+- `include`：跨源请求也允许携带凭据并接受 `Set-Cookie`，仍受 Cookie 发送规则和浏览器策略限制
 
 ```js
 /* 默认 get 请求 */

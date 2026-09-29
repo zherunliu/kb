@@ -304,7 +304,7 @@ TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, �
 
 发送不满足上述条件的跨源请求前，浏览器通常会先发送 OPTIONS 预检请求，询问服务器是否允许实际请求的方法和请求头
 
-1. `Origin` 发送请求的域名
+1. `Origin` 请求发起方的源，包含协议、主机名和端口，不包含路径
 2. `Access-Control-Request-Method` 实际请求将使用的 HTTP 请求方法
 3. `Access-Control-Request-Headers` 实际请求将携带的请求头字段
 
@@ -404,15 +404,26 @@ CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚�
 
 ## 浏览器安全
 
+### Origin 与 Site
+
+对于普通 HTTP/HTTPS URL：
+
+- **Origin**：协议 + 主机名 + 端口；三者相同才是同源（same-origin），否则是跨源（cross-origin），通常称为跨域
+- **Site**：协议 + 可注册域名；两者相同就是同站（same-site），否则是跨站（cross-site）
+
+可注册域名是公共后缀（eTLD）再加一级域名，称为 eTLD+1，由 Public Suffix List 确定；例如 `example.com`、`example.co.uk`，不能直接取域名最后两段。IP 地址、localhost 等没有可注册域名时，使用主机本身
+
+> 跨域不一定跨站；CORS 按源判断，Cookie 的 SameSite 按站点判断。这里的同站包含协议，即 schemeful same-site
+
 ### 跨域
 
-同源策略（仅在浏览器发生，是浏览器规则）：http 交互默认情况下只能在同协议同域名（IP）同端口的两台终端进行
+同源策略是浏览器的安全规则，限制不同源之间的 DOM、存储和响应数据访问
 
-跨域：当 A 源浏览器网页向 B 源服务器地址（不满足同源策略）请求对应信息，就会产生跨域，跨域默认情况下会被浏览器拦截，除非对应的浏览器出具标记允许 A 源的访问（服务器有响应，但被浏览器拦截）
+跨域请求不一定被阻止发送：简单请求可以先到达服务器，但响应未通过 CORS 检查时，脚本不能读取；需要预检的请求，只有预检通过后才发送实际请求
 
 - DOM 层面：不同源窗口通常不能直接读取或修改彼此 DOM，但可以通过 `postMessage` 进行显式消息通信
 - 存储层面：Web Storage 和 IndexedDB 等按源隔离；Cookie 按自身的 Domain、Path、SameSite 等规则发送
-- 网络层面：`fetch` 和 XMLHttpRequest 可以发起跨源请求；CORS 响应头决定浏览器是否允许调用方脚本读取响应。某些非简单请求会先预检
+- 网络层面：`fetch` 和 XMLHttpRequest 可以发起跨源请求；CORS（Cross-Origin Resource Sharing）响应头决定浏览器是否允许调用方脚本读取响应
 
 ::: code-group
 
@@ -464,7 +475,8 @@ window.addEventListener("message", (e) => {
 
 - 前后端协商 jsonp：通过 `<script>` 标签加载外部 js 文件不受同源策略的限制，可以发送跨域请求，但只能发送 GET 请求
 - 前端解决：使用代理（vite/webpack），只在开发环境中使用
-- 后端解决：设置请求头 `Access-Control-Allow-Credentials`，`Access-Control-Expose-Headers`，`Access-Control-Allow-Methods`，`Access-Control-Allow-Origin`，`Access-Control-Allow-Headers`
+- 后端解决：设置响应头
+  `Access-Control-Allow-Credentials`，`Access-Control-Expose-Headers`，`Access-Control-Allow-Methods`，`Access-Control-Allow-Origin`，`Access-Control-Allow-Headers`
 - 使用 Nginx 代理
 
 ::: code-group
@@ -517,7 +529,6 @@ function cors(req, res, next) {
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization",
   );
-  // res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header("Content-type", "application/json;charset=utf-8");
   // 预检 (pre-flight) 请求
@@ -535,6 +546,27 @@ location /api {
 ```
 
 :::
+
+### Cookie 与 SameSite
+
+Cookie 不按源隔离，也不按端口隔离；浏览器根据请求目标和 Cookie 属性判断是否携带：
+
+- `Domain`：未设置时仅发送给设置它的主机（host-only）；设置为 `example.com` 时，可发送给该域及其子域。同站不代表 Cookie 自动共享
+- `Path`：限制发送的请求路径，不是安全隔离机制
+- `Secure`：仅通过 HTTPS 发送，本地 localhost 有例外
+- `HttpOnly`：页面脚本不能通过 `document.cookie` 读取，但浏览器仍可随请求发送，DevTools 中仍可查看
+- `SameSite`：限制跨站请求携带 Cookie，不控制脚本读取响应
+  > - `Strict` 仅同站请求
+  > - `Lax` 同站请求，以及跨站的顶层导航且使用安全方法（如点击链接发起 GET）；不包括跨站 fetch、iframe 内导航
+  > - `None` 允许同站和跨站请求，必须同时设置 `Secure`
+
+Cookie 的同站判断还受顶层页面、iframe 等上下文影响；`SameSite=None; Secure` 也不能绕过浏览器的第三方 Cookie 限制
+
+**跨源请求携带 Cookie：**
+
+- 前端：`fetch` 设置 `credentials: "include"`，XMLHttpRequest 设置 `withCredentials = true`；仍需满足 Cookie 的发送条件
+- 后端：要让脚本读取带凭据的跨源响应，设置 `Access-Control-Allow-Origin` 为明确允许的源（不能为 `*`），并设置 `Access-Control-Allow-Credentials: true`
+- 同站跨源也需要显式携带凭据，但不因此要求 `SameSite=None`；例如 `https://app.example.com` 请求 `https://api.example.com`
 
 ### HTTPS
 
@@ -588,6 +620,16 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
 - 设置响应头的 CSP 内容安全策略 `Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted.cdn.com;`
   > 也可以通过设置 `<meta>` 标签定义内容安全策略
   > `<meta http-equiv="content-security-policy" content="default-src 'self'; script-src 'self' https://trusted.cdn.com;">`
+
+#### CSRF 跨站请求伪造
+
+攻击者不一定需要读取响应，只要诱导浏览器携带用户凭据完成操作，就可能造成 CSRF；因此，CORS 和 HttpOnly 不能替代 CSRF 防护
+
+**预防 CSRF**
+
+- 服务端校验 CSRF Token，并校验请求的 `Origin`，必要时检查 `Referer`
+- 会话 Cookie 按业务需要设置 `SameSite=Lax` 或 `Strict`，作为辅助防护；同站下的不可信子域仍可能发起攻击
+- GET 等安全方法不执行修改数据的操作；仅改用 POST 不能防止 CSRF
 
 ## 性能优化
 
