@@ -1,4 +1,6 @@
 import DefaultTheme from "vitepress/theme-without-fonts";
+import "@fontsource-variable/noto-sans-sc";
+import "./fonts.css";
 import "./custom.css";
 import MyLayout from "./Layout.vue";
 import { h } from "vue";
