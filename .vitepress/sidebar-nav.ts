@@ -55,6 +55,8 @@ const DATABASE: DefaultTheme.NavItemWithLink[] = [
 const GENERAL: DefaultTheme.NavItemWithLink[] = [
   { text: "Linux", link: "/general/linux" },
   { text: "Network", link: "/general/network" },
+  { text: "Network Basic", link: "/general/network-basic" },
+  { text: "DNS", link: "/general/dns" },
   { text: "Python", link: "/general/python" },
   { text: "Algorithm", link: "/general/algorithm" },
   { text: "Git", link: "/general/git" },
