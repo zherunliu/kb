@@ -341,7 +341,7 @@ import { RouterView } from "vue-router";
 - 前置守卫函数在 redirect 重定向后，路由跳转前执行
 - 后置守卫函数在路由跳转后执行
 
-**前置守卫**
+### 前置守卫
 
 `router.beforeEach((to, from, next) => void)`
 
@@ -380,7 +380,8 @@ router.beforeEach((to) => {
 ```
 
 :::
-**后置守卫**
+
+### 后置守卫
 
 `router.afterEach((to, from) => void)`
 

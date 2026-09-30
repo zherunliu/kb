@@ -2,12 +2,12 @@
 
 ## DOM API
 
-#### 创建元素
+### 创建元素
 
 - `document.createElement(tagName)`：创建指定标签名的元素
 - `document.createTextNode(text)`：创建文本节点
 
-#### 获取元素
+### 获取元素
 
 - `document.getElementById(id)`：通过 id 获取元素，返回单个元素
 - `document.getElementsByClassName(className)`：通过类名获取元素，返回 HTMLCollection（类数组）
@@ -15,7 +15,7 @@
 - `document.querySelector(selector)`：通过 CSS 选择器获取元素，返回单个元素
 - `document.querySelectorAll(selector)`：通过 CSS 选择器获取元素，返回 NodeList（类数组）
 
-#### 插入元素
+### 插入元素
 
 - `parentNode.appendChild(childNode)`：将子节点添加到父节点的最后面
 - `parentNode.removeChild(childNode)`：从父节点移除子节点
@@ -28,7 +28,7 @@
     > - `beforeend`：元素内部的最后一个子节点后面
     > - `afterend`：元素后面
 
-#### 操作元素
+### 操作元素
 
 - `element.setAttribute(name, value)`：设置元素属性
 - `element.getAttribute(name)`：获取元素属性值
@@ -46,7 +46,7 @@
 - `element.innerText`：获取或设置元素的可见文本内容
 - `element.cloneNode(deep)`：克隆元素，`deep` 为 boolean 值，表示是否深度克隆（包括子节点）
 
-#### 事件处理
+### 事件处理
 
 - `element.addEventListener(eventType, listener, options)`：添加事件监听器
   > `options?: boolean | AddEventListenerOptions`：
@@ -263,7 +263,7 @@ HTTP 通过 header 中是否包含 `Connection: Upgrade` 和 `Upgrade: websocket
 `Sec-WebSocket-Extensions`：协商 WebSocket 连接使用的扩展
 `Sec-WebSocket-Protocol`：协商 WebSocket 连接使用的子协议
 
-**WebSocket 特点**
+#### WebSocket 特点
 
 - 支持双向通信，实时性高
 - 未加密的 WebSocket 协议标识符是 `ws://`，端口号是 80，对应 `http://`；加密的 WebSocket 协议标识符是 `wss://`，端口号是 443，对 `https://`
@@ -271,7 +271,7 @@ HTTP 通过 header 中是否包含 `Connection: Upgrade` 和 `Upgrade: websocket
 - 支持扩展：用户可以扩展 WebSocket 协议，也可以自定义子协议（例如可以自定义压缩算法等）
 - WebSocket 不使用 CORS 预检，但浏览器握手会发送 `Origin`，服务器应校验允许的源
 
-**SSE 和 WebSocket 的区别**
+### SSE 和 WebSocket 的区别
 
 - SSE 基于 HTTP，利用 HTTP 的长连接特性，在客户端和服务器间建立持久连接；WebSocket 基于 TCP
 - SSE 支持传输 text 文本字符串；WebSocket 支持传输 text 文本字符串和 blob 二进制数据

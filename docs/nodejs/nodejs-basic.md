@@ -27,6 +27,7 @@ buffer1[0] = 1; // 超过 255 高位舍弃
   - `fs.writeFile(file, data, {flag: 'a'}, callback)`
 - 流式写入
   - `fs.createWriteStream(file, [options])`
+
   ```js
   const fs = require("fs");
   const ws = fs.createWriteStream("./data.txt");
@@ -34,12 +35,14 @@ buffer1[0] = 1; // 超过 255 高位舍弃
   // 继续调用 ws.write(...) 写入其他数据
   ws.end();
   ```
+
 - 文件读取
   - `fs.readFile(file, [options], callback)`
     > callback 版本本身返回 `undefined`，数据通过回调参数取得
   - `require("fs/promises").readFile(file, [options])` 返回 `Promise<Buffer | string>`，是否返回字符串取决于是否指定字符编码
 - 流式读取
   - `fs.createReadStream(file, [options])`
+
   ```js
   const fs = require("fs");
   const rs = fs.createReadStream("./data.txt");
@@ -51,6 +54,7 @@ buffer1[0] = 1; // 超过 255 高位舍弃
     console.log("Read over");
   });
   ```
+
 - 文件移动与重命名
   - `fs.rename(oldPath, newPath, callback)`
   - `fs.renameSync(oldPath, newPath)`

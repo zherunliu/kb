@@ -4,7 +4,7 @@
 
 ### 2D 变换
 
-**位移**
+#### 位移
 
 - `transform: translateX(3rem)` 水平方向位移，指定长度值或参考本元素宽度的百分比值
 - `transform: translateY(4rem)` 垂直方向位移，指定长度值或参考本元素高度的百分比值
@@ -15,7 +15,7 @@
 
 > 相比 position，transform 不会触发回流，性能更好
 
-**缩放**
+#### 缩放
 
 - `transform: scaleX(1)` 水平方向的缩放比例
 - `transform: scaleY(1)` 垂直方向的缩放比例
@@ -24,19 +24,19 @@
   >
   > `transform: scaleX(1) scaleY(1)`
 
-**旋转**
+#### 旋转
 
 `transform: rotateZ(30deg)` 旋转角度，正值顺时针，负值逆时针
 
-**扭曲**
+#### 扭曲
 
 `transform: skew(30deg, 30deg)` 1 个值为水平方向
 
-**多重变换**
+#### 多重变换
 
 `transform: translate(-50%, -50%) rotate(45deg)`
 
-**变换原点**
+#### 变换原点
 
 - `transform-origin: 50% 50%` 百分比值参考本元素
 - `transform-origin: left top` 变换原点是元素的左上角
@@ -50,23 +50,23 @@
 - `perspective: 500px` 观察者距离 z=0 平面的距离，默认为 none
 - `perspective-origin: 400px 300px` 透视点位置，默认为开启 3D 空间的元素正中心
 
-**位移**
+#### 位移
 
 - `transform: translateZ(3rem)` z 轴方向位移
 - `transform: translate3d(3rem, 3rem, 3rem)`
 
-**缩放**
+#### 缩放
 
 - `transform: scaleZ(1)` z 轴方向的缩放比例
 - `transform: scale3d(1, 1, 1)`
 
-**旋转**
+#### 旋转
 
 - `transform: rotateX(30deg)`
 - `transform: rotateY(30deg)`
 - `transform: rotate3d(1, 1, 1, 30deg)`
 
-**背部可见性**
+#### 背部可见性
 
 `backface-visibility: hidden` 指定背部不可见，默认 visible
 
@@ -169,7 +169,7 @@
 
 ### 位置对齐
 
-**justify-content 主轴对齐**
+#### justify-content 主轴对齐
 
 - `justify-content: flex-start` 主轴起点对齐（默认）
 - `justify-content: flex-end` 主轴终点对齐
@@ -178,7 +178,7 @@
 - `justify-content: space-around` 主轴均匀分布，两边距离等于中间距离的一半
 - `justify-content: space-evenly` 主轴均匀分布，两边距离等于中间距离
 
-**align-items 单行交叉轴对齐**
+#### align-items 单行交叉轴对齐
 
 - `align-items: flex-start` 交叉轴起点对齐
 - `align-items: flex-end` 交叉轴终点对齐
@@ -186,7 +186,7 @@
 - `align-items: baseline` 交叉轴文本基线对齐
 - `align-items: stretch` 如果 flex 项目未指定高度，则单行拉伸以填充整个交叉轴（默认）
 
-**align-content 多行交叉轴对齐**
+#### align-content 多行交叉轴对齐
 
 - `align-content: flex-start` 交叉轴起点对齐
 - `align-content: flex-end` 交叉轴终点对齐
@@ -196,12 +196,12 @@
 - `align-content: space-evenly` 交叉轴均匀分布，两边距离等于中间距离
 - `align-content: stretch` 如果 flex 项目未指定高度，则多行拉伸以填充整个交叉轴（默认）
 
-**align-self flex 项目的交叉轴对齐**
+#### align-self flex 项目的交叉轴对齐
 
 - `align-self: auto | flex-start | flex-end | center | baseline | stretch`
 - 默认 `align-self: auto`，表示继承 flex 容器的 align-items 值
 
-**order 排列顺序**
+#### order 排列顺序
 
 flex 项目在主轴上的排列顺序，值越小越靠前，默认 `order: 0`
 
@@ -209,21 +209,21 @@ flex 项目在主轴上的排列顺序，值越小越靠前，默认 `order: 0`
 
 ### 伸缩性
 
-**flex-grow**
+#### flex-grow
 
 主轴上有剩余时，flex 项目的拉伸比例，默认 `flex-grow: 0`，即默认 flex 项目不拉伸
 
-**flex-shrink**
+#### flex-shrink
 
 主轴上有溢出时，flex 项目的压缩比例，按照 flex 项目自身宽度和压缩比例压缩
 
-**flex-basis**
+#### flex-basis
 
 flex 项目在主轴方向的初始大小
 
 - 默认 `flex-basis: auto`，此时会参考主轴对应的 `width` 或 `height`；若该尺寸也是 `auto`，再根据内容确定基础大小
 
-**flex 复合属性**
+#### flex 复合属性
 
 `flex: <flex-grow> <flex-shrink> <flex-basis>`
 
@@ -274,26 +274,28 @@ flex 项目在主轴方向的初始大小
 ### 放置网格
 
 - grid-template-areas 定义区域（命名，用 `.` 留空），一个区域由一个或多个单元格组成
-  > ```css
-  > .layout {
-  >   display: grid;
-  >   /** [] 命名网格线 */
-  >   grid-template-columns: [start] 1fr [middle] 2fr [end];
-  >   grid-template-rows: 100px 200px;
-  >   grid-template-areas:
-  >     "header header"
-  >     "sidebar main";
-  > }
-  > .header {
-  >   grid-area: header;
-  > }
-  > .sidebar {
-  >   grid-area: sidebar;
-  > }
-  > .main {
-  >   grid-area: main;
-  > }
-  > ```
+
+  ```css
+  .layout {
+    display: grid;
+    /** [] 命名网格线 */
+    grid-template-columns: [start] 1fr [middle] 2fr [end];
+    grid-template-rows: 100px 200px;
+    grid-template-areas:
+      "header header"
+      "sidebar main";
+  }
+  .header {
+    grid-area: header;
+  }
+  .sidebar {
+    grid-area: sidebar;
+  }
+  .main {
+    grid-area: main;
+  }
+  ```
+
 - grid-row-start 上边框的水平网格线（可以使用负数表示倒数的网格线）
 - grid-row-end 下边框的水平网格线
 - grid-column-start 左边框的垂直网格线

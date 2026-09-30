@@ -67,7 +67,7 @@
 
 `!important` > 内联样式 > ID 选择器 > 类选择器 > 元素选择器 > `*` 通配符选择器 > 继承的样式
 
-**权重计算 (a, b, c)**
+#### 权重计算 (a, b, c)
 
 - a：ID 选择器的个数
 - b：类，伪类，属性选择器的个数
@@ -114,13 +114,14 @@
 - text-overflow 文本溢出：clip，ellipsis
   > text-overflow 有效的前提是：块级元素显式设置 overflow 为 hidden，scroll，auto（非 visible），white-space 为 nowrap
 - white-space 文本换行
-  | white-space 文本换行 | 代码中的换行符 | 连续的空白符 | 遇到元素边界时 |
+
+  | white-space 文本换行   | 代码中的换行符 | 连续的空白符 | 遇到元素边界时 |
   | ---------------------- | -------------- | ------------ | -------------- |
-  | normal | 视为空白符 | 合并 | 换行 |
-  | nowrap | 视为空白符 | 合并 | 不换行 |
-  | pre | 保留 | 不合并 | 不换行 |
-  | pre-wrap, break-spaces | 保留 | 不合并 | 换行 |
-  | pre-line | 保留 | 合并 | 换行 |
+  | normal                 | 视为空白符     | 合并         | 换行           |
+  | nowrap                 | 视为空白符     | 合并         | 不换行         |
+  | pre                    | 保留           | 不合并       | 不换行         |
+  | pre-wrap, break-spaces | 保留           | 不合并       | 换行           |
+  | pre-line               | 保留           | 合并         | 换行           |
 
 ```css
 /* 单行文本截断 */
@@ -211,7 +212,7 @@ outline 是绘制在元素盒模型之外的线条，不占用任何布局空间
 }
 ```
 
-**渐变**
+#### 渐变
 
 - `background-image: linear-gradient()` 线性渐变
 - `background-image: repeating-linear-gradient()` 重复线性渐变
@@ -396,7 +397,7 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 
 > 当父元素设置了 position: relative，子元素设置了 position: absolute 时，子元素的定位会以父元素的 padding 盒（content + padding）为参考系
 
-**定位元素在包含块的中间**
+### 定位元素在包含块的中间
 
 ::: code-group
 

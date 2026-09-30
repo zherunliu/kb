@@ -58,7 +58,7 @@ HTTP 报文分为请求报文和响应报文
 - 请求报文：请求行，请求头，请求体
 - 响应报文：响应行（状态行），响应头，响应体
 
-**请求报文**
+#### 请求报文
 
 - 请求行：HTTP 请求报文的第一行，包含请求方法（GET，POST，PUT，DELETE，HEAD，OPTIONS，PATCH，CONNECT，TRACE），请求 URL 和 HTTP 版本
 - 请求头部的字段：
@@ -84,7 +84,7 @@ HTTP 报文分为请求报文和响应报文
   - `Content-Type` 请求体的媒体类型
   - `Via` 代理服务器设置的请求头/响应头字段，适用于正向/反向代理，记录中间节点
 
-**响应报文**
+#### 响应报文
 
 - `Access-Control-Allow-Credentials` 表示浏览器是否允许前端代码读取带凭据跨源请求的响应
 - `Access-Control-Expose-Headers` 可以通过 `xhr.getResponseHeader()` 获取响应头字段，默认跨域响应仅暴露 CORS 白名单中的响应头字段，可以在跨域响应的 `Access-Control-Expose-Headers` 响应头字段中，指定暴露的其他响应头字段
@@ -113,19 +113,19 @@ HTTP 报文分为请求报文和响应报文
 
 ### HTTP 状态码
 
-**1XX Informational 信息响应**
+#### 1XX Informational 信息响应
 
 - 100 Continue 客户端应该继续请求，如果请求已完成则忽略
 - 101 Switching Protocols
 
-**2XX Success 成功响应**
+#### 2XX Success 成功响应
 
 - 200 OK 请求成功
 - 201 Created 请求成功并创建了新的资源
 - 204 No Content 请求成功，响应体为空
 - 206 Partial Content 范围请求成功，响应 `Range` 请求并携带 `Content-Range`
 
-**3XX Redirection 重定向响应**
+#### 3XX Redirection 重定向响应
 
 - 301 Moved Permanently 永久重定向，浏览器通常会将 POST 后续请求改为 GET
 - 302 Found 临时重定向，浏览器通常会将 POST 后续请求改为 GET
@@ -136,7 +136,7 @@ HTTP 报文分为请求报文和响应报文
 - 307 Temporary Redirect 临时重定向，请求的资源临时移动到 Location 头部指定的 URL，不会将 POST 请求重定向为 GET 请求
 - 308 Permanent Redirect 永久重定向，请求的资源永久移动到 Location 头部指定的 URL，不会将 POST 请求重定向为 GET 请求
 
-**4XX Client Error 客户端错误响应**
+#### 4XX Client Error 客户端错误响应
 
 - 400 Bad Request 客户端错误
 - 401 Unauthorized 客户端没有身份验证凭证，无权访问资源
@@ -147,7 +147,7 @@ HTTP 报文分为请求报文和响应报文
 - 410 Gone 请求的资源已永久丢失
 - 429 Too Many Requests 客户端发送了过多的请求，服务器暂时拒绝处理请求
 
-**5XX Server Error 服务器端错误响应**
+#### 5XX Server Error 服务器端错误响应
 
 - 500 Internal Server Error 泛指服务器端错误
 - 502 Bad Gateway 作为网关或代理的服务器，从上游服务器接收到无效的响应
@@ -161,7 +161,7 @@ DNS（Domain Name System）既是一套分层、分布式的命名数据库，�
 - 递归查询：查询方请求递归解析器代为完成解析，并返回最终答案、名称不存在或错误
 - 迭代查询：查询方向多个 DNS 服务器逐级查询，并跟随服务器返回的转介信息
 
-**DNS 解析过程**
+### DNS 解析过程
 
 - 检查 DNS 缓存顺序：
   1. 浏览器 DNS
@@ -197,7 +197,7 @@ TCP 服务器先创建监听套接字。`LISTEN` 表示正在等待连接请求�
 - 重复处理：TCP 丢弃重复的分段
 - 数据校验：TCP 使用首部校验和，丢弃错误的分段
 
-**三次握手**
+### 三次握手
 
 - seq（sequence number）序列号，连接建立时双方分别选择初始序列号
 - ack（acknowledgement number）确认号，ack = seq + 1
@@ -225,7 +225,7 @@ client ----- handshake3 -------> server
        ====> ACK2 = 1      ====> # 确认 SYN2, 服务器到客户端同步
 ```
 
-**四次挥手**
+### 四次挥手
 
 ```bash
 # 双方都可以主动发起
@@ -262,15 +262,16 @@ TIME_WAIT # 客户端等待 2MSL 确保服务端收到第四次挥手 ACK 后, �
 > 四次挥手是便于理解的典型过程。实际通信中 ACK 和 FIN 可能合并，也可能出现同时关闭或 RST 重置
 
 **TCP 与 UDP 的区别：**
-| TCP | UDP |
+
+| TCP                | UDP                            |
 | ------------------ | ------------------------------ |
-| 面向连接 | 无连接 |
-| 点对点 | 一对一，一对多，多对一，多对多 |
-| 字节流 | 数据报 |
-| 有序 | 无序 |
-| 流量控制，拥塞控制 | 无 |
-| 可靠 | 不可靠 |
-| 慢 | 快 |
+| 面向连接           | 无连接                         |
+| 点对点             | 一对一，一对多，多对一，多对多 |
+| 字节流             | 数据报                         |
+| 有序               | 无序                           |
+| 流量控制，拥塞控制 | 无                             |
+| 可靠               | 不可靠                         |
+| 慢                 | 快                             |
 
 ### 终端命令
 
@@ -333,7 +334,7 @@ node    70817   rico   17u  IPv4 0x1aac4503e1ad3e2f      0t0  TCP 127.0.0.1:5819
 
 ## 预检请求
 
-**简单请求**
+### 简单请求
 
 满足以下**所有**的是简单请求
 
@@ -341,7 +342,7 @@ node    70817   rico   17u  IPv4 0x1aac4503e1ad3e2f      0t0  TCP 127.0.0.1:5819
 - Content-Type 字段值是 `application/x-www-form-urlencoded`（键值对表单），`multipart/form-data`（多部分表单数据/文件）或 `text/plain`（纯文本）
 - 请求头中没有自定义字段
 
-**复杂请求**
+### 复杂请求
 
 发送不满足上述条件的跨源请求前，浏览器通常会先发送 OPTIONS 预检请求，询问服务器是否允许实际请求的方法和请求头
 
@@ -391,7 +392,7 @@ HTTP 缓存是保存资源副本的技术，提高页面性能，减少网络流
 
 ## 浏览器渲染
 
-#### 渲染进程
+### 渲染进程
 
 chrome 为每一个页面创建一个渲染进程，渲染进程是多线程的，主要包含
 
@@ -403,7 +404,7 @@ chrome 为每一个页面创建一个渲染进程，渲染进程是多线程的�
 - **I/O 线程**：负责文件 I/O，IPC 进程间通信等
   > GUI 渲染线程和 JS 引擎线程是互斥执行的：GUI 渲染线程执行时，JS 引擎线程会被挂起；JS 引擎线程执行时，GUI 渲染线程会被挂起
 
-#### 浏览器渲染过程
+### 浏览器渲染过程
 
 ```plain
 HTML 文档 → HTML 解析器 → DOM 树
@@ -417,7 +418,7 @@ CSS 文件 → CSS 解析器 → CSSOM 树 → 渲染树 → 布局 → 绘制 �
 3. 布局和绘制
 4. 回流和重绘：回流 reflow，有关宽高等，性能开销大；重绘 repaint，有关颜色等，性能开销小
 
-#### 浏览器一帧中做了什么
+### 浏览器一帧中做了什么
 
 1. 处理用户交互事件（click，input，scroll 等）
 2. 执行同步代码
@@ -427,7 +428,7 @@ CSS 文件 → CSS 解析器 → CSSOM 树 → 渲染树 → 布局 → 绘制 �
 6. 执行宏任务队列中的一个任务（`setTimeout`，`setInterval`，I/O等）
 7. 如果有空闲时间，则执行 requestIdleCallback 回调函数（如懒加载 js 脚本，日志上报等）
 
-#### CSS 的阻塞
+### CSS 的阻塞
 
 CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚本的执行
 
@@ -435,7 +436,7 @@ CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚�
 2. 等待 CSSOM 树构建完成后，才能将 DOM 树和 CSSOM 树合并为渲染树 (Render Tree)
 3. 等待 CSSOM 树构建完成后，才能执行后续的 JS 脚本
 
-#### JS 的阻塞
+### JS 的阻塞
 
 浏览器解析 HTML 时，遇到未使用 async 或 defer 或 `type="module"` 标记的 `<script>` 标签时，会阻塞 DOM 树的构建，并等待 CSSOM 树构建完成后，转而执行后续的 JS 脚本（DOM 是流式解析，增量构建的；而 CSSOM 是层叠、继承、覆盖，全量构建，JS 必须等待 CSSOM 避免读取脏数据）
 
@@ -654,7 +655,7 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
 - 存储型 XSS：持久型 XSS，恶意代码存储在数据库中
 - DOM 型 XSS：将 URL、用户输入等不可信数据传给 `innerHTML`、`document.write()`、`eval()` 等危险 API
 
-**预防 XSS**
+##### 预防 XSS
 
 - 处理用户输入时，对输入进行过滤；输出到页面时，对输出进行转义
 - 避免把不可信数据直接传给 `document.write()`、`eval()`、`innerHTML`、`v-html`、`dangerouslySetInnerHTML` 等危险 API
@@ -666,7 +667,7 @@ HTTP 明文传输不安全，HTTPS 引入安全层：IP（网络层）-> TCP（�
 
 攻击者不一定需要读取响应，只要诱导浏览器携带用户凭据完成操作，就可能造成 CSRF；因此，CORS 和 HttpOnly 不能替代 CSRF 防护
 
-**预防 CSRF**
+##### 预防 CSRF
 
 - 服务端校验 CSRF Token，并校验请求的 `Origin`，必要时检查 `Referer`
 - 会话 Cookie 按业务需要设置 `SameSite=Lax` 或 `Strict`，作为辅助防护；同站下的不可信子域仍可能发起攻击

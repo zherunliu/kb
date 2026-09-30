@@ -4,7 +4,7 @@
 
 构建工具是前端开发中用于自动化处理代码转换、优化、打包等流程的工具，它能将开发者编写的源代码（如 TypeScript、Sass、Vue 组件等）转换为浏览器可直接运行的代码，并解决开发效率、性能优化等问题
 
-#### 解决的问题
+### 解决的问题
 
 1. TypeScript：移除类型并转换为 JavaScript；Vite 默认只转译，不执行类型检查，类型检查仍使用 `tsc --noEmit` 或框架对应工具
 2. React/Vue：由 `@vitejs/plugin-react`、`@vitejs/plugin-vue` 等插件处理 JSX、Fast Refresh 或 Vue SFC
@@ -12,7 +12,7 @@
 4. 语法兼容：根据目标浏览器转换现代语法，必要时另行配置 polyfill
 5. 体积优化：压缩代码、Tree-Shaking、代码分割和静态资源优化
 
-#### 承担的任务
+### 承担的任务
 
 1. 模块化开发支持：支持直接从 node_modules 里引入模块 + 多种模块化支持
 2. 处理代码兼容性：提供 JavaScript/TypeScript 转换和 CSS 预处理器集成
@@ -94,16 +94,14 @@ console.log(Object.keys(lodash));
 #### 环境变量处理
 
 1. 配置目录
-
-- root：用来配置项目根目录，默认是 `process.cwd()`，所有路径相关的配置都会基于 root 计算
-- envDir：用来配置当前环境变量的文件地址
+   - root：用来配置项目根目录，默认是 `process.cwd()`，所有路径相关的配置都会基于 root 计算
+   - envDir：用来配置当前环境变量的文件地址
 
 2. 调用 loadEnv（使用到了第三方库 dotenv）
-
-- 找到 `.env` 文件，解析其中的环境变量，放进一个对象里
-- 将传进来的 mode 变量的值进行拼接，生成对应的环境变量文件名，如 `.env.development`，根据提供的目录取对应的配置文件进行解析，并放进一个对象（相同的 key 会覆盖）
-- 如果是客户端，vite 会将对应的环境变量注入到 `import.meta.env` 里，防止隐私性变量直接送入 `import.meta.env`，vite 做了一层拦截，环境变量需要以 `VITE_` 开头，可以使用 envPrefix 更改前缀
-- 在 Vite 配置中可使用 `loadEnv(mode, process.cwd(), "")` 加载所有变量，或使用 `"VITE_"` 只加载指定前缀
+   - 找到 `.env` 文件，解析其中的环境变量，放进一个对象里
+   - 将传进来的 mode 变量的值进行拼接，生成对应的环境变量文件名，如 `.env.development`，根据提供的目录取对应的配置文件进行解析，并放进一个对象（相同的 key 会覆盖）
+   - 如果是客户端，vite 会将对应的环境变量注入到 `import.meta.env` 里，防止隐私性变量直接送入 `import.meta.env`，vite 做了一层拦截，环境变量需要以 `VITE_` 开头，可以使用 envPrefix 更改前缀
+   - 在 Vite 配置中可使用 `loadEnv(mode, process.cwd(), "")` 加载所有变量，或使用 `"VITE_"` 只加载指定前缀
 
 **`import.meta.env` 的内置变量：**
 
@@ -175,9 +173,8 @@ HMR 是一种在开发过程中允许模块热替换的机制，在应用程序�
 原理：
 
 1. 构建模块依赖图
-
-- ModuleGraph：管理所有的 ModuleNode，提供模块之间的关系查询和更新功能
-- ModuleNode：模块节点，包含模块的路径、内容，依赖关系等信息
+   - ModuleGraph：管理所有的 ModuleNode，提供模块之间的关系查询和更新功能
+   - ModuleNode：模块节点，包含模块的路径、内容，依赖关系等信息
 
 2. 建立 WebSocket 连接
    - vite 向 `index.html` 中注入 `<script type="module" src="/@vite/client"></script>`，使得浏览器通过 `client.js` 和 vite 开发服务器建立 WebSocket 连接

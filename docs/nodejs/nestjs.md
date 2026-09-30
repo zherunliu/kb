@@ -121,10 +121,10 @@ export class UserModule {}
 
 :::
 
-> 1.  在 `user.service.ts` 文件中，`@Injectable()` 装饰器将 UserService 类声明为可由 Nest IoC 容器管理的类
-> 2.  在 `user.controller.ts` 文件中，UserController 通过构造函数注入声明了对 UserService 令牌的依赖：
->     `constructor(private userService: UserService)`
-> 3.  在 `user.module.ts` 中，将 UserService 令牌与来自 `user.service.ts` 文件的 UserService 类进行关联
+> 1. 在 `user.service.ts` 文件中，`@Injectable()` 装饰器将 UserService 类声明为可由 Nest IoC 容器管理的类
+> 2. 在 `user.controller.ts` 文件中，UserController 通过构造函数注入声明了对 UserService 令牌的依赖：
+>    `constructor(private userService: UserService)`
+> 3. 在 `user.module.ts` 中，将 UserService 令牌与来自 `user.service.ts` 文件的 UserService 类进行关联
 
 ### 自定义提供程序
 
@@ -541,11 +541,11 @@ export class LoginPipe implements PipeTransform {
 
 :::tip curl
 
-**发送 GET 请求**
+#### 发送 GET 请求
 
 `curl http://localhost:3000/login`
 
-**发送 POST 请求**
+#### 发送 POST 请求
 
 `curl -X POST -d "username=test&password=123456" http://localhost:3000/login`
 
