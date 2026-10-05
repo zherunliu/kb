@@ -64,6 +64,14 @@ const GENERAL: DefaultTheme.NavItemWithLink[] = [
   { text: "Docker", link: "/general/docker" },
 ];
 
+const TECH_RADAR: DefaultTheme.NavItemWithLink[] = [
+  { text: "Overview", link: "/tech-radar/" },
+  {
+    text: "10-05 · AI Workspaces & Toolchains",
+    link: "/tech-radar/2026-10-05",
+  },
+];
+
 const sidebar = {
   "/vue/": VUE,
   "/react/": REACT,
@@ -71,10 +79,12 @@ const sidebar = {
   "/nodejs/": NODEJS,
   "/database/": DATABASE,
   "/general/": GENERAL,
+  "/tech-radar/": TECH_RADAR,
 };
 
 const nav: DefaultTheme.NavItem[] = [
   { text: "Home", link: "/" },
+  { text: "Tech Radar", link: "/tech-radar/", activeMatch: "^/tech-radar/" },
   {
     text: "Vue",
     items: VUE,

@@ -14,6 +14,9 @@ hero:
     - theme: alt
       text: General
       link: /general/git
+    - theme: alt
+      text: Tech Radar
+      link: /tech-radar/
 
 features:
   - icon: 🧹
