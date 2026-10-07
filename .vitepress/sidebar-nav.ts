@@ -67,6 +67,10 @@ const GENERAL: DefaultTheme.NavItemWithLink[] = [
 const TECH_RADAR: DefaultTheme.NavItemWithLink[] = [
   { text: "Overview", link: "/tech-radar/" },
   {
+    text: "10-07 · Stacked PRs & DNS Trust",
+    link: "/tech-radar/2026-10-07",
+  },
+  {
     text: "10-06 · Staged Publishing & Privacy",
     link: "/tech-radar/2026-10-06",
   },
