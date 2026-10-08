@@ -64,19 +64,29 @@ const GENERAL: DefaultTheme.NavItemWithLink[] = [
   { text: "Docker", link: "/general/docker" },
 ];
 
-const TECH_RADAR: DefaultTheme.NavItemWithLink[] = [
+const TECH_RADAR: DefaultTheme.SidebarItem[] = [
   { text: "Overview", link: "/tech-radar/" },
   {
-    text: "10-07 · Stacked PRs & DNS Trust",
-    link: "/tech-radar/2026-10-07",
-  },
-  {
-    text: "10-06 · Staged Publishing & Privacy",
-    link: "/tech-radar/2026-10-06",
-  },
-  {
-    text: "10-05 · AI Workspaces & Toolchains",
-    link: "/tech-radar/2026-10-05",
+    text: "October 2026",
+    collapsed: false,
+    items: [
+      {
+        text: "10-08 · Mistral Preview & OpenGrid",
+        link: "/tech-radar/2026-10-08",
+      },
+      {
+        text: "10-07 · Stacked PRs & DNS Trust",
+        link: "/tech-radar/2026-10-07",
+      },
+      {
+        text: "10-06 · Staged Publishing & Privacy",
+        link: "/tech-radar/2026-10-06",
+      },
+      {
+        text: "10-05 · AI Workspaces & Toolchains",
+        link: "/tech-radar/2026-10-05",
+      },
+    ],
   },
 ];
 
