@@ -344,11 +344,20 @@ HTTP/2 的报文组织方式和 HTTP/3 的传输基础不同；缓存、连接�
 
 ### 简单请求
 
-满足以下**所有**的是简单请求
+普通跨源请求满足以下条件时通常无需预检，也称简单请求：
 
-- 请求方法是 GET/POST/HEAD（HTTP/1.0 提供的 3 种请求方法）
-- Content-Type 字段值是 `application/x-www-form-urlencoded`（键值对表单），`multipart/form-data`（多部分表单数据/文件）或 `text/plain`（纯文本）
-- 请求头中没有自定义字段
+- 请求方法是 `GET`、`HEAD` 或 `POST`
+- 除浏览器自动设置的请求头外，脚本设置的请求头限于以下 CORS 安全列表（CORS-safelisted request headers）：
+  - `Accept`：可接受的响应媒体类型
+  - `Accept-Language`：偏好的响应语言
+  - `Content-Language`：请求内容的语言
+  - `Content-Type`：请求体的媒体类型，须满足下面的额外限制
+  - `Range`：只能指定单个字节区间，如 `bytes=256-` 或 `bytes=127-255`
+- 如果设置 `Content-Type`，忽略参数后的媒体类型只能是：
+  - `application/x-www-form-urlencoded`：键值对表单
+  - `multipart/form-data`：多部分表单数据/文件
+  - `text/plain`：纯文本
+- 上述请求头的值还须满足长度和字符限制，例如每个值不超过 128 字节
 
 ### 复杂请求
 
@@ -470,6 +479,10 @@ CSS 不会阻塞 DOM 树的构建，会阻塞 DOM 树的渲染和后续 JS 脚�
 同源策略是浏览器的安全规则，限制不同源之间的 DOM、存储和响应数据访问
 
 跨域请求不一定被阻止发送：简单请求可以先到达服务器，但响应未通过 CORS 检查时，脚本不能读取；需要预检的请求，只有预检通过后才发送实际请求
+
+预检通过不代表实际响应一定可读，实际响应仍需通过 CORS 检查
+
+页面出现 CORS 错误不代表请求未到达或操作未执行；服务端应在执行业务操作前完成必要的身份、权限和 CSRF 校验，未通过时拒绝执行，而不是仅隐藏响应
 
 - DOM 层面：不同源窗口通常不能直接读取或修改彼此 DOM，但可以通过 `postMessage` 进行显式消息通信
 - 存储层面：Web Storage 和 IndexedDB 等按源隔离；Cookie 按自身的 Domain、Path、SameSite 等规则发送
