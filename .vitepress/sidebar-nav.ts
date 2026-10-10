@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-10 · Open Models & Shared Patches",
+        link: "/tech-radar/2026-10-10",
+      },
+      {
         text: "10-09 · Agent Sandboxes & Space Metrology",
         link: "/tech-radar/2026-10-09",
       },
