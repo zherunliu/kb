@@ -683,7 +683,7 @@ SAN 中的 `*.example.com` 只匹配一级子域名，如 `www.example.com`，�
 ### 浏览器攻击
 
 - 跨站脚本攻击（XSS，Cross-Site Scripting）
-  > XSS 是指攻击者在网页中注入恶意脚本代码，当用户浏览该网页时，恶意脚本被执行，攻击者可以窃取用户的敏感信息（如 cookie，localStorage）
+  > XSS 是指攻击者使不可信内容在目标页面中被当作代码执行，可读取页面数据或借用用户登录态执行操作
 - 跨站请求伪造（CSRF，Cross-Site Request Forgery）
   > CSRF 是指攻击者诱导已登录用户向受信任的网站发送恶意请求，利用浏览器自动携带的身份凭据执行未授权操作
 - 中间人攻击（MITM，Man-in-the-Middle）
@@ -691,17 +691,40 @@ SAN 中的 `*.example.com` 只匹配一级子域名，如 `www.example.com`，�
 
 #### XSS 跨站脚本攻击
 
-- 反射型 XSS：非持久型 XSS，反射型 XSS 的恶意代码在地址栏上 `http://127.0.0.1:5500/index.html?a=<script>alert(1)</script>`
-- 存储型 XSS：持久型 XSS，恶意代码存储在数据库中
+- 反射型 XSS：来自 URL 或请求的不可信数据被服务端不安全地放入响应页面
+- 存储型 XSS：不可信内容被持久保存，随后被页面取出并不安全地渲染
 - DOM 型 XSS：将 URL、用户输入等不可信数据传给 `innerHTML`、`document.write()`、`eval()` 等危险 API
+
+后端返回的数据不自动可信，例如用户备注可以先存入数据库，再通过 API 返回。应沿着“输入来源 → HTML/代码解析位置 → 执行条件”判断风险
+
+`HttpOnly` 阻止页面脚本直接读取 Cookie，但不阻止浏览器随符合条件的请求携带 Cookie，因此不能阻止 XSS 借用登录态执行操作
 
 ##### 预防 XSS
 
-- 处理用户输入时，对输入进行过滤；输出到页面时，对输出进行转义
+- 只需显示原文时，使用 `textContent` 或框架的字符串子节点绑定，不把内容交给 HTML 解析
+- 确实需要 HTML 格式时，使用维护中的 HTML 清洗库，按业务明确允许的标签和属性处理；只删除 `<script>` 不够，`onclick` 等事件处理属性也可能执行代码
 - 避免把不可信数据直接传给 `document.write()`、`eval()`、`innerHTML`、`v-html`、`dangerouslySetInnerHTML` 等危险 API
-- 设置响应头的 CSP 内容安全策略 `Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted.cdn.com;`
+- CSP 作为纵深防护，不能替代安全渲染；例如设置响应头 `Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted.cdn.com;`
   > 也可以通过设置 `<meta>` 标签定义内容安全策略
   > `<meta http-equiv="content-security-policy" content="default-src 'self'; script-src 'self' https://trusted.cdn.com;">`
+
+```js
+import DOMPurify from "dompurify";
+
+const remark = `<strong onclick="this.textContent='处理完成'">高风险告警</strong> <em>待处理</em>`;
+const clean = DOMPurify.sanitize(remark, {
+  ALLOWED_TAGS: ["strong", "em"],
+  ALLOWED_ATTR: [],
+  ALLOW_ARIA_ATTR: false,
+  ALLOW_DATA_ATTR: false,
+});
+
+const box = document.createElement("div");
+box.innerHTML = clean;
+document.body.append(box);
+```
+
+清洗后保留 `strong/em`，删除 `onclick`。清洗结果用于这里的 HTML 内容位置，不应直接当作 URL、JavaScript 等其他上下文的安全输入
 
 #### CSRF 跨站请求伪造
 

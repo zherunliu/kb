@@ -41,8 +41,8 @@
 - `element.style`：操作元素的内联样式
   - `element.style.propertyName = value`：设置样式属性
   - `getComputedStyle(element).propertyName`：获取计算后的样式属性值
-- `element.innerHTML`：获取或设置元素的 HTML 内容
-- `element.textContent`：获取或设置元素的文本内容
+- `element.innerHTML`：获取或设置元素的 HTML 内容；设置时会解析 HTML，不应直接传入不可信字符串
+- `element.textContent`：获取或设置元素的文本内容；设置时不解析 HTML，适合显示原文
 - `element.innerText`：获取或设置元素的可见文本内容
 - `element.cloneNode(deep)`：克隆元素，`deep` 为 boolean 值，表示是否深度克隆（包括子节点）
 
