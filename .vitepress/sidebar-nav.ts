@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-12 · DNS Rollover & Shared AI",
+        link: "/tech-radar/2026-10-12",
+      },
+      {
         text: "10-11 · Deno & Multimodal Decisions",
         link: "/tech-radar/2026-10-11",
       },
