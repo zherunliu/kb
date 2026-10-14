@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-14 · MCP, Secret Detection & Mars Navigation",
+        link: "/tech-radar/2026-10-14",
+      },
+      {
         text: "10-13 · Muse Wonder, Maia & Zig Templates",
         link: "/tech-radar/2026-10-13",
       },
