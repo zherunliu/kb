@@ -631,6 +631,21 @@ Cookie 的同站判断还受顶层页面、iframe 等上下文影响；`SameSite
 - 后端：要让脚本读取带凭据的跨源响应，设置 `Access-Control-Allow-Origin` 为明确允许的源（不能为 `*`），并设置 `Access-Control-Allow-Credentials: true`
 - 同站跨源也需要显式携带凭据，但不因此要求 `SameSite=None`；例如 `https://app.example.com` 请求 `https://api.example.com`
 
+### 登录态、认证与授权
+
+在常见的服务端 Session 方案中，Cookie 保存 `sid` 等会话标识，浏览器按条件随请求携带；服务端根据标识查找对应的有效会话，取得关联的用户信息。`sid` 是标识，不是身份和权限信息本身
+
+- **认证（Authentication）**：确认请求关联的用户身份；后续请求需要检查会话是否仍有效，包括是否过期、是否已被注销
+- **授权（Authorization）**：判断该用户能否对指定资源执行指定操作；登录成功不代表拥有所有权限，前端存储的角色、按钮显隐不能代替服务端权限检查
+
+每个受保护请求都应执行适用的权限检查；使用 Cookie 登录态的修改操作还需按防护方案完成 CSRF 校验
+
+#### 退出登录
+
+1. 前端先发送退出请求，由浏览器携带仍存在的会话 Cookie，并按接口约定携带 CSRF Token 等信息
+2. 服务端根据会话标识作废对应会话，并通过 `Set-Cookie` 让浏览器中的对应 Cookie 过期
+3. 前端按接口契约确认退出成功，再清理本地用户信息和相关敏感页面状态、跳转登录页
+
 ### HTTPS
 
 HTTPS 使用 TLS 保护 HTTP 通信。在 HTTP/1.1 和 HTTP/2 的常见 HTTPS 连接中，层次关系为 `IP -> TCP -> TLS -> HTTP`；HTTP/3 则使用集成 TLS 1.3 握手的 QUIC，而不是 TCP
@@ -732,9 +747,17 @@ document.body.append(box);
 
 ##### 预防 CSRF
 
-- 服务端校验 CSRF Token，并校验请求的 `Origin`，必要时检查 `Referer`
+- 服务端按防护方案校验 CSRF Token、请求来源等信息；检查 `Origin` 时，应完整匹配受信任的源，必要时按明确策略使用 `Referer` 校验来源
 - 会话 Cookie 按业务需要设置 `SameSite=Lax` 或 `Strict`，作为辅助防护；同站下的不可信子域仍可能发起攻击
 - GET 等安全方法不执行修改数据的操作；仅改用 POST 不能防止 CSRF
+
+##### CSRF Token 校验
+
+以服务端保存 Token 的同步令牌方案为例：
+
+1. 服务端生成不可预测的随机 Token，与当前会话关联保存，通过 HTML 或 JSON 响应交给正常页面
+2. 前端向受信任接口提交修改时，主动通过 `X-CSRF-Token` 等请求头或表单字段携带 Token
+3. 服务端根据会话 Cookie 找到有效会话，比较请求中的 Token 与该会话保存的 Token；缺失或不匹配时，在业务修改前拒绝执行
 
 ## 性能优化
 
