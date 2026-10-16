@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-16 · Actions Locks, AI Optimization & Phone Migration",
+        link: "/tech-radar/2026-10-16",
+      },
+      {
         text: "10-15 · curl, SVN & Deep Review",
         link: "/tech-radar/2026-10-15",
       },
