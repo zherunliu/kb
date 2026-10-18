@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-18 · Agent Memory, CJK Search & Quantum Circuits",
+        link: "/tech-radar/2026-10-18",
+      },
+      {
         text: "10-17 · Beam, License Checks & Martian Moons",
         link: "/tech-radar/2026-10-17",
       },
