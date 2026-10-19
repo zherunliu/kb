@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-19 · RTX Spark, SPACE & Interpretability",
+        link: "/tech-radar/2026-10-19",
+      },
+      {
         text: "10-18 · Agent Memory, CJK Search & Quantum Circuits",
         link: "/tech-radar/2026-10-18",
       },
