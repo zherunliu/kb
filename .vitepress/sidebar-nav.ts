@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-20 · TorchNeuron, Forecasting & Night Lights",
+        link: "/tech-radar/2026-10-20",
+      },
+      {
         text: "10-19 · RTX Spark, SPACE & Interpretability",
         link: "/tech-radar/2026-10-19",
       },
