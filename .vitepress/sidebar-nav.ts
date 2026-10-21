@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-21 · WordPress Beta, Security Patches & Space Relay",
+        link: "/tech-radar/2026-10-21",
+      },
+      {
         text: "10-20 · TorchNeuron, Forecasting & Night Lights",
         link: "/tech-radar/2026-10-20",
       },
