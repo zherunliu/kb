@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-22 · Sandbox Trust, Model APIs & AI Ultrasound",
+        link: "/tech-radar/2026-10-22",
+      },
+      {
         text: "10-21 · WordPress Beta, Security Patches & Space Relay",
         link: "/tech-radar/2026-10-21",
       },
