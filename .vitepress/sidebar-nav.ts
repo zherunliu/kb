@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-23 · Formal Verification, Feature Flags & Photonics",
+        link: "/tech-radar/2026-10-23",
+      },
+      {
         text: "10-22 · Sandbox Trust, Model APIs & AI Ultrasound",
         link: "/tech-radar/2026-10-22",
       },
