@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-24 · Enterprise Apps, KeePassXC & 3D Lidar",
+        link: "/tech-radar/2026-10-24",
+      },
+      {
         text: "10-23 · Formal Verification, Feature Flags & Photonics",
         link: "/tech-radar/2026-10-23",
       },
