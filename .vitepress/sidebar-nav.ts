@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-25 · Kimi K3.1, Agent Skills & Dragonfly",
+        link: "/tech-radar/2026-10-25",
+      },
+      {
         text: "10-24 · Enterprise Apps, KeePassXC & 3D Lidar",
         link: "/tech-radar/2026-10-24",
       },
