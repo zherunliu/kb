@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-26 · Async Agents, OBS & Open Chiplets",
+        link: "/tech-radar/2026-10-26",
+      },
+      {
         text: "10-25 · Kimi K3.1, Agent Skills & Dragonfly",
         link: "/tech-radar/2026-10-25",
       },
