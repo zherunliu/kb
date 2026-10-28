@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-28 · LFM3, Firefox 159 & Genie 4",
+        link: "/tech-radar/2026-10-28",
+      },
+      {
         text: "10-27 · Brotli Updates, User-Scoped MCP & Autumn from Space",
         link: "/tech-radar/2026-10-27",
       },
