@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-29 · Agentic Workflows, Zephyr & Navigation Satellites",
+        link: "/tech-radar/2026-10-29",
+      },
+      {
         text: "10-28 · LFM3, Firefox 159 & Genie 4",
         link: "/tech-radar/2026-10-28",
       },
