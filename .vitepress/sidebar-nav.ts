@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "10-30 · OpenCode Goals, Reachability & Lucy",
+        link: "/tech-radar/2026-10-30",
+      },
+      {
         text: "10-29 · Agentic Workflows, Zephyr & Navigation Satellites",
         link: "/tech-radar/2026-10-29",
       },
