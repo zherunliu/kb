@@ -67,8 +67,18 @@ const GENERAL: DefaultTheme.NavItemWithLink[] = [
 const TECH_RADAR: DefaultTheme.SidebarItem[] = [
   { text: "Overview", link: "/tech-radar/" },
   {
-    text: "October 2026",
+    text: "November 2026",
     collapsed: false,
+    items: [
+      {
+        text: "11-03 · Desktop Agents, Extension Security & Solar Measurements",
+        link: "/tech-radar/2026-11-03",
+      },
+    ],
+  },
+  {
+    text: "October 2026",
+    collapsed: true,
     items: [
       {
         text: "10-30 · OpenCode Goals, Reachability & Lucy",
