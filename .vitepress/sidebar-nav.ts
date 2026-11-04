@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-04 · Fedora, Cross-Platform 3D & Storm Observations",
+        link: "/tech-radar/2026-11-04",
+      },
+      {
         text: "11-03 · Desktop Agents, Extension Security & Solar Measurements",
         link: "/tech-radar/2026-11-03",
       },
