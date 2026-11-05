@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-05 · Hy4, Release Testing & QGIS",
+        link: "/tech-radar/2026-11-05",
+      },
+      {
         text: "11-04 · Fedora, Cross-Platform 3D & Storm Observations",
         link: "/tech-radar/2026-11-04",
       },
