@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-06 · Agent Context, Inference Proofs & CPU Efficiency",
+        link: "/tech-radar/2026-11-06",
+      },
+      {
         text: "11-05 · Hy4, Release Testing & QGIS",
         link: "/tech-radar/2026-11-05",
       },
