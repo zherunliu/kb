@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-07 · Dynamic Schedules, SSH Updates & Landing Navigation",
+        link: "/tech-radar/2026-11-07",
+      },
+      {
         text: "11-06 · Agent Context, Inference Proofs & CPU Efficiency",
         link: "/tech-radar/2026-11-06",
       },
