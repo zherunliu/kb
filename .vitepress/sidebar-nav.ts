@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-08 · Libghostty, Skill Scanning & Review APIs",
+        link: "/tech-radar/2026-11-08",
+      },
+      {
         text: "11-07 · Dynamic Schedules, SSH Updates & Landing Navigation",
         link: "/tech-radar/2026-11-07",
       },
