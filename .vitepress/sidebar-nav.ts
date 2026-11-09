@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-09 · Local Devices, App Publishing & Lunar Rover Reuse",
+        link: "/tech-radar/2026-11-09",
+      },
+      {
         text: "11-08 · Libghostty, Skill Scanning & Review APIs",
         link: "/tech-radar/2026-11-08",
       },
