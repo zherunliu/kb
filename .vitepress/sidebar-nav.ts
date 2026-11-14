@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-14 · Kitesurf, Scan Policies & Landsat",
+        link: "/tech-radar/2026-11-14",
+      },
+      {
         text: "11-13 · Git Security, Vite Funding & Exoplanets",
         link: "/tech-radar/2026-11-13",
       },
