@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-16 · Tool Lockfiles, Secret Replication & AlphaGenome",
+        link: "/tech-radar/2026-11-16",
+      },
+      {
         text: "11-15 · Spend Caps, Hydrogen & Gravitational Lenses",
         link: "/tech-radar/2026-11-15",
       },
