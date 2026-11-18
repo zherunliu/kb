@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-18 · GPT-6.2, Navigation Timing & Terra",
+        link: "/tech-radar/2026-11-18",
+      },
+      {
         text: "11-17 · Parallel Rust, E4S & Tropical Ice",
         link: "/tech-radar/2026-11-17",
       },
