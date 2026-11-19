@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-19 · Lens CLI, Cloud Silicon & Verified Quantum Research",
+        link: "/tech-radar/2026-11-19",
+      },
+      {
         text: "11-18 · GPT-6.2, Navigation Timing & Terra",
         link: "/tech-radar/2026-11-18",
       },
