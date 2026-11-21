@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-21 · Runtime Patches, Theia & One Light-Day",
+        link: "/tech-radar/2026-11-21",
+      },
+      {
         text: "11-20 · PostgreSQL 19, PHP 8.6 & FrontierML",
         link: "/tech-radar/2026-11-20",
       },
