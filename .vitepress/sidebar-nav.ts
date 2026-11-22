@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-22 · Inkling Mini, Onlook & EarthCARE ATLAS",
+        link: "/tech-radar/2026-11-22",
+      },
+      {
         text: "11-21 · Runtime Patches, Theia & One Light-Day",
         link: "/tech-radar/2026-11-21",
       },
