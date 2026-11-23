@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-23 · Agent Evaluation, System Recovery & Antarctic Observations",
+        link: "/tech-radar/2026-11-23",
+      },
+      {
         text: "11-22 · Inkling Mini, Onlook & EarthCARE ATLAS",
         link: "/tech-radar/2026-11-22",
       },
