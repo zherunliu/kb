@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-25 · CSS Randomness, Lambda Timeouts & DragonCam",
+        link: "/tech-radar/2026-11-25",
+      },
+      {
         text: "11-24 · Claude Ship, Inference Privacy & Frostbite",
         link: "/tech-radar/2026-11-24",
       },
