@@ -71,6 +71,10 @@ const TECH_RADAR: DefaultTheme.SidebarItem[] = [
     collapsed: false,
     items: [
       {
+        text: "11-27 · Proxmox Identity, Screen Fixes & Microgravity",
+        link: "/tech-radar/2026-11-27",
+      },
+      {
         text: "11-26 · Ladybird Alpha, Siren & Linux Desktop",
         link: "/tech-radar/2026-11-26",
       },
